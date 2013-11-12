@@ -120,6 +120,7 @@ public class CDebugImages {
 	public static final String IMG_LCL_DETAIL_PANE_RIGHT = NAME_PREFIX + "det_pane_right.gif";	//$NON-NLS-1$
 	public static final String IMG_LCL_DETAIL_PANE_HIDE = NAME_PREFIX + "det_pane_hide.gif";	//$NON-NLS-1$
 	public static final String IMG_LCL_COLLAPSE_ALL = NAME_PREFIX + "collapseall.gif";	//$NON-NLS-1$
+	public static final String IMG_LCL_REMOVE_UIELEMENT = NAME_PREFIX + "delete_ui_element.gif";	//$NON-NLS-1$
 
 	public static final String IMG_WIZBAN_ADD_SOURCE = NAME_PREFIX + "addsrcloc_wiz.gif";	//$NON-NLS-1$
 	public static final String IMG_WIZBAN_PATH_MAPPING = NAME_PREFIX + "mapping_wiz.gif";	//$NON-NLS-1$
@@ -203,6 +204,7 @@ public class CDebugImages {
 	public static final ImageDescriptor DESC_LCL_DETAIL_PANE_HIDE_DISABLED = createManaged(T_DLCL, IMG_LCL_DETAIL_PANE_HIDE);
 	public static final ImageDescriptor DESC_LCL_COLLAPSE_ALL = createManaged(T_ELCL, IMG_LCL_COLLAPSE_ALL);
 	public static final ImageDescriptor DESC_LCL_COLLAPSE_ALL_DISABLED = createManaged(T_DLCL, IMG_LCL_COLLAPSE_ALL);
+	public static final ImageDescriptor DESC_LCL_REMOVE_UIELEMENT = createManaged(T_ELCL, IMG_LCL_REMOVE_UIELEMENT);
 
 	/**
 	 * Returns the image managed under the given key in this registry.

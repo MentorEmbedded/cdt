@@ -257,5 +257,11 @@ public class GdbUIPlugin extends AbstractUIPlugin {
     private void declareImages( ImageRegistry reg ) {
     	reg.put( IGdbUIConstants.IMG_WIZBAN_ADVANCED_TIMEOUT_SETTINGS, 
     			getImageDescriptor( "icons/full/wizban/advtosettings_wiz.png" ) ); //$NON-NLS-1$
+    	reg.put( IGdbUIConstants.IMG_OBJ_BROWSE, 
+    			getImageDescriptor( "icons/full/obj16/browse.gif" ) ); //$NON-NLS-1$
+    	reg.put( IGdbUIConstants.IMG_OBJ_SEARCH_PROJECT, 
+    			getImageDescriptor( "icons/full/obj16/search_project.gif" ) ); //$NON-NLS-1$
+    	reg.put( IGdbUIConstants.IMG_OBJ_PATH_VARIABLES, 
+    			getImageDescriptor( "icons/full/obj16/path_vars.gif" ) ); //$NON-NLS-1$
     }
 }
