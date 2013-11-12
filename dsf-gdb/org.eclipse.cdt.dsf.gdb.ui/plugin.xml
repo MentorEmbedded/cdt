@@ -150,6 +150,39 @@
          <associatedDelegate delegate="org.eclipse.cdt.dsf.gdb.launch.coreCLaunch"/>
          <placement after="org.eclipse.debug.ui.sourceLookupTab"/>
       </tab>
+      <tab
+            class="org.eclipse.cdt.dsf.gdb.internal.ui.newlaunch.NewLaunchTab"
+            group="org.eclipse.cdt.dsf.gdb.ui.launchConfigurationTabGroup.newLaunch"
+            id="org.eclipse.cdt.dsf.gdb.launch.localApplicationLaunch.newLaunchTab"
+            name="%launchTab.main.name">
+         <associatedDelegate
+               delegate="org.eclipse.cdt.dsf.gdb.launch.newLaunch">
+         </associatedDelegate>
+      </tab>
+      <tab
+            class="org.eclipse.debug.ui.sourcelookup.SourceLookupTab"
+            group="org.eclipse.cdt.dsf.gdb.ui.launchConfigurationTabGroup.newLaunch"
+            id="org.eclipse.cdt.dsf.gdb.launch.newLaunch.sourceLookupTab"
+            name="%launchTab.sourceLookup.name">
+         <associatedDelegate
+               delegate="org.eclipse.cdt.dsf.gdb.launch.newLaunch">
+         </associatedDelegate>
+         <placement
+               after="org.eclipse.cdt.dsf.gdb.launch.localApplicationLaunch.newLaunchTab">
+         </placement>
+      </tab>
+      <tab
+            class="org.eclipse.debug.ui.CommonTab"
+            group="org.eclipse.cdt.dsf.gdb.ui.launchConfigurationTabGroup.newLaunch"
+            id="org.eclipse.cdt.dsf.gdb.launch.newLaunch.commonTab"
+            name="%launchTab.common.name">
+         <associatedDelegate
+               delegate="org.eclipse.cdt.dsf.gdb.launch.newLaunch">
+         </associatedDelegate>
+         <placement
+               after="org.eclipse.cdt.dsf.gdb.launch.newLaunch.sourceLookupTab">
+         </placement>
+      </tab>
    </extension>
    <extension point="org.eclipse.core.runtime.adapters">
       <factory 
@@ -486,5 +519,16 @@
             id="org.eclipse.cdt.dsf.gdb.ui.statusHandler"
             plugin="org.eclipse.cdt.dsf.gdb">
       </statusHandler>
+   </extension>
+   <extension
+         point="org.eclipse.debug.ui.launchConfigurationTabGroups">
+      <launchConfigurationTabGroup
+            class="org.eclipse.cdt.debug.internal.ui.launch.PlaceHolderLaunchConfigurationTabGroup"
+            id="org.eclipse.cdt.dsf.gdb.ui.launchConfigurationTabGroup.newLaunch"
+            type="org.eclipse.cdt.dsf.gdb.launch.newLaunchType">
+         <launchMode
+               mode="debug">
+         </launchMode>
+      </launchConfigurationTabGroup>
    </extension>
 </plugin>

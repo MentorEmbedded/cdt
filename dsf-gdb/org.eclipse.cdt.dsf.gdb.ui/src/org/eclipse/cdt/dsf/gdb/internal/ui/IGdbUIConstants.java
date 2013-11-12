@@ -25,4 +25,7 @@ public interface IGdbUIConstants {
 	
 	/**  image identifier. */
 	public static final String IMG_WIZBAN_ADVANCED_TIMEOUT_SETTINGS = PLUGIN_ID + ".imageAdvancedTimeoutSettings"; //$NON-NLS-1$
+	public static final String IMG_OBJ_BROWSE = PLUGIN_ID + ".browse";	//$NON-NLS-1$
+	public static final String IMG_OBJ_SEARCH_PROJECT = PLUGIN_ID + ".searchProject";	//$NON-NLS-1$
+	public static final String IMG_OBJ_PATH_VARIABLES = PLUGIN_ID + ".pathVariables";	//$NON-NLS-1$
 }

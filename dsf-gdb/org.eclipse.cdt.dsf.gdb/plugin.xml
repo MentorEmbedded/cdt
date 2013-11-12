@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.0"?>
 <plugin>
+   <extension
+         point="org.eclipse.debug.core.launchConfigurationTypes">
+      <launchConfigurationType
+            id="org.eclipse.cdt.dsf.gdb.launch.newLaunchType"
+            name="New Launch">
+      </launchConfigurationType>
+   </extension>
 
     <extension point="org.eclipse.debug.core.launchDelegates">
       <launchDelegate
@@ -42,6 +49,15 @@
             delegateDescription="%launchDelegate.postmortem.description"
             sourceLocatorId="org.eclipse.cdt.debug.core.sourceLocator"
             sourcePathComputerId="org.eclipse.cdt.debug.core.sourcePathComputer">
+      </launchDelegate>
+      <launchDelegate
+            delegate="org.eclipse.cdt.dsf.gdb.launching.GdbLaunchDelegate"
+            id="org.eclipse.cdt.dsf.gdb.launch.newLaunch"
+            modes="debug"
+            name="New Launch"
+            sourceLocatorId="org.eclipse.cdt.debug.core.sourceLocator"
+            sourcePathComputerId="org.eclipse.cdt.debug.core.sourcePathComputer"
+            type="org.eclipse.cdt.dsf.gdb.launch.newLaunchType">
       </launchDelegate>
    </extension>
    
