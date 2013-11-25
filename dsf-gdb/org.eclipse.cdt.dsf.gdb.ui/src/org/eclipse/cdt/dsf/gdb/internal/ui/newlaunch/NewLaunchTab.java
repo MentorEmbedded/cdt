@@ -303,6 +303,22 @@ public class NewLaunchTab extends CLaunchConfigurationTab {
 		return LaunchImages.get(LaunchImages.IMG_VIEW_MAIN_TAB);
 	}
 
+	@Override
+	public boolean isValid(ILaunchConfiguration configuration) {
+		try {
+			return fRoot.isValid(createAdAttributeStore(configuration));
+		}
+		catch(CoreException e) {
+			// TODO: report error
+			return false;
+		}
+	}
+
+	@Override
+	public String getErrorMessage() {
+		return fRoot.getErrorMessage();
+	}
+
 	/**
 	 * Set the program name attributes on the working copy based on the ICElement
 	 */

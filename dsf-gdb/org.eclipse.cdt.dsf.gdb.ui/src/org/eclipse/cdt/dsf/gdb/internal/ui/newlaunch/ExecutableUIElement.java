@@ -1,5 +1,6 @@
 package org.eclipse.cdt.dsf.gdb.internal.ui.newlaunch;
 
+import java.io.File;
 import java.util.ArrayList;
 
 import org.eclipse.cdt.core.CCorePlugin;
@@ -19,8 +20,12 @@ import org.eclipse.cdt.dsf.gdb.launching.LaunchMessages;
 import org.eclipse.cdt.launch.internal.ui.LaunchUIPlugin;
 import org.eclipse.cdt.ui.CElementLabelProvider;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.variables.VariablesPlugin;
 import org.eclipse.debug.ui.DebugUITools;
 import org.eclipse.debug.ui.IDebugUIConstants;
 import org.eclipse.debug.ui.StringVariableSelectionDialog;
@@ -217,6 +222,9 @@ public class ExecutableUIElement extends UIElement {
 		fProgText.addModifyListener(new ModifyListener() {
             @Override
 			public void modifyText(ModifyEvent evt) {
+            	if (!isInitializing()) {
+            		getChangeListener().elementChanged(ExecutableUIElement.this);
+            	}
 			}
 		});
 
@@ -226,7 +234,10 @@ public class ExecutableUIElement extends UIElement {
 		browseButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent evt) {
-				handleBrowseButtonSelected(parent.getShell(), LaunchMessages.getString("CMaintab.Application_Selection")); //$NON-NLS-1$
+				fProgText.setText(handleBrowseButtonSelected(
+					parent.getShell(), 
+					LaunchMessages.getString("CMaintab.Application_Selection"))); //$NON-NLS-1$
+				getChangeListener().elementChanged(ExecutableUIElement.this);
 			}
 		});
 		
@@ -519,5 +530,78 @@ public class ExecutableUIElement extends UIElement {
 		} catch (CoreException e) {
 			return platform;
 		}
+	}
+
+	@Override
+	public boolean isContentValid(IAttributeStore store) {
+		try {
+			String programName = (fProgText != null) ? 
+					fProgText.getText().trim() : 
+					store.getAttribute(ICDTLaunchConfigurationConstants.ATTR_PROGRAM_NAME, ""); //$NON-NLS-1$
+			String projectName = (fProjText != null) ? 
+					fProjText.getText().trim() : 
+					store.getAttribute(ICDTLaunchConfigurationConstants.ATTR_PROJECT_NAME, ""); //$NON-NLS-1$
+			if (!isProgramNameValid(store, programName, projectName)) {
+				return false;
+			}
+		}
+		catch(CoreException e) {
+			setErrorMessage(e.getLocalizedMessage());
+			return false;
+		}
+		return true;
+	}
+
+	protected boolean isProgramNameValid(IAttributeStore store, String programName, String projectName) {
+   		try {
+			programName = VariablesPlugin.getDefault().getStringVariableManager().performStringSubstitution(programName);
+		} catch (CoreException e) {
+			// Silently ignore substitution failure (for consistency with "Arguments" and "Work directory" fields)
+		}
+		if (programName.length() == 0) {
+			setErrorMessage(LaunchMessages.getString("CMainTab.Program_not_specified")); //$NON-NLS-1$
+			return false;
+		}
+		if (programName.equals(".") || programName.equals("..")) { //$NON-NLS-1$ //$NON-NLS-2$
+			setErrorMessage(LaunchMessages.getString("CMainTab.Program_does_not_exist")); //$NON-NLS-1$
+			return false;
+		}
+		IPath exePath = new Path(programName);
+		if (exePath.isAbsolute()) {
+			// For absolute paths, we don't need a project, we can debug the binary directly
+			// as long as it exists
+			File executable = exePath.toFile();
+			if (!executable.exists()) {
+				setErrorMessage(LaunchMessages.getString("CMainTab.Program_does_not_exist")); //$NON-NLS-1$
+				return false;
+			}
+			if (!executable.isFile()) {
+				setErrorMessage(LaunchMessages.getString("CMainTab.Selection_must_be_file")); //$NON-NLS-1$
+				return false;
+			}
+		} else {
+			// For relative paths, we need a proper project
+			if (projectName.length() == 0) {
+				setErrorMessage(LaunchMessages.getString("CMainTab.Project_not_specified")); //$NON-NLS-1$
+				return false;
+			}
+			IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
+			if (!project.exists()) {
+				setErrorMessage(LaunchMessages.getString("Launch.common.Project_does_not_exist")); //$NON-NLS-1$
+				return false;
+			}
+			if (!project.isOpen()) {
+				setErrorMessage(LaunchMessages.getString("CMainTab.Project_must_be_opened")); //$NON-NLS-1$
+				return false;
+			}
+			if (!project.getFile(programName).exists()) {
+				setErrorMessage(LaunchMessages.getString("CMainTab.Program_does_not_exist")); //$NON-NLS-1$
+				return false;
+			}
+		}
+		// Notice that we don't check if exePath points to a valid executable since such
+		// check is too expensive to be done on the UI thread.
+		// See "https://bugs.eclipse.org/bugs/show_bug.cgi?id=328012".
+		return true;
 	}
 }
