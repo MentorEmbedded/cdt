@@ -156,6 +156,10 @@ public class RootUIElement implements ILinkListener, IChangeListener, IStatusLis
 		getTopElement().setDefaults(store);
 	}
 
+	public boolean isValid(IAttributeStore store) {
+		return getTopElement().isValid(store);
+	}
+
 	@Override
 	public void linkActivated(UIElement element) {
 		activateUIElement(element);
@@ -178,8 +182,8 @@ public class RootUIElement implements ILinkListener, IChangeListener, IStatusLis
 
 	@Override
 	public void elementChanged(UIElement element) {
-		element.performApply(getAttributeStore());
-		refresh();
+		element.refresh(getAttributeStore(), getControl());
+		getControl().layout();
 	}
 
 	public Composite getControl() {
@@ -187,10 +191,15 @@ public class RootUIElement implements ILinkListener, IChangeListener, IStatusLis
 	}
 
 	public void refresh() {
+		performApply(getAttributeStore());
 		disposeContent();
 		getTopElement().initializeFrom(getAttributeStore(), getControl());
 		activateUIElement(getCurrent());
-		fContent.layout();
+		getControl().layout();
+	}
+
+	public String getErrorMessage() {
+		return getTopElement().getErrorMessage();
 	}
 
 	protected void activateUIElement(UIElement element) {

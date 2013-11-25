@@ -2,7 +2,9 @@ package org.eclipse.cdt.debug.ui.dialogs;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.cdt.debug.internal.ui.CDebugImages;
 import org.eclipse.swt.SWT;
@@ -13,6 +15,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Link;
+import org.eclipse.swt.widgets.Widget;
 
 /**
  * @since 7.4
@@ -22,6 +25,7 @@ public abstract class UIElement {
 	private String fId;
 	private String fLabel;
 	private String fDescription;
+	private String fErrorMessage;
 	private UIElement fParentElement;
 	private boolean fShowDetails = false;
 	private List<UIElement> fChildren = new ArrayList<UIElement>();
@@ -29,6 +33,11 @@ public abstract class UIElement {
 	private ILinkListener fLinkListener;
 	private IChangeListener fChangeListener;
 	private IStatusListener fStatusListener;
+	
+	private Composite fDetailsContent;
+	private Set<Widget> fSummaryWidgets = new HashSet<Widget>();
+	
+	private boolean fInitializing = false;
 
 	public UIElement(String id, UIElement parentElement, String label, String description) {
 		fId = id;
@@ -143,6 +152,11 @@ public abstract class UIElement {
 	}
 
 	public void disposeContent() {
+		if (fDetailsContent != null) {
+			fDetailsContent.dispose();
+			fDetailsContent = null;
+		}
+		disposeSummaryContent();
 	}
 
 	private Composite createSummaryContent(Composite parent, IAttributeStore store) {		
@@ -158,10 +172,11 @@ public abstract class UIElement {
 		});
 		link.setText(String.format("<a>%s</a>", getLabel())); //$NON-NLS-1$
 		link.setToolTipText(getDescription());
+		fSummaryWidgets.add(link);
 
 		if (hasContent()) {
 			if (numberOfRowsInSummary() > 1) {
-				GridUtils.createBar(base, 1);
+				fSummaryWidgets.add(GridUtils.createBar(base, 1));
 			}
 			Composite content = new Composite(base, SWT.NONE);
 			GridLayout layout = new GridLayout();
@@ -175,7 +190,7 @@ public abstract class UIElement {
 				++horSpan;
 			}
 			content.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, horSpan, 1));
-			
+			fSummaryWidgets.add(content);
 			if (isRemovable()) {
 				Button removeButton = new Button(base, SWT.PUSH);
 				removeButton.setImage(CDebugImages.get(CDebugImages.IMG_LCL_REMOVE_UIELEMENT));
@@ -187,12 +202,13 @@ public abstract class UIElement {
 						getChangeListener().elementRemoved(UIElement.this);;
 					}
 				});
+				fSummaryWidgets.add(removeButton);
 			}
 			
 			doCreateSummaryContent(content, store);
 		}
 		
-		GridUtils.addHorizontalSeparatorToGrid(parent, 4);
+		fSummaryWidgets.add(GridUtils.addHorizontalSeparatorToGrid(parent, 4));
 		
 		return base;
 	}
@@ -204,13 +220,13 @@ public abstract class UIElement {
 	 * is called for each child. 
 	 */
 	protected Composite createDetailsContent(Composite parent, IAttributeStore store) {
-		Composite base = new Composite(parent, SWT.NONE);
+		fDetailsContent = new Composite(parent, SWT.NONE);
 		GridLayout layout = new GridLayout();
 		layout.marginWidth = layout.marginHeight = 0;
-		base.setLayout(layout);
+		fDetailsContent.setLayout(layout);
 		int horSpan = (parent.getLayout() instanceof GridLayout) ? ((GridLayout)parent.getLayout()).numColumns : 1;
-		base.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, horSpan, 1));
-		return base;
+		fDetailsContent.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, horSpan, 1));
+		return fDetailsContent;
 	}
 	
 	protected boolean isRemovable() {
@@ -266,10 +282,13 @@ public abstract class UIElement {
 		return fStatusListener;
 	}
 
-	public void initializeFrom(IAttributeStore store, Composite parent) {		
+	public void initializeFrom(IAttributeStore store, Composite parent) {
+		fInitializing = true;
+		setErrorMessage(null);
 		createChildren(store);
 		createContent(parent, store);
 		doInitializeFrom(store);
+		fInitializing = false;
 	}
 
 	protected void doInitializeFrom(IAttributeStore store) {
@@ -295,6 +314,17 @@ public abstract class UIElement {
 		doSetDefaults(store);
 	}
 
+	public void refresh(IAttributeStore store, Composite parent) {
+		setErrorMessage(null);
+		performApply(store);
+		disposeSummaryContent();
+		removeAllChildren();
+		createChildren(store);
+		for (UIElement el : getChildren()) {
+			el.initializeFrom(store, parent);
+		}
+	}
+
 	protected void doPerformApply(IAttributeStore store) {
 	}
 
@@ -311,5 +341,50 @@ public abstract class UIElement {
 		for (UIElement child : getChildren()) {
 			child.remove(store);
 		}
+	}
+
+	public boolean isValid(IAttributeStore store) {
+		if (!isContentValid(store)) {
+			return false;
+		}
+		for (UIElement el : getChildren()) {
+			if (!el.isValid(store)) {
+				return false;
+			}
+		}
+		return true;
+	}
+	
+	protected boolean isContentValid(IAttributeStore store) {
+		return true;
+	}
+	
+	protected boolean isInitializing() {
+		return fInitializing;
+	}
+	
+	protected void disposeSummaryContent() {
+		for (Widget w : fSummaryWidgets) {
+			w.dispose();
+		}
+		fSummaryWidgets.clear();
+	}
+
+	public String getErrorMessage() {
+		String error = fErrorMessage;
+		if (error == null) {
+			for (UIElement el : getChildren()) {
+				String err = el.getErrorMessage();
+				if (err != null) {
+					error = err;
+					break;
+				}
+			}
+		}
+		return (error != null) ? String.format("%s/%s", getLabel(), error) : null; //$NON-NLS-1$
+	}
+
+	protected void setErrorMessage(String message) {
+		fErrorMessage = message;
 	}
 }
