@@ -9,16 +9,14 @@
  * Mentor Graphics - Initial API and implementation
  *******************************************************************************/
 
-package org.eclipse.cdt.debug.ui.dialogs;
+package org.eclipse.cdt.debug.ui.launch;
+
+import org.eclipse.cdt.debug.core.launch.ILaunchElement;
 
 /**
  * @since 7.4
  */
-public interface IChangeListener {
+public interface IUIElementFactory {
 	
-	public void elementAdded(UIElement element);
-	
-	public void elementRemoved(UIElement element);
-	
-	public void elementChanged(UIElement element);
+	AbstractUIElement createUIElement(ILaunchElement element, boolean showDetails);
 }

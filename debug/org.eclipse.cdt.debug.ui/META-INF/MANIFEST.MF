@@ -38,6 +38,7 @@ Export-Package:
  org.eclipse.cdt.debug.ui.disassembly.rulers,
  org.eclipse.cdt.debug.ui.editors,
  org.eclipse.cdt.debug.ui.importexecutable,
+ org.eclipse.cdt.debug.ui.launch,
  org.eclipse.cdt.debug.ui.preferences,
  org.eclipse.cdt.debug.ui.provisional;x-internal:=true,
  org.eclipse.cdt.debug.ui.sourcelookup
