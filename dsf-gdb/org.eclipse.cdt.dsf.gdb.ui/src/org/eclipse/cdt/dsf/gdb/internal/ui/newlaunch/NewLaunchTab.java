@@ -165,7 +165,7 @@ public class NewLaunchTab extends CLaunchConfigurationTab {
 				// TODO: report error
 			}
 			addChildren(new UIElement[] {
-				new NewExecutableLinkElement(this),
+				new AddExecutableElement(this),
 				new DebuggerUIElement(this),
 			});
 		}

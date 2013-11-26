@@ -102,7 +102,7 @@ public abstract class UIElement {
 		}
 	}
 
-	public void insertChild(UIElement child, int index) {
+	public void insertChild(int index, UIElement child) {
 		if (index < 0) {
 			return;
 		}
@@ -112,6 +112,20 @@ public abstract class UIElement {
 		else {
 			fChildren.add(index, child);
 		}
+	}
+
+	/**
+	 * Inserts the given element before the specified child element.
+	 * If the child element is not found, adds the element at the end of the children list.
+	 */
+	public void insertChild(UIElement child, UIElement element) {
+		int i = 0;
+		for (; i < getChildren().length; ++i) {
+			if (getChildren()[i].equals(child)) {
+				break;
+			}
+		}
+		insertChild(i, element);
 	}
 
 	public void removeChild(UIElement child) {
@@ -167,7 +181,7 @@ public abstract class UIElement {
 		link.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				notifyLinkListener();
+				linkActivated();
 			}
 		});
 		link.setText(String.format("<a>%s</a>", getLabel())); //$NON-NLS-1$
@@ -386,5 +400,9 @@ public abstract class UIElement {
 
 	protected void setErrorMessage(String message) {
 		fErrorMessage = message;
+	}
+
+	protected void linkActivated() {
+		notifyLinkListener();
 	}
 }
