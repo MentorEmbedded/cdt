@@ -234,7 +234,7 @@ public class NewLaunchTab extends CLaunchConfigurationTab {
 			return null;
 		}
 		if (getShell() == null) {
-			display = getShell().getDisplay();
+			display = Display.getDefault();
 		} else {
 			display = getShell().getDisplay();
 		}
