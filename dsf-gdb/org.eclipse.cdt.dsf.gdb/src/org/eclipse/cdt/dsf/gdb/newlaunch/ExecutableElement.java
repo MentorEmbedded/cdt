@@ -46,6 +46,10 @@ public class ExecutableElement extends AbstractLaunchElement {
 		super(parent, String.format("%s%s.%d", parent.getId(), ELEMENT_ID, index), "Executable", "Executable to run/debug"); //$NON-NLS-1$
 	}
 
+	public ExecutableElement(ILaunchElement parent, String id, String name, String description) {
+		super(parent, id, name, description);
+	}
+
 	@Override
 	protected void doCreateChildren(ILaunchConfiguration config) {
 	}
@@ -175,5 +179,10 @@ public class ExecutableElement extends AbstractLaunchElement {
 
 	public String getPlatformFilter() {
 		return fPlatformFilter;
+	}
+
+	@Override
+	public boolean canRemove() {
+		return true;
 	}
 }

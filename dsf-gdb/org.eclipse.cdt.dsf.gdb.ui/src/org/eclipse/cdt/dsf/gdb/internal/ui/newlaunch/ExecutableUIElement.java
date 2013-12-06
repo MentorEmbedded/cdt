@@ -51,6 +51,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.dialogs.ElementListSelectionDialog;
@@ -68,11 +69,17 @@ public class ExecutableUIElement extends AbstractUIElement {
 	}
 
 	@Override
+	protected void createChildrenContent(Composite parent) {
+		super.createChildrenContent(parent);
+		if (isRemovable()) {
+			createDeleteButton(parent);
+		}
+	}
+
+	@Override
 	protected void doCreateDetailsContent(Composite parent) {
 		createExecFileGroup(parent);
 		createProjectGroup(parent);
-		GridUtils.addHorizontalSeparatorToGrid(parent, 4);
-		createDeleteButton(parent);
 	}
 
 	@Override
@@ -407,19 +414,25 @@ public class ExecutableUIElement extends AbstractUIElement {
 	}
 	
 	protected void createDeleteButton(Composite parent) {
+		int horSpan = 1;
+		Layout layout = parent.getLayout();
+		if (layout instanceof GridLayout) {
+			horSpan = ((GridLayout)layout).numColumns;
+		}
+		GridUtils.addHorizontalSeparatorToGrid(parent, horSpan);
 		Button button = new Button(parent, SWT.PUSH);
-		button.setLayoutData(new GridData(SWT.RIGHT, SWT.TOP, false, false));
+		button.setLayoutData(new GridData(SWT.RIGHT, SWT.TOP, false, false, horSpan, 1));
 		button.setImage(CDebugImages.get(CDebugImages.IMG_LCL_REMOVE_UIELEMENT));
-		button.setToolTipText("Delete");
+		button.setToolTipText("Delete this executable");
 		button.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				deleteButtonPressed();
+				handleDeleteButtonSelected();
 			}
 		});
 	}
 	
-	protected void deleteButtonPressed() {
+	protected void handleDeleteButtonSelected() {
 		getLaunchElement().getParent().removeChild(getLaunchElement());
 	}
 }

@@ -66,7 +66,7 @@ public abstract class ListUIElement extends AbstractUIElement {
 			if (i > 0) {
 				showButtons |= SHOW_UP_BUTTON;
 			}
-			if (listElement.getLowerLimit() < length) {
+			if (child.canRemove() && listElement.getLowerLimit() < length) {
 				showButtons |= SHOW_REMOVE_BUTTON;
 			}
 			createListElementContent(child, fContent, showButtons);

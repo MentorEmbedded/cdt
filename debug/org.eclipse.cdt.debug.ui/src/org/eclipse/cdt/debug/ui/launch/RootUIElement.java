@@ -88,11 +88,15 @@ public class RootUIElement implements ILinkListener, IChangeListener {
 
 	@Override
 	public void elementAdded(ILaunchElement element, int details) {
+		if (isInitializing())
+			return;
 		refresh(element.getParent());
 	}
 
 	@Override
 	public void elementRemoved(ILaunchElement element) {
+		if (isInitializing())
+			return;
 		ILaunchElement parent = element.getParent();
 		if (parent instanceof IListLaunchElement) {
 			parent = parent.getParent();
@@ -102,6 +106,8 @@ public class RootUIElement implements ILinkListener, IChangeListener {
 
 	@Override
 	public void elementChanged(ILaunchElement element, int details) {
+		if (isInitializing())
+			return;
 		if ((details & ILaunchElement.CHANGE_DETAIL_CONTENT) != 0) { 
 			refresh(element);
 		}
@@ -117,6 +123,8 @@ public class RootUIElement implements ILinkListener, IChangeListener {
 	private AbstractUIElement fCurrentUIElement;
 
 	private Map<String, String> fElementIds = new HashMap<String, String>();
+
+	private boolean fInitializing = false;
 
 	public RootUIElement() {
 		super();
@@ -157,6 +165,7 @@ public class RootUIElement implements ILinkListener, IChangeListener {
 	}
 
 	public void initializeFrom(ILaunchConfigurationWorkingCopy config) {
+		fInitializing = true;
 		fUIElementFactory = createUIElementFactory(config);
 		ILaunchElement topElement = getTopElement();
 		ILaunchElement current = getCurrent();
@@ -183,6 +192,7 @@ public class RootUIElement implements ILinkListener, IChangeListener {
 			current.initialiazeFrom(config);
 			activateElement(current);
 		}
+		fInitializing = false;
 	}
 
 	public void performApply(ILaunchConfigurationWorkingCopy config) {
@@ -292,6 +302,8 @@ public class RootUIElement implements ILinkListener, IChangeListener {
 		AbstractUIElement uiElement = factory.createUIElement(element, showDetails);
 		List<AbstractUIElement> list = new ArrayList<AbstractUIElement>(element.getChildren().length);
 		for (ILaunchElement child : element.getChildren()) {
+			if (!child.isEnabled())
+				continue;
 			AbstractUIElement uiChild = factory.createUIElement(child, false);
 			uiChild.addLinkListener(this);
 			list.add(uiChild);
@@ -304,5 +316,9 @@ public class RootUIElement implements ILinkListener, IChangeListener {
 	@Override
 	public void linkActivated(ILaunchElement element) {
 		activateElement(element);
+	}
+	
+	protected boolean isInitializing() {
+		return fInitializing;
 	}
 }

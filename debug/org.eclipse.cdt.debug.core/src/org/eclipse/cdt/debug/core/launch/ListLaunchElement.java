@@ -18,6 +18,9 @@ import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
  * @since 7.4
  */
 abstract public class ListLaunchElement extends AbstractLaunchElement implements IListLaunchElement {
+	
+	private int fLowerLimit = 0;
+	private int fUpperLimit = 0;
 
 	public ListLaunchElement(ILaunchElement parent, String id, String name, String description) {
 		super(parent, id, name, description);
@@ -55,12 +58,12 @@ abstract public class ListLaunchElement extends AbstractLaunchElement implements
 
 	@Override
 	public int getUpperLimit() {
-		return 0;
+		return fUpperLimit;
 	}
 
 	@Override
 	public int getLowerLimit() {
-		return 0;
+		return fLowerLimit;
 	}
 
 	@Override
