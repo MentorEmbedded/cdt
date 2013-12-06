@@ -11,47 +11,32 @@
 
 package org.eclipse.cdt.dsf.gdb.newlaunch;
 
-import org.eclipse.cdt.debug.core.ICDTLaunchConfigurationConstants;
 import org.eclipse.cdt.debug.core.launch.ILaunchElement;
-import org.eclipse.cdt.debug.core.launch.ListLaunchElement;
 import org.eclipse.cdt.dsf.gdb.newlaunch.OverviewElement.SessionTypeChangeEvent;
 import org.eclipse.cdt.dsf.gdb.service.SessionType;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.ILaunchConfiguration;
 
 /**
  * @since 4.3
  */
-public class ExecutablesListElement extends ListLaunchElement {
+public class CoreExecutableElement extends ExecutableElement {
 
-	final private static String ELEMENT_ID = ".executableList"; //$NON-NLS-1$
+	final private static String ELEMENT_ID = ".coreExecutable"; //$NON-NLS-1$
 
-	public ExecutablesListElement(ILaunchElement parent) {
-		super(parent, parent.getId() + ELEMENT_ID, "Executables", "Executables");
+	public CoreExecutableElement(ILaunchElement parent) {
+		super(parent, parent.getId() + ELEMENT_ID, "Executable", "Executable to debug");
 	}
 
 	@Override
 	protected void doCreateChildren(ILaunchConfiguration config) {
-		try {
-			String programName = config.getAttribute(ICDTLaunchConfigurationConstants.ATTR_PROGRAM_NAME, ""); //$NON-NLS-1$
-			if (!programName.isEmpty()) {
-				addChildren(new ILaunchElement[] { new ExecutableElement(this, 0) });
-			}
-		}
-		catch(CoreException e) {
-		}		
+		addChildren(new ILaunchElement[] { 
+			new CoreFileElement(this) 
+		});
 	}
 
 	@Override
-	protected boolean isContentValid(ILaunchConfiguration config) {
-		return true;
-	}
-
-	@Override
-	public void addNewElement() {
-		ExecutableElement element = new ExecutableElement(this, getChildren().length);
-		doInsertChild(getChildren().length, element);
-		elementAdded(element, ADD_DETAIL_ACTIVATE);
+	public boolean canRemove() {
+		return false;
 	}
 
 	@Override
@@ -63,6 +48,6 @@ public class ExecutablesListElement extends ListLaunchElement {
 	}
 	
 	private void handleSessionTypeChange(SessionTypeChangeEvent event) {
-		 setEnabled(!SessionType.CORE.equals(event.getNewType()));
+		 setEnabled(SessionType.CORE.equals(event.getNewType()));
 	}
 }

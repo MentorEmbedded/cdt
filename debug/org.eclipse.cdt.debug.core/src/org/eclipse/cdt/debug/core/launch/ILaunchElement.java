@@ -18,7 +18,7 @@ import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
  * @since 7.4
  */
 public interface ILaunchElement {
-	
+
 	final public static int ADD_DETAIL_ACTIVATE = 0x1; 
 	
 	final public static int CHANGE_DETAIL_STATE = 0x1; 
@@ -31,6 +31,10 @@ public interface ILaunchElement {
 		public void elementRemoved(ILaunchElement element);
 		
 		public void elementChanged(ILaunchElement element, int details);
+	}
+	
+	public interface IChangeEvent {
+		ILaunchElement getSource();
 	}
 
 	public String getId();
@@ -72,4 +76,12 @@ public interface ILaunchElement {
 	public void addChangeListener(IChangeListener listener);
 	
 	public void removeChangeListener(IChangeListener listener);
+	
+	public boolean isEnabled();
+	
+	public boolean setEnabled(boolean enabled);
+	
+	public void update(IChangeEvent event);
+	
+	public boolean canRemove();
 }

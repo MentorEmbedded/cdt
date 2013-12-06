@@ -24,22 +24,45 @@ import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
  */
 abstract public class AbstractLaunchElement implements ILaunchElement {
 
+	/**
+	 * This event notifies the element's children that an update may be required.
+	 */
+	abstract protected class ChangeEvent implements IChangeEvent {
+
+		final private AbstractLaunchElement fSource;
+		
+		public ChangeEvent(AbstractLaunchElement source) {
+			super();
+			fSource = source;
+		}
+
+		public ILaunchElement getSource() {
+			return fSource;
+		}
+	}
+
 	private String fId;
 	private String fName;
 	private String fDescription;
 	private String fErrorMessage = null;
 	private ILaunchElement fParent;
+	private boolean fEnabled = true;
 	private List<ILaunchElement> fChildren = new ArrayList<ILaunchElement>();
 	private ListenerList fChangeListeners = new ListenerList();
 
 	private boolean fIsInitializing = false;
 
 	public AbstractLaunchElement(ILaunchElement parent, String id, String name, String description) {
+		this(parent, id, name, description, true);
+	}
+
+	public AbstractLaunchElement(ILaunchElement parent, String id, String name, String description, boolean enabled) {
 		super();
 		fParent = parent;
 		fId = id;
 		fName = name;
 		fDescription = description;
+		fEnabled = enabled;
 	}
 
 	@Override
@@ -93,6 +116,8 @@ abstract public class AbstractLaunchElement implements ILaunchElement {
 
 	@Override
 	public boolean isValid(ILaunchConfiguration config) {
+		if (!isEnabled())
+			return true;
 		setErrorMessage(null);
 		for (ILaunchElement el : getChildren()) {
 			if (el instanceof AbstractLaunchElement) {
@@ -112,6 +137,8 @@ abstract public class AbstractLaunchElement implements ILaunchElement {
 
 	@Override
 	public String getErrorMessage() {
+		if (!isEnabled())
+			return null;
 		if (fErrorMessage != null) {
 			return fErrorMessage;
 		}
@@ -253,9 +280,6 @@ abstract public class AbstractLaunchElement implements ILaunchElement {
 	}
 
 	protected void elementChanged(int details) {
-		if (isInitializing()) {
-			return;
-		}
 		elementChanged(this, details);
 	}
 	
@@ -264,21 +288,52 @@ abstract public class AbstractLaunchElement implements ILaunchElement {
 	}
 
 	protected void elementAdded(ILaunchElement element, int details) {
+		if (isInitializing()) {
+			return;
+		}
 		for (Object o : fChangeListeners.getListeners()) {
 			((IChangeListener)o).elementAdded(element, details);
 		}
 	}
 
 	protected void elementRemoved(ILaunchElement element) {
+		if (isInitializing()) {
+			return;
+		}
 		for (Object o : fChangeListeners.getListeners()) {
 			((IChangeListener)o).elementRemoved(element);
 		}
 	}
 
 	protected void elementChanged(ILaunchElement element, int details) {
+		if (isInitializing()) {
+			return;
+		}
 		for (Object o : fChangeListeners.getListeners()) {
 			((IChangeListener)o).elementChanged(element, details);
 		}
+	}
+
+	@Override
+	public boolean isEnabled() {
+		return fEnabled;
+	}
+
+	@Override
+	public boolean setEnabled(boolean enabled) {
+		return fEnabled = enabled;
+	}
+
+	@Override
+	public void update(IChangeEvent event) {
+		for (ILaunchElement element : getChildren()) {
+			element.update(event);
+		}
+	}
+
+	@Override
+	public boolean canRemove() {
+		return false;
 	}
 
 	abstract protected void doCreateChildren(ILaunchConfiguration config);

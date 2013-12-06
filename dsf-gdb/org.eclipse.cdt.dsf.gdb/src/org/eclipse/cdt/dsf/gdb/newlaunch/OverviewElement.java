@@ -26,6 +26,26 @@ import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
  */
 public class OverviewElement extends AbstractLaunchElement {
 	
+	public class SessionTypeChangeEvent extends ChangeEvent {
+
+		final private SessionType fNewType;
+		final private SessionType fOldType;
+		
+		public SessionTypeChangeEvent(AbstractLaunchElement source, SessionType newType, SessionType oldType) {
+			super(source);
+			fNewType = newType;
+			fOldType = oldType;
+		}
+
+		public SessionType getNewType() {
+			return fNewType;
+		}
+
+		public SessionType getOldType() {
+			return fOldType;
+		}
+	}
+
 	final private static String ID = GdbPlugin.PLUGIN_ID + ".overview";  //$NON-NLS-1$
 	
 	private SessionType fSessionType = SessionType.LOCAL;
@@ -37,12 +57,8 @@ public class OverviewElement extends AbstractLaunchElement {
 
 	@Override
 	protected void doCreateChildren(ILaunchConfiguration config) {
-		if (getSessionType() != SessionType.CORE) {
-			createExecutablesList(config);
-		}
-		else {
-			createCoreSessionChildren(config);
-		}
+		createExecutablesList(config);
+		createCoreFileElements(config);
 	}
 
 	@Override
@@ -68,6 +84,7 @@ public class OverviewElement extends AbstractLaunchElement {
 			}
 			setSessionType(type);
 			setAttach(attach);
+			update(new SessionTypeChangeEvent(this, type, null));
 		}
 		catch(CoreException e) {
 			setErrorMessage(e.getLocalizedMessage());
@@ -112,11 +129,12 @@ public class OverviewElement extends AbstractLaunchElement {
 	}
 
 	public void setSessionType(SessionType sessionType) {
-		boolean changed = fSessionType != sessionType;
+		if (fSessionType == sessionType)
+			return;
+		SessionType oldType = fSessionType;
 		fSessionType = sessionType;
-		if (changed) {
-			elementChanged(CHANGE_DETAIL_CONTENT | CHANGE_DETAIL_STATE);
-		}
+		update(new SessionTypeChangeEvent(this, sessionType, oldType));
+		elementChanged(CHANGE_DETAIL_CONTENT | CHANGE_DETAIL_STATE);
 	}
 
 	public boolean isAttach() {
@@ -124,18 +142,17 @@ public class OverviewElement extends AbstractLaunchElement {
 	}
 
 	public void setAttach(boolean attach) {
-		boolean changed = fAttach != attach;
+		if (fAttach == attach)
+			return;
 		fAttach = attach;
-		if (changed) {
-			elementChanged(CHANGE_DETAIL_CONTENT | CHANGE_DETAIL_STATE);
-		}
+		elementChanged(CHANGE_DETAIL_CONTENT | CHANGE_DETAIL_STATE);
 	}
 	
 	protected void createExecutablesList(ILaunchConfiguration config) {
 		addChildren(new ILaunchElement[] { new ExecutablesListElement(this) });
 	}
 	
-	protected void createCoreSessionChildren(ILaunchConfiguration config) {
-		addChildren(new ILaunchElement[] { new ExecutableElement(this, 0) });
+	protected void createCoreFileElements(ILaunchConfiguration config) {
+		addChildren(new ILaunchElement[] { new CoreExecutableElement(this) });
 	}
 }

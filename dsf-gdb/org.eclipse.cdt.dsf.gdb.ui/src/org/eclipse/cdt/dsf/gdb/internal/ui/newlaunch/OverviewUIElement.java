@@ -37,7 +37,7 @@ public class OverviewUIElement extends AbstractUIElement {
 			else if (SessionType.values()[i].equals(SessionType.REMOTE)) {
 				fgTypes[i] = "using gdbserver";
 			}
-			if (SessionType.values()[i].equals(SessionType.CORE)) {
+			else if (SessionType.values()[i].equals(SessionType.CORE)) {
 				fgTypes[i] = "core file";
 			}
 		}

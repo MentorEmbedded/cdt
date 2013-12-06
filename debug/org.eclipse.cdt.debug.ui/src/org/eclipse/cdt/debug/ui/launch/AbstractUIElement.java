@@ -189,7 +189,7 @@ abstract public class AbstractUIElement {
 	}
 
 	protected boolean isRemovable() {
-		return false;
+		return getLaunchElement().canRemove();
 	}
 
 	protected int numberOfRowsInSummary() {
