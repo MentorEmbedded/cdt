@@ -22,6 +22,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.Link;
 
 /**
@@ -141,7 +142,12 @@ public abstract class ListUIElement extends AbstractUIElement {
 	}
 
 	protected void createAddButton(Composite parent) {
-		Button button = createButton(parent, CDebugImages.IMG_LCL_ADD_UIELEMENT, "Add", 2, 1);
+		int horSpan = 1;
+		Layout layout = parent.getLayout();
+		if (layout instanceof GridLayout) {
+			horSpan = ((GridLayout)layout).numColumns;
+		}
+		Button button = createButton(parent, CDebugImages.IMG_LCL_ADD_UIELEMENT, "Add", horSpan, 1);
 		button.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {

@@ -11,22 +11,17 @@
 
 package org.eclipse.cdt.dsf.gdb.internal.ui.newlaunch;
 
-import org.eclipse.cdt.debug.core.launch.ILaunchElement;
-import org.eclipse.cdt.debug.core.launch.IListLaunchElement;
-import org.eclipse.cdt.debug.ui.launch.ListUIElement;
-import org.eclipse.cdt.dsf.gdb.newlaunch.ExecutableElement;
+import org.eclipse.cdt.debug.ui.launch.AbstractUIElement;
+import org.eclipse.cdt.dsf.gdb.newlaunch.DebuggerSettingsElement;
 
-public class ExecutablesListUIElement extends ListUIElement {
+public class DebuggerSettingsUIElement extends AbstractUIElement {
 
-	public ExecutablesListUIElement(IListLaunchElement launchElement) {
-		super(launchElement);
+	public DebuggerSettingsUIElement(DebuggerSettingsElement launchElement, boolean showDetails) {
+		super(launchElement, showDetails);
 	}
 
 	@Override
-	protected String getLinkLabel(ILaunchElement element) {
-		if (element instanceof ExecutableElement) {
-			return ((ExecutableElement)element).getProgramName();
-		}
-		return super.getLinkLabel(element);
+	public DebuggerSettingsElement getLaunchElement() {
+		return (DebuggerSettingsElement)super.getLaunchElement();
 	}
 }

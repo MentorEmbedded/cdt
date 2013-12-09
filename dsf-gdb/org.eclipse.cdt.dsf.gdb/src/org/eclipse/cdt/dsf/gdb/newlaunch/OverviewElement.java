@@ -57,8 +57,15 @@ public class OverviewElement extends AbstractLaunchElement {
 
 	@Override
 	protected void doCreateChildren(ILaunchConfiguration config) {
+		createDebuggerElements(config);
 		createExecutablesList(config);
 		createCoreFileElements(config);
+	}
+
+	@Override
+	public void initialiazeFrom(ILaunchConfiguration config) {
+		super.initialiazeFrom(config);
+		update(new SessionTypeChangeEvent(this, getSessionType(), null));
 	}
 
 	@Override
@@ -84,7 +91,6 @@ public class OverviewElement extends AbstractLaunchElement {
 			}
 			setSessionType(type);
 			setAttach(attach);
-			update(new SessionTypeChangeEvent(this, type, null));
 		}
 		catch(CoreException e) {
 			setErrorMessage(e.getLocalizedMessage());
@@ -150,6 +156,10 @@ public class OverviewElement extends AbstractLaunchElement {
 	
 	protected void createExecutablesList(ILaunchConfiguration config) {
 		addChildren(new ILaunchElement[] { new ExecutablesListElement(this) });
+	}
+	
+	protected void createDebuggerElements(ILaunchConfiguration config) {
+		addChildren(new ILaunchElement[] { new DebuggerElement(this) });
 	}
 	
 	protected void createCoreFileElements(ILaunchConfiguration config) {

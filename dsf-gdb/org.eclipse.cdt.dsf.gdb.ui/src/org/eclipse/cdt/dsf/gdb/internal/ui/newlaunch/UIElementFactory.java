@@ -14,7 +14,10 @@ package org.eclipse.cdt.dsf.gdb.internal.ui.newlaunch;
 import org.eclipse.cdt.debug.core.launch.ILaunchElement;
 import org.eclipse.cdt.debug.ui.launch.AbstractUIElement;
 import org.eclipse.cdt.debug.ui.launch.IUIElementFactory;
+import org.eclipse.cdt.dsf.gdb.newlaunch.ConnectionElement;
 import org.eclipse.cdt.dsf.gdb.newlaunch.CoreFileElement;
+import org.eclipse.cdt.dsf.gdb.newlaunch.DebuggerElement;
+import org.eclipse.cdt.dsf.gdb.newlaunch.DebuggerSettingsElement;
 import org.eclipse.cdt.dsf.gdb.newlaunch.ExecutableElement;
 import org.eclipse.cdt.dsf.gdb.newlaunch.ExecutablesListElement;
 import org.eclipse.cdt.dsf.gdb.newlaunch.OverviewElement;
@@ -34,6 +37,15 @@ public class UIElementFactory implements IUIElementFactory {
 		}
 		if (element instanceof CoreFileElement) {
 			return new CoreFileUIElement((CoreFileElement)element, showDetails);
+		}
+		if (element instanceof DebuggerElement) {
+			return new DebuggerUIElement((DebuggerElement)element, showDetails);
+		}
+		if (element instanceof DebuggerSettingsElement) {
+			return new DebuggerSettingsUIElement((DebuggerSettingsElement)element, showDetails);
+		}
+		if (element instanceof ConnectionElement) {
+			return new ConnectionUIElement((ConnectionElement)element, showDetails);
 		}
 		return null;
 	}
