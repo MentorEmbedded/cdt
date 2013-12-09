@@ -15,6 +15,16 @@ import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 
 /**
+ * Represents a logically related group of launch configuration attributes
+ * which is meant to be presented by a separate UI element in the launch 
+ * configuration dialog.
+ * <p>
+ * The element model of the launch configuration of a certain type is 
+ * structured as a tree with <code>ILaunchElement</code> objects as nodes. 
+ * The launch configuration structure is predefined for each launch configuration 
+ * type. 
+ * </p>
+ * 
  * @since 7.4
  */
 public interface ILaunchElement {
@@ -37,6 +47,10 @@ public interface ILaunchElement {
 		ILaunchElement getSource();
 	}
 
+	/**
+	 * The unique identifier that is used as a part of the attribute key
+	 * for node's attributes.  
+	 */
 	public String getId();
 	
 	public String getName();

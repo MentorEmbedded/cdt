@@ -99,7 +99,7 @@ abstract public class AbstractUIElement {
 		fSummaryWidgets.add(link);
 
 		if (hasContent()) {
-			if (numberOfRowsInSummary() > 1) {
+			if (hasMultipleRows()) {
 				fSummaryWidgets.add(GridUtils.createBar(base, 1));
 			}
 			Composite content = new Composite(base, SWT.NONE);
@@ -107,7 +107,7 @@ abstract public class AbstractUIElement {
 			layout.marginHeight = layout.marginWidth = 0;
 			content.setLayout(layout);
 			int horSpan = 1;
-			if (numberOfRowsInSummary() <= 1) {
+			if (!hasMultipleRows()) {
 				++horSpan;
 			}
 			if (!isRemovable()) {
@@ -192,8 +192,8 @@ abstract public class AbstractUIElement {
 		return getLaunchElement().canRemove();
 	}
 
-	protected int numberOfRowsInSummary() {
-		return 1;
+	protected boolean hasMultipleRows() {
+		return false;
 	}
 	
 	protected void doCreateSummaryContent(Composite parent) {
