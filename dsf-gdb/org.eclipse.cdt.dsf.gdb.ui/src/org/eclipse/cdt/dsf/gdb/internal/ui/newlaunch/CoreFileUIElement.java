@@ -50,6 +50,7 @@ public class CoreFileUIElement extends AbstractUIElement {
 	private Text fCoreText;
 	
 	public CoreFileUIElement(CoreFileElement launchElement, boolean showDetails) {
+		// always in "show details" mode
 		super(launchElement, true);
 	}
 

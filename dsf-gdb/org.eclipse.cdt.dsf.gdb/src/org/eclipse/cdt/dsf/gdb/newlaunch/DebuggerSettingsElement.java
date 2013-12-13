@@ -53,8 +53,7 @@ public class DebuggerSettingsElement extends AbstractLaunchElement {
 
 	@Override
 	protected boolean isContentValid(ILaunchConfiguration config) {
-		// TODO Auto-generated method stub
-		return false;
+		return true;
 	}
 
 }

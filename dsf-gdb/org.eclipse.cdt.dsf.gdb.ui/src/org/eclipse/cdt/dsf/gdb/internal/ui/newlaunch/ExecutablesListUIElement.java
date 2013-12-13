@@ -25,7 +25,11 @@ public class ExecutablesListUIElement extends ListUIElement {
 	@Override
 	protected String getLinkLabel(ILaunchElement element) {
 		if (element instanceof ExecutableElement) {
-			return ((ExecutableElement)element).getProgramName();
+			String programName = ((ExecutableElement)element).getProgramName();
+			if (programName.isEmpty()) {
+				programName = "Not specified";
+			}
+			return programName;
 		}
 		return super.getLinkLabel(element);
 	}

@@ -83,6 +83,8 @@ public interface ILaunchElement {
 	
 	public ILaunchElement findChild(String id);
 
+	public<V> V findChild(Class<V> childClass);
+
 	public int getChildIndex(ILaunchElement child);
 
 	public void dispose();
