@@ -20,7 +20,6 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
@@ -44,7 +43,6 @@ public class OverviewUIElement extends AbstractUIElement {
 	}
 
 	private Combo fTypeCombo;
-	private Button fAttachButton;
 
 	public OverviewUIElement(OverviewElement launchElement) {
 		super(launchElement, true);
@@ -83,18 +81,7 @@ public class OverviewUIElement extends AbstractUIElement {
 				if (getLaunchElement().getSessionType() == type) {
 					return;
 				}
-				fAttachButton.setVisible(type != SessionType.CORE);
 				sessionTypeChanged();
-			}
-		});
-
-		fAttachButton = new Button(base, SWT.CHECK);
-		fAttachButton.setLayoutData(new GridData(SWT.RIGHT, SWT.TOP, false, false));
-		fAttachButton.setText("Attach to process");
-		fAttachButton.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				attachChanged();
 			}
 		});
 
@@ -105,17 +92,10 @@ public class OverviewUIElement extends AbstractUIElement {
 		save();
 	}
 
-	private void attachChanged() {
-		save();		
-	}
-
 	@Override
 	public void save() {
 		if (fTypeCombo != null) {
 			getLaunchElement().setSessionType(SessionType.values()[fTypeCombo.getSelectionIndex()]);
-		}
-		if (fAttachButton != null) {
-			getLaunchElement().setAttach(fAttachButton.getSelection());
 		}
 	}
 
@@ -124,15 +104,11 @@ public class OverviewUIElement extends AbstractUIElement {
 		if (fTypeCombo != null) {
 			fTypeCombo.select(getLaunchElement().getSessionType().ordinal());
 		}
-		if (fAttachButton != null) {
-			fAttachButton.setSelection(getLaunchElement().isAttach());
-		}
 	}
 
 	@Override
 	public void disposeContent() {
 		super.disposeContent();
 		fTypeCombo = null;
-		fAttachButton = null;
 	}
 }

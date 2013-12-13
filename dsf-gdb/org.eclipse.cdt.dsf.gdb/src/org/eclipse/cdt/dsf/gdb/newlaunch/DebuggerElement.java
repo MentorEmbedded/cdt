@@ -31,6 +31,7 @@ public class DebuggerElement extends AbstractLaunchElement {
 	protected void doCreateChildren(ILaunchConfiguration config) {
 		addChildren(new ILaunchElement[] { 
 			new DebuggerSettingsElement(this),
+			new SharedLibrariesElement(this),
 			new ConnectionElement(this)
 		});
 	}
@@ -55,8 +56,7 @@ public class DebuggerElement extends AbstractLaunchElement {
 
 	@Override
 	protected boolean isContentValid(ILaunchConfiguration config) {
-		// TODO Auto-generated method stub
-		return false;
+		return true;
 	}
 
 }

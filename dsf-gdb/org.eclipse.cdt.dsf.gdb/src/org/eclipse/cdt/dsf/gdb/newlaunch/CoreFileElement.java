@@ -13,7 +13,6 @@ package org.eclipse.cdt.dsf.gdb.newlaunch;
 
 import java.io.File;
 
-import org.eclipse.cdt.debug.core.ICDTLaunchConfigurationConstants;
 import org.eclipse.cdt.debug.core.launch.AbstractLaunchElement;
 import org.eclipse.cdt.debug.core.launch.ILaunchElement;
 import org.eclipse.cdt.dsf.gdb.IGDBLaunchConfigurationConstants;
@@ -33,6 +32,8 @@ import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 public class CoreFileElement extends AbstractLaunchElement {
 
 	final private static String ELEMENT_ID = ".coreFile"; //$NON-NLS-1$
+	final private static String ATTR_CORE_FILE_TYPE = ".coreFileType"; //$NON-NLS-1$
+	final private static String ATTR_CORE_FILE_PATH = ".coreFilePath"; //$NON-NLS-1$
 
 	public enum CoreFileType {
 		CORE_FILE,
@@ -54,7 +55,7 @@ public class CoreFileElement extends AbstractLaunchElement {
 	protected void doInitializeFrom(ILaunchConfiguration config) {
 		try {
 			String coreType = config.getAttribute(
-				IGDBLaunchConfigurationConstants.ATTR_DEBUGGER_POST_MORTEM_TYPE,
+				getId() + ATTR_CORE_FILE_TYPE,
 				IGDBLaunchConfigurationConstants.DEBUGGER_POST_MORTEM_TYPE_DEFAULT);
 			if (IGDBLaunchConfigurationConstants.DEBUGGER_POST_MORTEM_CORE_FILE.equals(coreType)) {
 				fType = CoreFileType.CORE_FILE;
@@ -66,7 +67,7 @@ public class CoreFileElement extends AbstractLaunchElement {
 				setErrorMessage("Invalid core file type");
 			}
 			
-			fCoreFile = config.getAttribute(ICDTLaunchConfigurationConstants.ATTR_COREFILE_PATH, ""); //$NON-NLS-1$
+			fCoreFile = config.getAttribute(getId() + ATTR_CORE_FILE_PATH, ""); //$NON-NLS-1$
 		}
 		catch(CoreException e) {
 			setErrorMessage(e.getLocalizedMessage());
@@ -77,23 +78,25 @@ public class CoreFileElement extends AbstractLaunchElement {
 	protected void doPerformApply(ILaunchConfigurationWorkingCopy config) {
 		if (fType == CoreFileType.CORE_FILE) {
 			config.setAttribute(
-				IGDBLaunchConfigurationConstants.ATTR_DEBUGGER_POST_MORTEM_TYPE,
+				getId() + ATTR_CORE_FILE_TYPE,
 				IGDBLaunchConfigurationConstants.DEBUGGER_POST_MORTEM_CORE_FILE);
 		}
 		else if (fType == CoreFileType.TRACE_FILE) {
 			config.setAttribute(
-				IGDBLaunchConfigurationConstants.ATTR_DEBUGGER_POST_MORTEM_TYPE,
+				getId() + ATTR_CORE_FILE_TYPE,
 				IGDBLaunchConfigurationConstants.DEBUGGER_POST_MORTEM_TRACE_FILE);
 		}
-		config.setAttribute(ICDTLaunchConfigurationConstants.ATTR_COREFILE_PATH, fCoreFile);
+		config.setAttribute(getId() + ATTR_CORE_FILE_PATH, fCoreFile);
 	}
 
 	@Override
 	protected void doSetDefaults(ILaunchConfigurationWorkingCopy config) {
+		fType = CoreFileType.CORE_FILE;
+		fCoreFile = ""; //$NON-NLS-1$
 		config.setAttribute(
-			IGDBLaunchConfigurationConstants.ATTR_DEBUGGER_POST_MORTEM_TYPE,
+			getId() + ATTR_CORE_FILE_TYPE,
 			IGDBLaunchConfigurationConstants.DEBUGGER_POST_MORTEM_TYPE_DEFAULT);
-		config.setAttribute(ICDTLaunchConfigurationConstants.ATTR_COREFILE_PATH, ""); //$NON-NLS-1$
+		config.setAttribute(getId() + ATTR_CORE_FILE_PATH, ""); //$NON-NLS-1$
 	}
 
 	@Override

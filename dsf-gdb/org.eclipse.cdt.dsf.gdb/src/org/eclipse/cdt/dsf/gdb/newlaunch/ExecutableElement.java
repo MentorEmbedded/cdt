@@ -15,7 +15,6 @@ import java.io.File;
 
 import org.eclipse.cdt.core.model.CoreModel;
 import org.eclipse.cdt.core.model.ICProject;
-import org.eclipse.cdt.debug.core.ICDTLaunchConfigurationConstants;
 import org.eclipse.cdt.debug.core.launch.AbstractLaunchElement;
 import org.eclipse.cdt.debug.core.launch.ILaunchElement;
 import org.eclipse.cdt.dsf.gdb.launching.LaunchMessages;
@@ -35,15 +34,23 @@ import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 public class ExecutableElement extends AbstractLaunchElement {
 
 	final private static String ELEMENT_ID = ".executable"; //$NON-NLS-1$
+	final private static String ATTR_PROGRAM_NAME = ".programName"; //$NON-NLS-1$
+	final private static String ATTR_PROJECT_NAME = ".projectName"; //$NON-NLS-1$
+	final private static String ATTR_PLATFORM = ".platform"; //$NON-NLS-1$
 
 	private String fProgramName = ""; //$NON-NLS-1$
 	private String fProjectName = ""; //$NON-NLS-1$
 
 	private String fPlatformFilter = ""; //$NON-NLS-1$
 
+	public static ExecutableElement createNewExecutableElement(ILaunchElement parent, String id) {
+		ExecutableElement element = new ExecutableElement(parent, id);
+		element.doCreateChildren0();
+		return element;
+	}
 
-	public ExecutableElement(ILaunchElement parent, int index) {
-		super(parent, String.format("%s%s.%d", parent.getId(), ELEMENT_ID, index), "Executable", "Executable to run/debug"); //$NON-NLS-1$
+	public ExecutableElement(ILaunchElement parent, String id) {
+		this(parent, id, "Executable", "Executable to run/debug");
 	}
 
 	public ExecutableElement(ILaunchElement parent, String id, String name, String description) {
@@ -52,14 +59,23 @@ public class ExecutableElement extends AbstractLaunchElement {
 
 	@Override
 	protected void doCreateChildren(ILaunchConfiguration config) {
+		doCreateChildren0();
+	}
+
+	private void doCreateChildren0() {
+		addChildren(new ILaunchElement[] {
+				new RemoteBinaryElement(this),
+				new ArgumentsElement(this),
+				new StopOnStartupElement(this),
+			});
 	}
 
 	@Override
 	protected void doInitializeFrom(ILaunchConfiguration config) {
 		try {
-			fProgramName = config.getAttribute(ICDTLaunchConfigurationConstants.ATTR_PROGRAM_NAME, ""); //$NON-NLS-1$
-			fPlatformFilter = config.getAttribute(ICDTLaunchConfigurationConstants.ATTR_PLATFORM, Platform.getOS());
-			fProjectName = config.getAttribute(ICDTLaunchConfigurationConstants.ATTR_PROJECT_NAME, ""); //$NON-NLS-1$
+			fProgramName = config.getAttribute(getId() + ATTR_PROGRAM_NAME, ""); //$NON-NLS-1$
+			fPlatformFilter = config.getAttribute(getId() + ATTR_PLATFORM, Platform.getOS());
+			fProjectName = config.getAttribute(getId() + ATTR_PROJECT_NAME, ""); //$NON-NLS-1$
 		}
 		catch(CoreException e) {
 		}
@@ -67,14 +83,14 @@ public class ExecutableElement extends AbstractLaunchElement {
 
 	@Override
 	protected void doPerformApply(ILaunchConfigurationWorkingCopy config) {
-		config.setAttribute(ICDTLaunchConfigurationConstants.ATTR_PROGRAM_NAME, getProgramName());
-		config.setAttribute(ICDTLaunchConfigurationConstants.ATTR_PROJECT_NAME, getProjectName());
+		config.setAttribute(getId() + ATTR_PROGRAM_NAME, getProgramName());
+		config.setAttribute(getId() + ATTR_PROJECT_NAME, getProjectName());
 	}
 
 	@Override
 	protected void doSetDefaults(ILaunchConfigurationWorkingCopy config) {
-		// TODO Auto-generated method stub
-
+		config.setAttribute(getId() + ATTR_PROGRAM_NAME, ""); //$NON-NLS-1$
+		config.setAttribute(getId() + ATTR_PROJECT_NAME, ""); //$NON-NLS-1$
 	}
 
 	@Override

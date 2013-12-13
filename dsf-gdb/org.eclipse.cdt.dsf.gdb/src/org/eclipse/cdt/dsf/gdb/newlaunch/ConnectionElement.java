@@ -15,6 +15,7 @@ import org.eclipse.cdt.debug.core.launch.AbstractLaunchElement;
 import org.eclipse.cdt.debug.core.launch.ILaunchElement;
 import org.eclipse.cdt.dsf.gdb.newlaunch.OverviewElement.SessionTypeChangeEvent;
 import org.eclipse.cdt.dsf.gdb.service.SessionType;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 
@@ -23,7 +24,35 @@ import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
  */
 public class ConnectionElement extends AbstractLaunchElement {
 
+	public enum ConnectionType {
+		TCP,
+		SERIAL
+	}
+
+	public class ConnectionTypeChangeEvent extends ChangeEvent {
+
+		private ConnectionType fNewType;
+		private ConnectionType fOldType;
+		
+		public ConnectionTypeChangeEvent(AbstractLaunchElement source, ConnectionType newType, ConnectionType oldType) {
+			super(source);
+			fNewType = newType;
+			fOldType = oldType;
+		}
+
+		public ConnectionType getNewType() {
+			return fNewType;
+		}
+
+		public ConnectionType getOldType() {
+			return fOldType;
+		}
+	}
+
 	final private static String ELEMENT_ID = ".connection"; //$NON-NLS-1$
+	final private static String ATTR_TYPE = ".type"; //$NON-NLS-1$
+
+	private ConnectionType fType = ConnectionType.TCP;
 
 	public ConnectionElement(ILaunchElement parent) {
 		super(parent, parent.getId() + ELEMENT_ID, "Connection", "Connection settings");
@@ -31,32 +60,79 @@ public class ConnectionElement extends AbstractLaunchElement {
 
 	@Override
 	protected void doCreateChildren(ILaunchConfiguration config) {
-		// TODO Auto-generated method stub
+		addChildren(new ILaunchElement[] {
+			new TCPConnectionElement(this),
+			new SerialConnectionElement(this),
+		});
+	}
 
+	@Override
+	public void initialiazeFrom(ILaunchConfiguration config) {
+		ConnectionType oldType = getConnectionType();
+		super.initialiazeFrom(config);
+		update(new ConnectionTypeChangeEvent(this, getConnectionType(), oldType));
+	}
+
+	@Override
+	public void setDefaults(ILaunchConfigurationWorkingCopy config) {
+		ConnectionType oldType = getConnectionType();
+		super.setDefaults(config);
+		update(new ConnectionTypeChangeEvent(this, getConnectionType(), oldType));
 	}
 
 	@Override
 	protected void doInitializeFrom(ILaunchConfiguration config) {
-		// TODO Auto-generated method stub
-
+		try {
+			int connType = config.getAttribute(getId() + ATTR_TYPE, ConnectionType.TCP.ordinal());
+			if (connType < 0 || connType > ConnectionType.values().length) {
+				setErrorMessage("Invalid connection type");
+			}
+			else {
+				fType = ConnectionType.values()[connType];
+			}
+		}
+		catch(CoreException e) {
+			setErrorMessage(e.getLocalizedMessage());
+		}
 	}
 
 	@Override
 	protected void doPerformApply(ILaunchConfigurationWorkingCopy config) {
-		// TODO Auto-generated method stub
-
+		config.setAttribute(ATTR_TYPE, fType.ordinal());
 	}
 
 	@Override
 	protected void doSetDefaults(ILaunchConfigurationWorkingCopy config) {
-		// TODO Auto-generated method stub
-
+		fType = ConnectionType.TCP;
+		config.setAttribute(ATTR_TYPE, ConnectionType.TCP.ordinal());
 	}
 
 	@Override
 	protected boolean isContentValid(ILaunchConfiguration config) {
-		// TODO Auto-generated method stub
-		return false;
+		return true;
+	}
+
+	public ConnectionType getConnectionType() {
+		return fType;
+	}
+
+	public String getConnectionTypeLabel(ConnectionType type) {
+		if (ConnectionType.TCP.equals(type)) {
+			return "TCP";
+		}
+		if (ConnectionType.SERIAL.equals(type)) {
+			return "Serial";
+		}
+		return "Unknown";
+	}
+
+	public void setConnectionType(ConnectionType type) {
+		if (fType == type)
+			return;
+		ConnectionType oldType = fType;
+		fType = type;
+		update(new ConnectionTypeChangeEvent(this, getConnectionType(), oldType));
+		elementChanged(CHANGE_DETAIL_CONTENT | CHANGE_DETAIL_STATE);
 	}
 
 	@Override
@@ -66,20 +142,8 @@ public class ConnectionElement extends AbstractLaunchElement {
 		}
 		super.update(event);
 	}
-	
+
 	private void handleSessionTypeChange(SessionTypeChangeEvent event) {
 		 setEnabled(SessionType.REMOTE.equals(event.getNewType()));
-	}
-
-	@Override
-	public boolean isEnabled() {
-		// TODO Auto-generated method stub
-		return super.isEnabled();
-	}
-
-	@Override
-	public boolean setEnabled(boolean enabled) {
-		// TODO Auto-generated method stub
-		return super.setEnabled(enabled);
 	}
 }

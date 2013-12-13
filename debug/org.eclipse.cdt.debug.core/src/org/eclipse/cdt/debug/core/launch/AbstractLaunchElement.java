@@ -250,6 +250,21 @@ abstract public class AbstractLaunchElement implements ILaunchElement {
 		return null;
 	}
 
+	@SuppressWarnings( "unchecked" )
+	@Override
+	public<V> V findChild(Class<V> childClass) {
+		if (this.getClass().equals(childClass)) {
+			return (V)this;
+		}
+		for (ILaunchElement el : getChildren()) {
+			V child = el.findChild(childClass);
+			if (child != null) {
+				return child;
+			}
+		}
+		return null;
+	}
+
 	@Override
 	public int getChildIndex(ILaunchElement child) {
 		return Arrays.asList(getChildren()).indexOf(child);

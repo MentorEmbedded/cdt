@@ -51,7 +51,7 @@
             sourcePathComputerId="org.eclipse.cdt.debug.core.sourcePathComputer">
       </launchDelegate>
       <launchDelegate
-            delegate="org.eclipse.cdt.dsf.gdb.launching.GdbLaunchDelegate"
+            delegate="org.eclipse.cdt.dsf.gdb.newlaunch.NewLaunchDelegate"
             id="org.eclipse.cdt.dsf.gdb.launch.newLaunch"
             modes="debug"
             name="New Launch"
