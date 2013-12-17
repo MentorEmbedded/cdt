@@ -15,8 +15,8 @@ import org.eclipse.cdt.debug.ui.launch.AbstractUIElement;
 import org.eclipse.cdt.dsf.gdb.internal.ui.launching.LaunchUIMessages;
 import org.eclipse.cdt.dsf.gdb.newlaunch.TCPConnectionElement;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -57,9 +57,9 @@ public class TCPConnectionUIElement extends AbstractUIElement {
 		
 		fHostNameText = new Text(comp, SWT.BORDER | SWT.SINGLE);
 		fHostNameText.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
-		fHostNameText.addSelectionListener(new SelectionAdapter() {
+		fHostNameText.addModifyListener(new ModifyListener() {
 			@Override
-			public void widgetSelected(SelectionEvent e) {
+			public void modifyText(ModifyEvent e) {
 				hostNameChanged();
 			}
 		});
@@ -69,9 +69,9 @@ public class TCPConnectionUIElement extends AbstractUIElement {
 		
 		fPortText = new Text(comp, SWT.BORDER | SWT.SINGLE);
 		fPortText.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));		
-		fPortText.addSelectionListener(new SelectionAdapter() {
+		fPortText.addModifyListener(new ModifyListener() {
 			@Override
-			public void widgetSelected(SelectionEvent e) {
+			public void modifyText(ModifyEvent e) {
 				portNumberChanged();
 			}
 		});
@@ -98,10 +98,14 @@ public class TCPConnectionUIElement extends AbstractUIElement {
 	}
 
 	private void hostNameChanged() {
-		save();
+		if (fHostNameText != null) {
+			getLaunchElement().setHostName(fHostNameText.getText().trim());
+		}
 	}
 
 	private void portNumberChanged() {
-		save();
+		if (fPortText != null) {
+			getLaunchElement().setPortNumber(fPortText.getText().trim());
+		}
 	}
 }

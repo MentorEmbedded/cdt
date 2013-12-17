@@ -78,6 +78,8 @@ public class ArgumentsElement extends AbstractLaunchElement {
 	}
 
 	public void setArguments(String arguments) {
+		if (fArguments.equals(arguments))
+			return;
 		fArguments = arguments;
 		elementChanged(CHANGE_DETAIL_STATE);
 	}

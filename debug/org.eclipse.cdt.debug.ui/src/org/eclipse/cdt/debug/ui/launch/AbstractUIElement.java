@@ -41,6 +41,7 @@ abstract public class AbstractUIElement {
 	private List<AbstractUIElement> fChildren = new ArrayList<AbstractUIElement>();
 	private ListenerList fLinkListeners = new ListenerList();
 
+	private Composite fParent;
 	private Composite fDetailsContent;
 	private Set<Widget> fSummaryWidgets = new HashSet<Widget>();
 	
@@ -53,6 +54,11 @@ abstract public class AbstractUIElement {
 	public void dispose() {
 		fLinkListeners.clear();
 		disposeContent();
+		for (AbstractUIElement child : fChildren) {
+			child.dispose();
+		}
+		fChildren.clear();
+		fParent = null;
 	}
 
 	public ILaunchElement getLaunchElement() {
@@ -60,6 +66,7 @@ abstract public class AbstractUIElement {
 	}
 
 	public void createContent(Composite parent) {
+		fParent = parent;
 		disposeContent();
 		if (fShowDetails) {
 			createDetailsContent(parent);
@@ -155,10 +162,26 @@ abstract public class AbstractUIElement {
 	public void save() {
 	}
 	
-	public void refresh() {
+	public void refresh(boolean content) {
+		if (content && fParent != null) {
+			createContent(fParent);
+		}
+		else if (fShowDetails) {
+			initializeDetailsContent();
+		}
+		else {
+			initializeSummaryContent();
+		}
+		if (fParent != null) {
+			fParent.layout();
+		}
 	}
 	
-	public void addChildren(AbstractUIElement[] children) {
+	public void setChildren(AbstractUIElement[] children) {
+		for (AbstractUIElement child : fChildren) {
+			child.dispose();
+		}
+		fChildren.clear();
 		fChildren.addAll(Arrays.asList(children));
 	}
 	

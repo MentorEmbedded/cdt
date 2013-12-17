@@ -59,9 +59,6 @@ public class UIElementFactory implements IUIElementFactory {
 		if (element instanceof SerialConnectionElement) {
 			return new SerialConnectionUIElement((SerialConnectionElement)element, showDetails);
 		}
-		if (element instanceof ConnectionElement) {
-			return new ConnectionUIElement((ConnectionElement)element, showDetails);
-		}
 		if (element instanceof ArgumentsElement) {
 			return new ArgumentsUIElement((ArgumentsElement)element, showDetails);
 		}
