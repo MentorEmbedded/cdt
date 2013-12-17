@@ -2648,6 +2648,12 @@ public class CPPSemantics {
 		for (ICPPFunction fn : fns) {
 			if (fn instanceof ICPPFunctionTemplate
 					&& !(fn instanceof IProblemBinding) && !(fn instanceof ICPPUnknownBinding)) {
+				// If the declared function type is dependent, there is no point trying to use it
+				// to instantiate the template, so return a deferred function instead.
+				// Note that CPPTemplates.instantiateForFunctionCall() behaves similarly.
+				if (CPPTemplates.isDependentType(ft)) {
+					return CPPDeferredFunction.createForCandidates(fns);
+				}
 				ICPPFunctionTemplate template= (ICPPFunctionTemplate) fn;
 				ICPPFunction inst= CPPTemplates.instantiateForFunctionDeclaration(template, tmplArgs, ft, data.getLookupPoint());
 				if (inst != null) {
@@ -2981,7 +2987,7 @@ public class CPPSemantics {
     			}
     		}
 		}
-    	if (targetType == null && parent instanceof IASTExpression
+    	if (targetType == null && parent instanceof ICPPASTExpression
     			&& parent instanceof IASTImplicitNameOwner) {
 			// Trigger resolution of overloaded operator, which may resolve the
 			// function set.
@@ -2989,6 +2995,12 @@ public class CPPSemantics {
 			final IBinding newBinding = name.getPreBinding();
 			if (!(newBinding instanceof CPPFunctionSet))
 				return newBinding;
+
+			// If we're in a dependent context, we don't have enough information
+			// to resolve the function set.
+			if (((ICPPASTExpression) parent).getEvaluation().isTypeDependent()) {
+				return CPPDeferredFunction.createForCandidates(functionSet.getBindings());
+			}
 		}
 
     	ICPPFunction function = resolveTargetedFunction(targetType, functionSet, name);

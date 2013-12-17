@@ -76,6 +76,7 @@ import org.eclipse.cdt.core.dom.ast.cpp.ICPPClassTemplate;
 import org.eclipse.cdt.core.dom.ast.cpp.ICPPClassTemplatePartialSpecialization;
 import org.eclipse.cdt.core.dom.ast.cpp.ICPPClassType;
 import org.eclipse.cdt.core.dom.ast.cpp.ICPPConstructor;
+import org.eclipse.cdt.core.dom.ast.cpp.ICPPDeferredFunction;
 import org.eclipse.cdt.core.dom.ast.cpp.ICPPField;
 import org.eclipse.cdt.core.dom.ast.cpp.ICPPFunction;
 import org.eclipse.cdt.core.dom.ast.cpp.ICPPFunctionTemplate;
@@ -5374,6 +5375,26 @@ public class AST2TemplateTests extends AST2TestBase {
 		assertSame(method, ((ICPPSpecialization) reference).getSpecializedBinding());
 	}
 
+	//	template <typename CharT>
+	//	struct ostream {
+	//	    template <typename T>
+	//	    ostream& operator<<(T);
+	//
+	//	    ostream& operator<<(ostream&(*)(ostream&));
+	//	};
+	//
+	//	template <typename CharT>
+	//	ostream<CharT>& endl(ostream<CharT>&);
+	//
+	//	template <typename T>
+	//	void test(T t) {
+	//	    ostream<char> out;
+	//	    out << t << endl;
+	//	}
+	public void testInstantiationOfEndlInTemplate_417700() throws Exception {
+		parseAndCheckBindings();
+	}
+
 	//	template<typename T> bool MySort(const T& a);
 	//	bool MySort(const int& a);
 	//	template<typename V> void sort(V __comp);
@@ -8163,5 +8184,36 @@ public class AST2TemplateTests extends AST2TestBase {
 	//	}
 	public void testSpecializedEnumerator_418770() throws Exception {
 		parseAndCheckBindings();
+	}
+
+	//	template <typename T>
+	//	class A;
+	//
+	//	namespace ns {
+	//	    template <typename T>
+	//	    int waldo(const A<T>&);
+	//	}
+	//
+	//	template <typename T>
+	//	class A {
+	//	    friend int ns::waldo<T>(const A<T>&);
+	//	};
+	public void testDependentSpecializationOfFunctionTemplateAsFriend_422505a() throws Exception {
+		parseAndCheckBindings();
+	}
+
+	//	template <typename T>
+	//	class A;
+	//
+	//	template <typename T>
+	//	int waldo(const A<T>&);
+	//
+	//	template <typename T>
+	//	class A {
+	//	    friend int waldo<T>(const A<T>&);
+	//	};
+	public void testDependentSpecializationOfFunctionTemplateAsFriend_422505b() throws Exception {
+		BindingAssertionHelper helper = getAssertionHelper();
+		helper.assertNonProblem("waldo<T>", ICPPDeferredFunction.class);
 	}
 }

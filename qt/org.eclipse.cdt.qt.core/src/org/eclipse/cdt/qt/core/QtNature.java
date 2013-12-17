@@ -11,11 +11,13 @@
 package org.eclipse.cdt.qt.core;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IProjectNature;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
 
 public class QtNature implements IProjectNature {
-	public static final String ID = "org.eclipse.cdt.qt.core.qtNature";
+	private static final String ID = "org.eclipse.cdt.qt.core.qtNature";
 
 	public static boolean hasNature(IProject project) {
 		try {
@@ -26,6 +28,21 @@ public class QtNature implements IProjectNature {
 		}
 	}
 
+	public static void addNature(IProject project, IProgressMonitor monitor) throws CoreException {
+		if (project.isOpen()) {
+			if (hasNature(project))
+				return;
+			
+			IProjectDescription desc = project.getDescription();
+			String[] oldIds = desc.getNatureIds();
+			String[] newIds = new String[oldIds.length + 1];
+			System.arraycopy(oldIds, 0, newIds, 0, oldIds.length);
+			newIds[oldIds.length] = ID;
+			desc.setNatureIds(newIds);
+			project.setDescription(desc, monitor);
+		}
+	}
+	
 	private IProject project;
 
 	@Override
