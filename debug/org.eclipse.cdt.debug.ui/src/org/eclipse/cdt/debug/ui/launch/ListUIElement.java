@@ -82,6 +82,15 @@ public abstract class ListUIElement extends AbstractUIElement {
 		return (IListLaunchElement)super.getLaunchElement();
 	}
 
+	@Override
+	public void disposeContent() {
+		super.disposeContent();
+		if (fContent != null) {
+			fContent.dispose();
+			fContent = null;
+		}
+	}
+
 	protected void createListElementContent(final ILaunchElement element, Composite parent, int flags) {
 		Link link = new Link(parent, SWT.NONE);
 		link.setText(String.format("<a>%s</a>", getLinkLabel(element))); //$NON-NLS-1$

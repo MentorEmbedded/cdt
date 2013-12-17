@@ -58,6 +58,11 @@ public class NewLaunchTab extends CLaunchConfigurationTab {
 			super.elementChanged(element, details);
 			NewLaunchTab.this.updateLaunchConfigurationDialog();
 		}
+
+		@Override
+		protected ILaunchElement createTopElement(ILaunchConfiguration config) {
+			return new OverviewElement();
+		}
 	}
 
 	private ILaunchConfigurationWorkingCopy fLaunchConfiguration;
@@ -66,7 +71,6 @@ public class NewLaunchTab extends CLaunchConfigurationTab {
     public NewLaunchTab() {
 		super();
 		fRoot = new NewLaunchUIRootElement();
-		fRoot.setTopElement(new OverviewElement());
 	}
 
 	private static final String TAB_ID = "org.eclipse.cdt.dsf.gdb.launch.newLaunchTab"; //$NON-NLS-1$
@@ -128,6 +132,7 @@ public class NewLaunchTab extends CLaunchConfigurationTab {
 			if (!configuration.isWorkingCopy() || 
 				getCurrentLaunchConfiguration() == null || 
 				!((ILaunchConfigurationWorkingCopy)configuration).getOriginal().equals(getCurrentLaunchConfiguration().getOriginal())) {
+				fRoot.storeState(fLaunchConfiguration);
 				fLaunchConfiguration = (configuration.isWorkingCopy()) ? 
 					(ILaunchConfigurationWorkingCopy)configuration : configuration.getWorkingCopy();
 				fRoot.initializeFrom(fLaunchConfiguration);

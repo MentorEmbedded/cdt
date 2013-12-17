@@ -17,6 +17,8 @@ import org.eclipse.cdt.debug.ui.launch.AbstractUIElement;
 import org.eclipse.cdt.dsf.gdb.internal.ui.launching.LaunchUIMessages;
 import org.eclipse.cdt.dsf.gdb.newlaunch.SerialConnectionElement;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
@@ -60,9 +62,9 @@ public class SerialConnectionUIElement extends AbstractUIElement {
 		
 		fDeviceText = new Text(comp, SWT.BORDER | SWT.SINGLE);
 		fDeviceText.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
-		fDeviceText.addSelectionListener(new SelectionAdapter() {
+		fDeviceText.addModifyListener(new ModifyListener() {
 			@Override
-			public void widgetSelected(SelectionEvent e) {
+			public void modifyText(ModifyEvent e) {
 				deviceChanged();
 			}
 		});
@@ -106,10 +108,14 @@ public class SerialConnectionUIElement extends AbstractUIElement {
 	}
 	
 	private void deviceChanged() {
-		save();
+		if (fDeviceText != null) {
+			getLaunchElement().setDevice(fDeviceText.getText().trim());
+		}
 	}
 	
 	private void deviceSpeedChanged() {
-		save();
+		if (fSpeedCombo != null) {
+			getLaunchElement().setDeviceSpeed(fSpeedCombo.getItem(fSpeedCombo.getSelectionIndex()));
+		}
 	}
 }
