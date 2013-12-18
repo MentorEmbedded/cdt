@@ -55,9 +55,12 @@ public class OverviewElement extends AbstractLaunchElement {
 
 	@Override
 	protected void doCreateChildren(ILaunchConfiguration config) {
-		createDebuggerElements(config);
-		createExecutablesList(config);
-		createCoreFileElements(config);
+		addChildren(new ILaunchElement[] {
+			new ExecutablesListElement(this),
+			new DebuggerElement(this),
+			new CoreExecutableElement(this),
+			new EnvironmentElement(this),
+		});
 	}
 
 	@Override
@@ -145,17 +148,5 @@ public class OverviewElement extends AbstractLaunchElement {
 		fSessionType = sessionType;
 		update(new SessionTypeChangeEvent(this, sessionType, oldType));
 		elementChanged(CHANGE_DETAIL_CONTENT | CHANGE_DETAIL_STATE);
-	}
-	
-	protected void createExecutablesList(ILaunchConfiguration config) {
-		addChildren(new ILaunchElement[] { new ExecutablesListElement(this) });
-	}
-	
-	protected void createDebuggerElements(ILaunchConfiguration config) {
-		addChildren(new ILaunchElement[] { new DebuggerElement(this) });
-	}
-	
-	protected void createCoreFileElements(ILaunchConfiguration config) {
-		addChildren(new ILaunchElement[] { new CoreExecutableElement(this) });
 	}
 }

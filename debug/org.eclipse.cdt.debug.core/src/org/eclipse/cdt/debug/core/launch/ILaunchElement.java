@@ -85,6 +85,8 @@ public interface ILaunchElement {
 
 	public<V> V findChild(Class<V> childClass);
 
+	public<V> V findAncestor(Class<V> ancestorClass);
+
 	public int getChildIndex(ILaunchElement child);
 
 	public void dispose();

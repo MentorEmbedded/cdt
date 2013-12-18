@@ -45,7 +45,7 @@ public class ArgumentsUIElement extends AbstractUIElement {
 	@Override
 	protected void doCreateDetailsContent(Composite parent) {
 		Composite comp = new Composite(parent, SWT.NONE);
-		GridLayout coreLayout = new GridLayout(2, false);
+		GridLayout coreLayout = new GridLayout();
 		coreLayout.marginHeight = 0;
 		coreLayout.marginWidth = 0;
 		comp.setLayout(coreLayout);
