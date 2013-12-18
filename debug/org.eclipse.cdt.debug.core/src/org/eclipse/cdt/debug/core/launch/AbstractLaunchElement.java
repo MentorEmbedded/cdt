@@ -270,6 +270,15 @@ abstract public class AbstractLaunchElement implements ILaunchElement {
 		return Arrays.asList(getChildren()).indexOf(child);
 	}
 
+	@SuppressWarnings( "unchecked" )
+	@Override
+	public <V> V findAncestor(Class<V> ancestorClass) {
+		if (this.getClass().equals(ancestorClass)) {
+			return (V)this;
+		}
+		return (getParent() != null) ? getParent().findAncestor(ancestorClass) : null;
+	}
+
 	@Override
 	public void addChangeListener(IChangeListener listener) {
 		fChangeListeners.add(listener);
