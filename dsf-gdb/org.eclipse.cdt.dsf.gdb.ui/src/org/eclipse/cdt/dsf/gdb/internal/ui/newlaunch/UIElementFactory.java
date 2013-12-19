@@ -33,6 +33,7 @@ import org.eclipse.cdt.dsf.gdb.newlaunch.StopOnStartupElement;
 import org.eclipse.cdt.dsf.gdb.newlaunch.TCPConnectionElement;
 import org.eclipse.cdt.dsf.gdb.newlaunch.WorkingDirectoryElement;
 
+/* VP: maybe we should use IAdaptable instead? */
 public class UIElementFactory implements IUIElementFactory {
 
 	@Override

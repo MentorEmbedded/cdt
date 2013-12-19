@@ -130,6 +130,8 @@ abstract public class RootUIElement implements ILinkListener, IChangeListener {
 	public void performApply(Map<String, Object> attributes) {
 		if (isInitializing())
 			return;
+		// VP: I would rather this block did not exist. We should have
+		// up-to-date model at all times.
 		if (getCurrentUIElement() != null) {
 			getCurrentUIElement().save();
 		}
@@ -238,6 +240,8 @@ abstract public class RootUIElement implements ILinkListener, IChangeListener {
 		for (ILaunchElement child : element.getChildren()) {
 			if (!child.isEnabled())
 				continue;
+			// VP: shall the recursion here use 'createElement'? It is not quite obvious to me
+			// how deep hierarchy of ILaunchElement will be handled by the current code.
 			AbstractUIElement uiChild = factory.createUIElement(child, false);
 			uiChild.addLinkListener(this);
 			list.add(uiChild);
