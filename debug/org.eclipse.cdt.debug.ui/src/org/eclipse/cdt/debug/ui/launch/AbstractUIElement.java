@@ -167,6 +167,9 @@ abstract public class AbstractUIElement implements IChangeListener {
 
 	/**
 	 * Saves the UI widgets data in the underlying launch element.
+	 * VP: I would like to have a pure UI class for grid components, with no
+	 * 'save' method. In fact, even for debugger code, can't we directly send
+	 * data to the model upon UI interaction, without any 'save' method.
 	 */
 	public void save() {
 	}
@@ -185,7 +188,11 @@ abstract public class AbstractUIElement implements IChangeListener {
 			fParent.layout();
 		}
 	}
-	
+
+	// VP: I'd rather not allow outside world to add children to existing UI elements.
+	// my mental model is that we have a mechanism to create UI element from debug element
+	// and then the UI element can be put into grid, or disposed, but not manipulated in
+	// any way.		
 	public void setChildren(AbstractUIElement[] children) {
 		for (AbstractUIElement child : fChildren) {
 			child.dispose();
@@ -194,6 +201,8 @@ abstract public class AbstractUIElement implements IChangeListener {
 		fChildren.addAll(Arrays.asList(children));
 	}
 	
+	// VP: why do we need to do this, as opposed to having each element do whatever
+	// it wants with the link?
 	public void addLinkListener(ILinkListener listener) {
 		fLinkListeners.add(listener);
 	}
