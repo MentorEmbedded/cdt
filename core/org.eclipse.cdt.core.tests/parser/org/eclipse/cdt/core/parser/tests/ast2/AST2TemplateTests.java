@@ -7741,6 +7741,24 @@ public class AST2TemplateTests extends AST2TestBase {
 		BindingAssertionHelper helper = new BindingAssertionHelper(getAboveComment(), true);
 		helper.assertProblem("bind(s, 0, foo)", "bind");
     }
+	
+	//	struct a3 {
+	//	    int xxx;
+	//	};
+	//
+	//	template <template <typename> class V>
+	//	struct S {};
+	//
+	//	template <typename V>
+	//	int foo(...);
+	//
+	//	template <typename V>
+	//	int foo(void*, S<V::template xxx>* = 0);
+	//
+	//	int value = sizeof(foo<a3>(0));
+	public void testNPE_395074() throws Exception {
+		parseAndCheckBindings();
+	}
 
 	//	template<typename T>
 	//	T forward(T);
@@ -8215,5 +8233,39 @@ public class AST2TemplateTests extends AST2TestBase {
 	public void testDependentSpecializationOfFunctionTemplateAsFriend_422505b() throws Exception {
 		BindingAssertionHelper helper = getAssertionHelper();
 		helper.assertNonProblem("waldo<T>", ICPPDeferredFunction.class);
+	}
+	
+	//	template <typename>
+	//	struct C {
+	//	    friend bool operator==(C, C);
+	//	    friend bool operator!=(C, C);
+	//	};
+	//
+	//	template <typename U>
+	//	void waldo(U, U);
+	//
+	//	void test() {
+	//	  C<int> x;
+	//	  waldo(x, x);
+	//	}
+	public void testStrayFriends_419301() throws Exception {
+		parseAndCheckBindings();
+	}
+	
+	//	template <typename T>
+	//	constexpr T t(T) {
+	//	    return 0;
+	//	}
+	//
+	//	template <>
+	//	constexpr unsigned t<unsigned>(unsigned) {
+	//	    return 1 + 1;
+	//	}
+	//
+	//	constexpr unsigned waldo = t(0u);
+	public void testSpecializationOfConstexprFunction_420995() throws Exception {
+		BindingAssertionHelper helper = getAssertionHelper();
+		ICPPVariable waldo = helper.assertNonProblem("waldo");
+		assertEquals(2, waldo.getInitialValue().numericalValue().longValue());
 	}
 }

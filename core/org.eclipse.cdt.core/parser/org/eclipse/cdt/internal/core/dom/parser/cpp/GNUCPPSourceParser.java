@@ -1342,6 +1342,7 @@ public class GNUCPPSourceParser extends AbstractGNUSourceCodeParser {
         case IGCCToken.tTT_is_class:
         case IGCCToken.tTT_is_empty:
         case IGCCToken.tTT_is_enum:
+        case IGCCToken.tTT_is_final:
         case IGCCToken.tTT_is_literal_type:
         case IGCCToken.tTT_is_pod:
         case IGCCToken.tTT_is_polymorphic:
@@ -1422,6 +1423,8 @@ public class GNUCPPSourceParser extends AbstractGNUSourceCodeParser {
         	return IASTTypeIdExpression.op_is_empty;
         case IGCCToken.tTT_is_enum:
         	return IASTTypeIdExpression.op_is_enum;
+        case IGCCToken.tTT_is_final:
+        	return IASTTypeIdExpression.op_is_final;
         case IGCCToken.tTT_is_literal_type:
         	return IASTTypeIdExpression.op_is_literal_type;
         case IGCCToken.tTT_is_pod:
@@ -1942,7 +1945,7 @@ public class GNUCPPSourceParser extends AbstractGNUSourceCodeParser {
             return astUD;
         }
 
-        if(LT(1) == IToken.tIDENTIFIER && LT(2) == IToken.tASSIGN){
+        if (LT(1) == IToken.tIDENTIFIER && LT(2) == IToken.tASSIGN){
         	return aliasDeclaration(offset);
         	
         }
@@ -1959,7 +1962,7 @@ public class GNUCPPSourceParser extends AbstractGNUSourceCodeParser {
 		
 		ICPPASTTypeId aliasedType = typeId(DeclarationOptions.TYPEID);
 		
-		if(LT(1) != IToken.tSEMI){
+		if (LT(1) != IToken.tSEMI){
 			throw backtrack;
 		}
 		int endOffset = consume().getEndOffset();
@@ -4223,7 +4226,7 @@ public class GNUCPPSourceParser extends AbstractGNUSourceCodeParser {
         ICPPASTCompositeTypeSpecifier astClassSpecifier = nodeFactory.newCompositeTypeSpecifier(classKind, name);
 
         // class virt specifier
-        if(LT(1) == IToken.tIDENTIFIER) {
+        if (LT(1) == IToken.tIDENTIFIER) {
         	classVirtSpecifier(astClassSpecifier);
         }
 
@@ -4301,7 +4304,7 @@ public class GNUCPPSourceParser extends AbstractGNUSourceCodeParser {
 	private void classVirtSpecifier(ICPPASTCompositeTypeSpecifier astClassSpecifier) throws EndOfFileException, BacktrackException {
 		IToken token = LA();
 		char[] tokenImage = token.getCharImage();
-		if(token.getType() == IToken.tIDENTIFIER && Arrays.equals(Keywords.cFINAL, tokenImage)){
+		if (token.getType() == IToken.tIDENTIFIER && Arrays.equals(Keywords.cFINAL, tokenImage)){
 			consume();
 			astClassSpecifier.setFinal(true);
 		}
