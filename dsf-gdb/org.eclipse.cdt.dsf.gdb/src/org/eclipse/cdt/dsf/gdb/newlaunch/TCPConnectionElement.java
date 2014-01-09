@@ -11,12 +11,12 @@
 
 package org.eclipse.cdt.dsf.gdb.newlaunch;
 
+import java.util.Map;
+
 import org.eclipse.cdt.debug.core.launch.AbstractLaunchElement;
 import org.eclipse.cdt.debug.core.launch.ILaunchElement;
 import org.eclipse.cdt.dsf.gdb.newlaunch.ConnectionElement.ConnectionType;
 import org.eclipse.cdt.dsf.gdb.newlaunch.ConnectionElement.ConnectionTypeChangeEvent;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 
 /**
@@ -39,18 +39,13 @@ public class TCPConnectionElement extends AbstractLaunchElement {
 	}
 
 	@Override
-	protected void doCreateChildren(ILaunchConfiguration config) {
+	protected void doCreateChildren(Map<String, Object> attributes) {
 	}
 
 	@Override
-	protected void doInitializeFrom(ILaunchConfiguration config) {
-		try {
-			fHostName = config.getAttribute(getId() + ATTR_HOST_NAME, DEFAULT_HOST_NAME);
-			fPortNumber = config.getAttribute(getId() + ATTR_PORT_NUMBER, DEFAULT_PORT_NUMBER);
-		}
-		catch(CoreException e) {
-			setErrorMessage(e.getLocalizedMessage());
-		}
+	protected void doInitializeFrom(Map<String, Object> attributes) {
+		fHostName = getAttribute(attributes, getId() + ATTR_HOST_NAME, DEFAULT_HOST_NAME);
+		fPortNumber = getAttribute(attributes, getId() + ATTR_PORT_NUMBER, DEFAULT_PORT_NUMBER);
 	}
 
 	@Override
@@ -68,7 +63,7 @@ public class TCPConnectionElement extends AbstractLaunchElement {
 	}
 
 	@Override
-	protected boolean isContentValid(ILaunchConfiguration config) {
+	protected boolean isContentValid() {
 		setErrorMessage(null);
 		if (fHostName.isEmpty()) {
 			setErrorMessage("Host name or IP address must be specified.");
@@ -98,6 +93,14 @@ public class TCPConnectionElement extends AbstractLaunchElement {
 		catch(NumberFormatException e) {
 			return false;
 		}
+	}
+
+	public static String getDefaultHostName() {
+		return DEFAULT_HOST_NAME;
+	}
+
+	public static String getDefaultPortNumber() {
+		return DEFAULT_PORT_NUMBER;
 	}
 
 	public String getHostName() {

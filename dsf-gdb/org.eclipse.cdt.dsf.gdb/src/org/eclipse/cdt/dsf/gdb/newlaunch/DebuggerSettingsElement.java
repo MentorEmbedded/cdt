@@ -11,9 +11,13 @@
 
 package org.eclipse.cdt.dsf.gdb.newlaunch;
 
+import java.util.Map;
+
 import org.eclipse.cdt.debug.core.launch.AbstractLaunchElement;
 import org.eclipse.cdt.debug.core.launch.ILaunchElement;
-import org.eclipse.debug.core.ILaunchConfiguration;
+import org.eclipse.cdt.dsf.gdb.IGdbDebugPreferenceConstants;
+import org.eclipse.cdt.dsf.gdb.internal.GdbPlugin;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 
 /**
@@ -22,38 +26,49 @@ import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 public class DebuggerSettingsElement extends AbstractLaunchElement {
 
 	final private static String ELEMENT_ID = ".settings"; //$NON-NLS-1$
+	final private static String ATTR_NON_STOP = ".nonStop"; //$NON-NLS-1$
+	
+	private boolean fNonStop = Platform.getPreferencesService().getBoolean(
+			GdbPlugin.PLUGIN_ID, IGdbDebugPreferenceConstants.PREF_DEFAULT_NON_STOP, false, null);
 
 	public DebuggerSettingsElement(ILaunchElement parent) {
 		super(parent, parent.getId() + ELEMENT_ID, "Settings", "Debugger settings");
 	}
 
 	@Override
-	protected void doCreateChildren(ILaunchConfiguration config) {
-		// TODO Auto-generated method stub
-
+	protected void doCreateChildren(Map<String, Object> attributes) {
 	}
 
 	@Override
-	protected void doInitializeFrom(ILaunchConfiguration config) {
-		// TODO Auto-generated method stub
-
+	protected void doInitializeFrom(Map<String, Object> attributes) {
+		fNonStop = getAttribute(attributes, getId() + ATTR_NON_STOP, fNonStop);
 	}
 
 	@Override
 	protected void doPerformApply(ILaunchConfigurationWorkingCopy config) {
-		// TODO Auto-generated method stub
-
+		config.setAttribute(getId() + ATTR_NON_STOP, fNonStop);
 	}
 
 	@Override
 	protected void doSetDefaults(ILaunchConfigurationWorkingCopy config) {
-		// TODO Auto-generated method stub
-
+		fNonStop = Platform.getPreferencesService().getBoolean(
+			GdbPlugin.PLUGIN_ID, IGdbDebugPreferenceConstants.PREF_DEFAULT_NON_STOP, false, null);
+		config.setAttribute(getId() + ATTR_NON_STOP, fNonStop);
 	}
 
 	@Override
-	protected boolean isContentValid(ILaunchConfiguration config) {
+	protected boolean isContentValid() {
 		return true;
 	}
 
+	public boolean isNonStop() {
+		return fNonStop;
+	}
+
+	public void setNonStop(boolean nonStop) {
+		if (fNonStop == nonStop)
+			return;
+		fNonStop = nonStop;
+		elementChanged(CHANGE_DETAIL_STATE);
+	}
 }

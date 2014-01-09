@@ -11,12 +11,12 @@
 
 package org.eclipse.cdt.dsf.gdb.newlaunch;
 
+import java.util.Map;
+
 import org.eclipse.cdt.debug.core.launch.AbstractLaunchElement;
 import org.eclipse.cdt.debug.core.launch.ILaunchElement;
 import org.eclipse.cdt.dsf.gdb.newlaunch.OverviewElement.SessionTypeChangeEvent;
 import org.eclipse.cdt.dsf.gdb.service.SessionType;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 
 /**
@@ -34,17 +34,12 @@ public class RemoteBinaryElement extends AbstractLaunchElement {
 	}
 
 	@Override
-	protected void doCreateChildren(ILaunchConfiguration config) {
+	protected void doCreateChildren(Map<String, Object> attributes) {
 	}
 
 	@Override
-	protected void doInitializeFrom(ILaunchConfiguration config) {
-		try {
-			fRemotePath = config.getAttribute(getId() + ATTR_REMOTE_PATH, ""); //$NON-NLS-1$
-		}
-		catch(CoreException e) {
-			setErrorMessage(e.getLocalizedMessage());
-		}
+	protected void doInitializeFrom(Map<String, Object> attributes) {
+		fRemotePath = getAttribute(attributes, getId() + ATTR_REMOTE_PATH, ""); //$NON-NLS-1$
 	}
 
 	@Override
@@ -58,7 +53,7 @@ public class RemoteBinaryElement extends AbstractLaunchElement {
 	}
 
 	@Override
-	protected boolean isContentValid(ILaunchConfiguration config) {
+	protected boolean isContentValid() {
 		if (fRemotePath == null || fRemotePath.isEmpty()) {
 			setErrorMessage("Remote binary must be specified");
 			return false;

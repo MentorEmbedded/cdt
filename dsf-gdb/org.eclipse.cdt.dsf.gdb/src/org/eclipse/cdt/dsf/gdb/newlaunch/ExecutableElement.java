@@ -12,20 +12,23 @@
 package org.eclipse.cdt.dsf.gdb.newlaunch;
 
 import java.io.File;
+import java.util.Map;
 
 import org.eclipse.cdt.core.model.CoreModel;
 import org.eclipse.cdt.core.model.ICProject;
 import org.eclipse.cdt.debug.core.launch.AbstractLaunchElement;
 import org.eclipse.cdt.debug.core.launch.ILaunchElement;
+import org.eclipse.cdt.dsf.gdb.internal.GdbPlugin;
 import org.eclipse.cdt.dsf.gdb.launching.LaunchMessages;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.core.variables.VariablesPlugin;
-import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 
 /**
@@ -33,7 +36,6 @@ import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
  */
 public class ExecutableElement extends AbstractLaunchElement {
 
-	final private static String ELEMENT_ID = ".executable"; //$NON-NLS-1$
 	final private static String ATTR_PROGRAM_NAME = ".programName"; //$NON-NLS-1$
 	final private static String ATTR_PROJECT_NAME = ".projectName"; //$NON-NLS-1$
 	final private static String ATTR_PLATFORM = ".platform"; //$NON-NLS-1$
@@ -46,6 +48,8 @@ public class ExecutableElement extends AbstractLaunchElement {
 	public static ExecutableElement createNewExecutableElement(ILaunchElement parent, String id) {
 		ExecutableElement element = new ExecutableElement(parent, id);
 		element.doCreateChildren0();
+		OverviewElement overview = element.findAncestor(OverviewElement.class);
+		element.update(new OverviewElement.SessionTypeChangeEvent(overview, overview.getSessionType(), null));
 		return element;
 	}
 
@@ -58,7 +62,7 @@ public class ExecutableElement extends AbstractLaunchElement {
 	}
 
 	@Override
-	protected void doCreateChildren(ILaunchConfiguration config) {
+	protected void doCreateChildren(Map<String, Object> attributes) {
 		doCreateChildren0();
 	}
 
@@ -73,14 +77,10 @@ public class ExecutableElement extends AbstractLaunchElement {
 	}
 
 	@Override
-	protected void doInitializeFrom(ILaunchConfiguration config) {
-		try {
-			fProgramName = config.getAttribute(getId() + ATTR_PROGRAM_NAME, ""); //$NON-NLS-1$
-			fPlatformFilter = config.getAttribute(getId() + ATTR_PLATFORM, Platform.getOS());
-			fProjectName = config.getAttribute(getId() + ATTR_PROJECT_NAME, ""); //$NON-NLS-1$
-		}
-		catch(CoreException e) {
-		}
+	protected void doInitializeFrom(Map<String, Object> attributes) {
+		fProgramName = getAttribute(attributes, getId() + ATTR_PROGRAM_NAME, ""); //$NON-NLS-1$
+		fPlatformFilter = getAttribute(attributes, getId() + ATTR_PLATFORM, Platform.getOS());
+		fProjectName = getAttribute(attributes, getId() + ATTR_PROJECT_NAME, ""); //$NON-NLS-1$
 	}
 
 	@Override
@@ -96,7 +96,7 @@ public class ExecutableElement extends AbstractLaunchElement {
 	}
 
 	@Override
-	protected boolean isContentValid(ILaunchConfiguration config) {
+	protected boolean isContentValid() {
 		return isProgramNameValid(getProgramName(), getProjectName()) && isProjectNameValid(getProjectName());
 	}
 
@@ -127,55 +127,13 @@ public class ExecutableElement extends AbstractLaunchElement {
 	}
 
 	protected boolean isProgramNameValid(String programName, String projectName) {
-   		try {
-			programName = VariablesPlugin.getDefault().getStringVariableManager().performStringSubstitution(programName);
-		} catch (CoreException e) {
-			// Silently ignore substitution failure (for consistency with "Arguments" and "Work directory" fields)
+		try {
+			getFullProgramPath0(programName, projectName);
 		}
-		if (programName.length() == 0) {
-			setErrorMessage(LaunchMessages.getString("CMainTab.Program_not_specified")); //$NON-NLS-1$
+		catch(CoreException e) {
+			setErrorMessage(e.getLocalizedMessage());
 			return false;
 		}
-		if (programName.equals(".") || programName.equals("..")) { //$NON-NLS-1$ //$NON-NLS-2$
-			setErrorMessage(LaunchMessages.getString("CMainTab.Program_does_not_exist")); //$NON-NLS-1$
-			return false;
-		}
-		IPath exePath = new Path(programName);
-		if (exePath.isAbsolute()) {
-			// For absolute paths, we don't need a project, we can debug the binary directly
-			// as long as it exists
-			File executable = exePath.toFile();
-			if (!executable.exists()) {
-				setErrorMessage(LaunchMessages.getString("CMainTab.Program_does_not_exist")); //$NON-NLS-1$
-				return false;
-			}
-			if (!executable.isFile()) {
-				setErrorMessage(LaunchMessages.getString("CMainTab.Selection_must_be_file")); //$NON-NLS-1$
-				return false;
-			}
-		} else {
-			// For relative paths, we need a proper project
-			if (projectName == null || projectName.length() == 0) {
-				setErrorMessage(LaunchMessages.getString("CMainTab.Project_not_specified")); //$NON-NLS-1$
-				return false;
-			}
-			IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
-			if (!project.exists()) {
-				setErrorMessage(LaunchMessages.getString("Launch.common.Project_does_not_exist")); //$NON-NLS-1$
-				return false;
-			}
-			if (!project.isOpen()) {
-				setErrorMessage(LaunchMessages.getString("CMainTab.Project_must_be_opened")); //$NON-NLS-1$
-				return false;
-			}
-			if (!project.getFile(programName).exists()) {
-				setErrorMessage(LaunchMessages.getString("CMainTab.Program_does_not_exist")); //$NON-NLS-1$
-				return false;
-			}
-		}
-		// Notice that we don't check if exePath points to a valid executable since such
-		// check is too expensive to be done on the UI thread.
-		// See "https://bugs.eclipse.org/bugs/show_bug.cgi?id=328012".
 		return true;
 	}
 	
@@ -202,5 +160,57 @@ public class ExecutableElement extends AbstractLaunchElement {
 	@Override
 	public boolean canRemove() {
 		return true;
+	}
+	
+	public String getFullProgramPath() {
+		try {
+			return getFullProgramPath0(getProgramName(), getProjectName());
+		}
+		catch(CoreException e) {
+			return null;
+		}
+	}
+	
+	private String getFullProgramPath0(String programName, String projectName) throws CoreException {
+		programName = VariablesPlugin.getDefault().getStringVariableManager().performStringSubstitution(programName);
+		if (programName.length() == 0) {
+			throw new CoreException(new Status(IStatus.ERROR, GdbPlugin.PLUGIN_ID, LaunchMessages.getString("CMainTab.Program_not_specified"))); //$NON-NLS-1$
+		}
+		if (programName.equals(".") || programName.equals("..")) { //$NON-NLS-1$ //$NON-NLS-2$
+			throw new CoreException(new Status(IStatus.ERROR, GdbPlugin.PLUGIN_ID, LaunchMessages.getString("CMainTab.Program_does_not_exist"))); //$NON-NLS-1$
+		}
+		IPath exePath = new Path(programName);
+		if (exePath.isAbsolute()) {
+			// For absolute paths, we don't need a project, we can debug the binary directly
+			// as long as it exists
+			File executable = exePath.toFile();
+			if (!executable.exists()) {
+				throw new CoreException(new Status(IStatus.ERROR, GdbPlugin.PLUGIN_ID, LaunchMessages.getString("CMainTab.Program_does_not_exist"))); //$NON-NLS-1$
+			}
+			if (!executable.isFile()) {
+				throw new CoreException(new Status(IStatus.ERROR, GdbPlugin.PLUGIN_ID, LaunchMessages.getString("CMainTab.Selection_must_be_file"))); //$NON-NLS-1$
+			}
+			return executable.getAbsolutePath();
+		} else {
+			// For relative paths, we need a proper project
+			if (projectName == null || projectName.length() == 0) {
+				throw new CoreException(new Status(IStatus.ERROR, GdbPlugin.PLUGIN_ID, LaunchMessages.getString("CMainTab.Project_not_specified"))); //$NON-NLS-1$
+			}
+			IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
+			if (!project.exists()) {
+				throw new CoreException(new Status(IStatus.ERROR, GdbPlugin.PLUGIN_ID, LaunchMessages.getString("Launch.common.Project_does_not_exist"))); //$NON-NLS-1$
+			}
+			if (!project.isOpen()) {
+				throw new CoreException(new Status(IStatus.ERROR, GdbPlugin.PLUGIN_ID, LaunchMessages.getString("CMainTab.Project_must_be_opened"))); //$NON-NLS-1$
+			}
+			if (!project.getFile(programName).exists()) {
+				throw new CoreException(new Status(IStatus.ERROR, GdbPlugin.PLUGIN_ID, LaunchMessages.getString("CMainTab.Program_does_not_exist"))); //$NON-NLS-1$
+			}
+			// Notice that we don't check if exePath points to a valid executable since such
+			// check is too expensive to be done on the UI thread.
+			// See "https://bugs.eclipse.org/bugs/show_bug.cgi?id=328012".
+			return project.getFile(programName).getLocation().toOSString();
+		}
+
 	}
 }

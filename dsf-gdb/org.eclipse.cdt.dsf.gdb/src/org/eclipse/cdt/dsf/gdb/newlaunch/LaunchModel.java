@@ -1,0 +1,165 @@
+/*******************************************************************************
+ * Copyright (c) 2014 Mentor Graphics and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ * Mentor Graphics - Initial API and implementation
+ *******************************************************************************/
+
+package org.eclipse.cdt.dsf.gdb.newlaunch;
+
+import java.util.Map;
+
+import org.eclipse.cdt.debug.core.launch.ILaunchElement;
+import org.eclipse.cdt.dsf.gdb.IGdbDebugPreferenceConstants;
+import org.eclipse.cdt.dsf.gdb.internal.GdbPlugin;
+import org.eclipse.cdt.dsf.gdb.newlaunch.ConnectionElement.ConnectionType;
+import org.eclipse.cdt.dsf.gdb.service.SessionType;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.Status;
+
+/**
+ * Helper class to create and access a launch model.
+ * 
+ * @since 4.3
+ */
+public class LaunchModel {
+
+	final private ILaunchElement fRootElement;
+
+	public static LaunchModel create(Map<String, Object> attributes) throws CoreException {
+		LaunchModel model = new LaunchModel();
+		model.fRootElement.initialiazeFrom(attributes);
+		if (!model.fRootElement.isValid()) {
+			String errorMessage = model.getErrorMessage();
+			model.dispose();
+			throw new CoreException(new Status(IStatus.ERROR, GdbPlugin.PLUGIN_ID, errorMessage));
+		}
+		return model;
+	}
+
+	protected LaunchModel() {
+		super();
+		fRootElement = new OverviewElement();
+	}
+
+	public void dispose() {
+		fRootElement.dispose();
+	}
+
+	public String getErrorMessage() {
+		return fRootElement.getErrorMessage();
+	}
+
+	public SessionType getSessionType() {
+		OverviewElement overview = fRootElement.findChild(OverviewElement.class);
+		return (overview != null) ? overview.getSessionType() : SessionType.LOCAL;
+	}
+
+	public String getGDBPath() {
+		return "gdb";
+	}
+	
+	public String getGDBInitFile() {
+		return ".gdbinit";
+	}
+
+	public String[] getEnvironment() {
+		return new String[0];
+	}
+
+	public boolean isNonStop() {
+		boolean defNonStop = Platform.getPreferencesService().getBoolean(
+				GdbPlugin.PLUGIN_ID, IGdbDebugPreferenceConstants.PREF_DEFAULT_NON_STOP, false, null);
+		DebuggerSettingsElement settings = fRootElement.findChild(DebuggerSettingsElement.class);
+		return (settings != null) ? settings.isNonStop() : defNonStop;
+	}
+
+	public boolean isPostMortemTracing() {
+		return false;
+	}
+	
+	public String getGDBWorkingDirectory() {
+		return "."; //$NON-NLS-1$
+	}
+	
+	public ConnectionType getConnectionType() {
+		ConnectionElement connection = fRootElement.findChild(ConnectionElement.class);
+		return (connection != null) ? connection.getConnectionType() : ConnectionElement.getDefaultConnectionType();
+	}
+	
+	public String getTCPHost() {
+		TCPConnectionElement connection = fRootElement.findChild(TCPConnectionElement.class);
+		return (connection != null) ? connection.getHostName() : TCPConnectionElement.getDefaultHostName();
+	}
+	
+	public String getTCPPort() {
+		TCPConnectionElement connection = fRootElement.findChild(TCPConnectionElement.class);
+		return (connection != null) ? connection.getPortNumber() : TCPConnectionElement.getDefaultPortNumber();
+	}
+	
+	public String getSerialDevice() {
+		SerialConnectionElement connection = fRootElement.findChild(SerialConnectionElement.class);
+		return (connection != null) ? connection.getDevice() : SerialConnectionElement.getDefaultDevice();
+	}
+	
+	public int getExecutablesCount() {
+		ExecutablesListElement executables = fRootElement.findChild(ExecutablesListElement.class);
+		return (executables != null) ? executables.getChildren(ExecutableElement.class).length : 0;
+	}
+
+	public String getExecutablePath(String execId) {
+		ExecutableElement executable = getExecutable(execId);
+		return (executable != null) ? executable.getFullProgramPath() : null;
+	}
+
+	public String getArguments(String execId) {
+		ExecutableElement executable = getExecutable(execId);
+		if (executable != null) {
+			ArgumentsElement arguments = executable.findChild(ArgumentsElement.class);
+			return (arguments != null) ? arguments.getArguments() : null;
+		}
+		return null;
+	}
+
+	public String getRemoteExecutablePath(String execId) {
+		ExecutableElement executable = getExecutable(execId);
+		if (executable != null) {
+			RemoteBinaryElement remote = executable.findChild(RemoteBinaryElement.class);
+			return (remote != null) ? remote.getRemotePath() : null;
+		}
+		return null;
+	}
+
+	public String getStopOnStartupSymbol(String execId) {
+		ExecutableElement executable = getExecutable(execId);
+		if (executable != null) {
+			StopOnStartupElement stop = executable.findChild(StopOnStartupElement.class);
+			return (stop != null && stop.isStop()) ? stop.getStopSymbol() : null;
+		}
+		return null;
+	}
+
+	public String[] getExecutables() {
+		ExecutablesListElement executablesList = fRootElement.findChild(ExecutablesListElement.class);
+		if (executablesList == null) {
+			return new String[0];
+		}
+		ExecutableElement[] children = executablesList.getChildren(ExecutableElement.class);
+		String[] ids = new String[children.length];
+		for (int i = 0; i < children.length; ++i) {
+			ids[i] = children[i].getId();
+		}
+		return ids;
+	}
+	
+	private ExecutableElement getExecutable(String execId) {
+		ILaunchElement child = fRootElement.findChild(execId);
+		return (child instanceof ExecutableElement) ? (ExecutableElement)child : null;
+	}
+}

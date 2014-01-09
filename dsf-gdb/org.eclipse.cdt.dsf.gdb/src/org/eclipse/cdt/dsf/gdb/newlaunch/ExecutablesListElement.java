@@ -15,14 +15,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.cdt.debug.core.launch.ILaunchElement;
 import org.eclipse.cdt.debug.core.launch.ListLaunchElement;
 import org.eclipse.cdt.dsf.gdb.newlaunch.OverviewElement.SessionTypeChangeEvent;
 import org.eclipse.cdt.dsf.gdb.service.SessionType;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 
 /**
@@ -45,27 +44,25 @@ public class ExecutablesListElement extends ListLaunchElement {
 	}
 
 	@Override
-	protected void doCreateChildren(ILaunchConfiguration config) {
+	protected void doCreateChildren(Map<String, Object> attributes) {
 		List<ExecutableElement> list = new ArrayList<ExecutableElement>();
-		try {
-			@SuppressWarnings("unchecked")
-			List<String> ids = config.getAttribute(getId(), Collections.EMPTY_LIST);
-			for (String id : ids) {
-				list.add(new ExecutableElement(this, id));
-				Integer index = parseId(id);
-				if (index != null) {
-					fIds.add(index);
-				}
+		List<String> ids = getAttribute(attributes, getId(), new ArrayList<String>());
+		for (String id : ids) {
+			list.add(new ExecutableElement(this, id));
+			Integer index = parseId(id);
+			if (index != null) {
+				fIds.add(index);
 			}
-		}
-		catch(CoreException e) {
-			setErrorMessage(e.getLocalizedMessage());
 		}
 		addChildren(list.toArray(new ExecutableElement[list.size()]));
 	}
 
 	@Override
-	protected boolean isContentValid(ILaunchConfiguration config) {
+	protected void doInitializeFrom(Map<String, Object> attributes) {
+	}
+
+	@Override
+	protected boolean isContentValid() {
 		return true;
 	}
 

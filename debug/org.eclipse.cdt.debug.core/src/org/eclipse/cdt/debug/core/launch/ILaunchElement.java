@@ -11,6 +11,8 @@
 
 package org.eclipse.cdt.debug.core.launch;
 
+import java.util.Map;
+
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 
@@ -59,13 +61,15 @@ public interface ILaunchElement {
 	
 	public ILaunchElement getParent();
 	
+	public void initialiazeFrom(Map<String, Object> attributes);
+	
 	public void initialiazeFrom(ILaunchConfiguration config);
 	
 	public void performApply(ILaunchConfigurationWorkingCopy config);
 	
 	public void setDefaults(ILaunchConfigurationWorkingCopy config);
 	
-	public boolean isValid(ILaunchConfiguration config);
+	public boolean isValid();
 	
 	public String getErrorMessage();	
 	
@@ -84,6 +88,8 @@ public interface ILaunchElement {
 	public ILaunchElement findChild(String id);
 
 	public<V> V findChild(Class<V> childClass);
+
+	public<V> V[] getChildren(Class<V> childClass);
 
 	public<V> V findAncestor(Class<V> ancestorClass);
 

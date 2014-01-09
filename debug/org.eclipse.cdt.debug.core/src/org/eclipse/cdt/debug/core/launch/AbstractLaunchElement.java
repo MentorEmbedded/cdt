@@ -11,10 +11,14 @@
 
 package org.eclipse.cdt.debug.core.launch;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
+import org.eclipse.cdt.debug.core.CDebugUtils;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
@@ -27,7 +31,7 @@ abstract public class AbstractLaunchElement implements ILaunchElement {
 	/**
 	 * This event notifies the element's children that an update may be required.
 	 */
-	abstract protected class ChangeEvent implements IChangeEvent {
+	abstract protected static class ChangeEvent implements IChangeEvent {
 
 		final private AbstractLaunchElement fSource;
 		
@@ -86,16 +90,27 @@ abstract public class AbstractLaunchElement implements ILaunchElement {
 	}
 
 	@Override
-	public void initialiazeFrom(ILaunchConfiguration config) {
+	public void initialiazeFrom(Map<String, Object> attributes) {
 		fIsInitializing = true;
 		setErrorMessage(null);
 		removeAllChildren();
-		createChildren(config);
-		doInitializeFrom(config);
+		createChildren(attributes);
+		doInitializeFrom(attributes);
 		for (ILaunchElement el : getChildren()) {
-			el.initialiazeFrom(config);
+			el.initialiazeFrom(attributes);
 		}
 		fIsInitializing = false;
+	}
+
+	@SuppressWarnings( "unchecked" )
+	@Override
+	public void initialiazeFrom(ILaunchConfiguration config) {
+		try {
+			initialiazeFrom(config.getAttributes());
+		}
+		catch(CoreException e) {
+			setErrorMessage(e.getLocalizedMessage());
+		}
 	}
 
 	@Override
@@ -115,7 +130,7 @@ abstract public class AbstractLaunchElement implements ILaunchElement {
 	}
 
 	@Override
-	public boolean isValid(ILaunchConfiguration config) {
+	public boolean isValid() {
 		if (!isEnabled())
 			return true;
 		setErrorMessage(null);
@@ -124,11 +139,11 @@ abstract public class AbstractLaunchElement implements ILaunchElement {
 				((AbstractLaunchElement)el).setErrorMessage(null);
 			}
 		}
-		if (!isContentValid(config)) {
+		if (!isContentValid()) {
 			return false;
 		}
 		for (ILaunchElement el : getChildren()) {
-			if (!el.isValid(config)) {
+			if (!el.isValid()) {
 				return false;
 			}
 		}
@@ -250,7 +265,7 @@ abstract public class AbstractLaunchElement implements ILaunchElement {
 		return null;
 	}
 
-	@SuppressWarnings( "unchecked" )
+	@SuppressWarnings("unchecked")
 	@Override
 	public<V> V findChild(Class<V> childClass) {
 		if (this.getClass().equals(childClass)) {
@@ -265,12 +280,25 @@ abstract public class AbstractLaunchElement implements ILaunchElement {
 		return null;
 	}
 
+	@SuppressWarnings("unchecked")
+	@Override
+	public<V> V[] getChildren(Class<V> childClass) {
+		List<V> list = new ArrayList<V>();
+		for (ILaunchElement child : getChildren()) {
+			if (child.getClass().equals(childClass)) {
+				list.add((V)child);
+			}
+		}
+    	V[] v = (V[])Array.newInstance(childClass, list.size());
+		return list.toArray(v);
+	}
+
 	@Override
 	public int getChildIndex(ILaunchElement child) {
 		return Arrays.asList(getChildren()).indexOf(child);
 	}
 
-	@SuppressWarnings( "unchecked" )
+	@SuppressWarnings("unchecked")
 	@Override
 	public <V> V findAncestor(Class<V> ancestorClass) {
 		if (this.getClass().equals(ancestorClass)) {
@@ -293,12 +321,12 @@ abstract public class AbstractLaunchElement implements ILaunchElement {
 		fErrorMessage = message;
 	}
 
-	protected void createChildren(ILaunchConfiguration config) {
+	protected void createChildren(Map<String, Object> attributes) {
 		removeAllChildren();
-		doCreateChildren(config);
+		doCreateChildren(attributes);
 		for (ILaunchElement child : getChildren()) {
 			if (child instanceof AbstractLaunchElement) {
-				((AbstractLaunchElement)child).createChildren(config);
+				((AbstractLaunchElement)child).createChildren(attributes);
 			}
 		}
 	}
@@ -360,13 +388,17 @@ abstract public class AbstractLaunchElement implements ILaunchElement {
 		return false;
 	}
 
-	abstract protected void doCreateChildren(ILaunchConfiguration config);
+	protected<V> V getAttribute(Map<String, Object> attributes, String name, V defaultValue) {
+		return CDebugUtils.getAttribute(attributes, name, defaultValue);
+	}
+
+	abstract protected void doCreateChildren(Map<String, Object> attributes);
 	
-	abstract protected void doInitializeFrom(ILaunchConfiguration config);
+	abstract protected void doInitializeFrom(Map<String, Object> attributes);
 	
 	abstract protected void doPerformApply(ILaunchConfigurationWorkingCopy config);
 	
 	abstract protected void doSetDefaults(ILaunchConfigurationWorkingCopy config);
 	
-	abstract protected boolean isContentValid(ILaunchConfiguration config);
+	abstract protected boolean isContentValid();
 }

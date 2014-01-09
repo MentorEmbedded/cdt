@@ -293,11 +293,20 @@ public class LaunchUtils {
 	 * of the GDB that is being used.  This method should ideally be called
 	 * only once and the resulting version string stored for future uses.
 	 */
-	public static String getGDBVersion(final ILaunchConfiguration configuration) throws CoreException {        
+	public static String getGDBVersion(final ILaunchConfiguration configuration) throws CoreException {
+		String gdbPath = getGDBPath(configuration).toOSString();
+		String[] env = getLaunchEnvironment(configuration);
+		return getGDBVersion(gdbPath, env);
+	}
+
+	/**
+	 * @since 4.3
+	 */
+	public static String getGDBVersion(String gdbPath, String[] environment) throws CoreException {        
         final Process process;
-        String cmd = getGDBPath(configuration).toOSString() + " --version"; //$NON-NLS-1$ 
+        String cmd = gdbPath + " --version"; //$NON-NLS-1$ 
         try {
-        	process = ProcessFactory.getFactory().exec(cmd, getLaunchEnvironment(configuration));
+        	process = ProcessFactory.getFactory().exec(cmd, environment);
         } catch(IOException e) {
         	throw new DebugException(new Status(IStatus.ERROR, GdbPlugin.PLUGIN_ID, DebugException.REQUEST_FAILED, 
         			"Error while launching command: " + cmd, e.getCause()));//$NON-NLS-1$

@@ -15,12 +15,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.cdt.debug.core.launch.AbstractLaunchElement;
 import org.eclipse.cdt.debug.core.launch.ILaunchElement;
 import org.eclipse.cdt.dsf.gdb.IGDBLaunchConfigurationConstants;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 
 /**
@@ -40,21 +39,18 @@ public class SharedLibrariesElement extends AbstractLaunchElement {
 	}
 
 	@Override
-	protected void doCreateChildren(ILaunchConfiguration config) {
+	protected void doCreateChildren(Map<String, Object> attributes) {
 	}
 
 	@Override
-	protected void doInitializeFrom(ILaunchConfiguration config) {
-		try {
-			@SuppressWarnings("unchecked")
-			List<String> paths = config.getAttribute(getId() + ATTR_SOLIB_PATHS, Collections.EMPTY_LIST);
+	protected void doInitializeFrom(Map<String, Object> attributes) {
+			@SuppressWarnings( "unchecked" )
+			List<String> paths = getAttribute(attributes, getId() + ATTR_SOLIB_PATHS, Collections.EMPTY_LIST);
 			fSolibPaths.addAll(paths);
-			fAutoSolib = config.getAttribute(getId() + ATTR_AUTO_SOLIB, 
+			fAutoSolib = getAttribute(
+				attributes, 
+				getId() + ATTR_AUTO_SOLIB, 
 				IGDBLaunchConfigurationConstants.DEBUGGER_AUTO_SOLIB_DEFAULT);
-		}
-		catch(CoreException e) {
-			setErrorMessage(e.getLocalizedMessage());
-		}
 	}
 
 	@Override
@@ -73,7 +69,7 @@ public class SharedLibrariesElement extends AbstractLaunchElement {
 	}
 
 	@Override
-	protected boolean isContentValid(ILaunchConfiguration config) {
+	protected boolean isContentValid() {
 		return true;
 	}
 

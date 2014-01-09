@@ -11,9 +11,6 @@
 
 package org.eclipse.cdt.debug.core.launch;
 
-import org.eclipse.debug.core.ILaunchConfiguration;
-import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
-
 /**
  * @since 7.4
  */
@@ -24,36 +21,6 @@ abstract public class ListLaunchElement extends AbstractLaunchElement implements
 
 	public ListLaunchElement(ILaunchElement parent, String id, String name, String description) {
 		super(parent, id, name, description);
-	}
-
-	@Override
-	protected void doCreateChildren(ILaunchConfiguration config) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	protected void doInitializeFrom(ILaunchConfiguration config) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	protected void doPerformApply(ILaunchConfigurationWorkingCopy config) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	protected void doSetDefaults(ILaunchConfigurationWorkingCopy config) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	protected boolean isContentValid(ILaunchConfiguration config) {
-		// TODO Auto-generated method stub
-		return false;
 	}
 
 	@Override

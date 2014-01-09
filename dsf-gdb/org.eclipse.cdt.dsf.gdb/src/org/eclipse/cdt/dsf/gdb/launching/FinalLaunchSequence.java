@@ -39,6 +39,7 @@ import org.eclipse.cdt.dsf.gdb.IGDBLaunchConfigurationConstants;
 import org.eclipse.cdt.dsf.gdb.IGdbDebugPreferenceConstants;
 import org.eclipse.cdt.dsf.gdb.actions.IConnect;
 import org.eclipse.cdt.dsf.gdb.internal.GdbPlugin;
+import org.eclipse.cdt.dsf.gdb.newlaunch.ConnectionElement.ConnectionType;
 import org.eclipse.cdt.dsf.gdb.service.IGDBBackend;
 import org.eclipse.cdt.dsf.gdb.service.SessionType;
 import org.eclipse.cdt.dsf.gdb.service.command.IGDBControl;
@@ -53,6 +54,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.core.variables.IStringVariableManager;
 import org.eclipse.debug.core.ILaunch;
 
 public class FinalLaunchSequence extends ReflectionSequence {
@@ -317,9 +319,8 @@ public class FinalLaunchSequence extends ReflectionSequence {
 			String gdbinitFile = fGDBBackend.getGDBInitFile();
 
 			if (gdbinitFile != null && gdbinitFile.length() > 0) {
-				String projectName = (String) fAttributes.get(ICDTLaunchConfigurationConstants.ATTR_PROJECT_NAME);
-				final String expandedGDBInitFile = new DebugStringVariableSubstitutor(projectName).performStringSubstitution(gdbinitFile);
-
+				IStringVariableManager substitutor = getStringSubstitutor();
+				final String expandedGDBInitFile = substitutor.performStringSubstitution(gdbinitFile);
 				fCommandControl.queueCommand(
 						fCommandFactory.createCLISource(fCommandControl.getContext(), expandedGDBInitFile), 
 						new DataRequestMonitor<MIInfo>(getExecutor(), requestMonitor) {
@@ -353,11 +354,7 @@ public class FinalLaunchSequence extends ReflectionSequence {
 	// It could be moved to FinalLaunchSequence_7_0, otherwise.
 	@Execute
 	public void stepSetNonStop(final RequestMonitor requestMonitor) {
-		boolean isNonStop = CDebugUtils.getAttribute(
-				fAttributes,
-				IGDBLaunchConfigurationConstants.ATTR_DEBUGGER_NON_STOP,
-				LaunchUtils.getIsNonStopModeDefault());
-
+		boolean isNonStop = isNonStop();
 		// GDBs that don't support non-stop don't allow you to set it to false.
 		// We really should set it to false when GDB supports it though.
 		// Something to fix later.
@@ -400,11 +397,7 @@ public class FinalLaunchSequence extends ReflectionSequence {
 	 */
 	@Execute
 	public void stepSetAutoLoadSharedLibrarySymbols(RequestMonitor requestMonitor) {
-		boolean autolib = CDebugUtils.getAttribute(
-				fAttributes,
-				IGDBLaunchConfigurationConstants.ATTR_DEBUGGER_AUTO_SOLIB,
-				IGDBLaunchConfigurationConstants.DEBUGGER_AUTO_SOLIB_DEFAULT);
-
+		boolean autolib = autoLoadSolibSymbols();
 		fCommandControl.queueCommand(
 				fCommandFactory.createMIGDBSetAutoSolib(fCommandControl.getContext(), autolib), 
 				new DataRequestMonitor<MIInfo>(getExecutor(), requestMonitor));
@@ -469,27 +462,19 @@ public class FinalLaunchSequence extends ReflectionSequence {
 	@Execute
 	public void stepRemoteConnection(final RequestMonitor rm) {
 		if (fGDBBackend.getSessionType() == SessionType.REMOTE && fGDBBackend.getIsAttachSession()) {
-			boolean isTcpConnection = CDebugUtils.getAttribute(
-					fAttributes,
-					IGDBLaunchConfigurationConstants.ATTR_REMOTE_TCP,
-					false);
+			ConnectionType type = getRemoteConnectionType();
+			boolean isTcpConnection = ConnectionType.TCP == type;
 
 			if (isTcpConnection) {
-				String remoteTcpHost = CDebugUtils.getAttribute(
-						fAttributes,
-						IGDBLaunchConfigurationConstants.ATTR_HOST, INVALID);
-				String remoteTcpPort = CDebugUtils.getAttribute(
-						fAttributes,
-						IGDBLaunchConfigurationConstants.ATTR_PORT, INVALID);
+				String remoteTcpHost = getTcpHost();
+				String remoteTcpPort = getTcpPort();
 
 				fCommandControl.queueCommand(
 						fCommandFactory.createMITargetSelect(fCommandControl.getContext(), 
 								remoteTcpHost, remoteTcpPort, true), 
 								new ImmediateDataRequestMonitor<MIInfo>(rm));
 			} else {
-				String serialDevice = CDebugUtils.getAttribute(
-						fAttributes,
-						IGDBLaunchConfigurationConstants.ATTR_DEV, INVALID);
+				String serialDevice = getSerialDevice();
 
 				fCommandControl.queueCommand(
 						fCommandFactory.createMITargetSelect(fCommandControl.getContext(), 
@@ -510,10 +495,7 @@ public class FinalLaunchSequence extends ReflectionSequence {
 	public void stepNewProcess(final RequestMonitor rm) {
 		if (!fGDBBackend.getIsAttachSession()) {
 
-			boolean noBinarySpecified = CDebugUtils.getAttribute(
-					fAttributes,
-					IGDBLaunchConfigurationConstants.ATTR_DEBUGGER_USE_SOLIB_SYMBOLS_FOR_APP,
-					IGDBLaunchConfigurationConstants.DEBUGGER_USE_SOLIB_SYMBOLS_FOR_APP_DEFAULT);
+			boolean noBinarySpecified = isNoBinarySpecified();
 
 			String binary = null;
 			final IPath execPath = fGDBBackend.getProgramPath();
@@ -550,10 +532,7 @@ public class FinalLaunchSequence extends ReflectionSequence {
 	public void stepAttachToProcess(final RequestMonitor requestMonitor) {
 		if (fGDBBackend.getIsAttachSession() && fGDBBackend.getSessionType() != SessionType.REMOTE) {
 			// Is the process id already stored in the launch?
-			int pid = CDebugUtils.getAttribute(
-					fAttributes,
-					ICDTLaunchConfigurationConstants.ATTR_ATTACH_PROCESS_ID, -1);
-
+			int pid = getPid();
 			if (pid != -1) {
 				fProcService.attachDebuggerToProcess(
 						fProcService.createProcessContext(fCommandControl.getContext(), Integer.toString(pid)),
@@ -591,6 +570,98 @@ public class FinalLaunchSequence extends ReflectionSequence {
 		fTracker.dispose();
 		fTracker = null;
 		requestMonitor.done();
+	}
+
+	/**
+	 * @since 4.3
+	 */
+	protected int getPid() {
+		return CDebugUtils.getAttribute(
+			fAttributes,
+			ICDTLaunchConfigurationConstants.ATTR_ATTACH_PROCESS_ID, 
+			-1);
+	}
+	
+	/**
+	 * @since 4.3
+	 */
+	protected boolean isNoBinarySpecified() {
+		return CDebugUtils.getAttribute(
+			fAttributes,
+			IGDBLaunchConfigurationConstants.ATTR_DEBUGGER_USE_SOLIB_SYMBOLS_FOR_APP,
+			IGDBLaunchConfigurationConstants.DEBUGGER_USE_SOLIB_SYMBOLS_FOR_APP_DEFAULT);
+	}
+
+	/**
+	 * @since 4.3
+	 */
+	protected ConnectionType getRemoteConnectionType() {
+		boolean isTcpConnection = CDebugUtils.getAttribute(
+				fAttributes,
+				IGDBLaunchConfigurationConstants.ATTR_REMOTE_TCP,
+				false);
+		return isTcpConnection ? ConnectionType.TCP : ConnectionType.SERIAL;
+	}
+	
+	/**
+	 * @since 4.3
+	 */
+	protected String getTcpHost() {
+		return CDebugUtils.getAttribute(
+			fAttributes,
+			IGDBLaunchConfigurationConstants.ATTR_HOST, 
+			INVALID);
+	}
+	
+	/**
+	 * @since 4.3
+	 */
+	protected String getTcpPort() {
+		return CDebugUtils.getAttribute(
+			fAttributes,
+			IGDBLaunchConfigurationConstants.ATTR_PORT, 
+			INVALID);
+	}
+	
+	/**
+	 * @since 4.3
+	 */
+	protected String getSerialDevice() {
+		return CDebugUtils.getAttribute(
+			fAttributes,
+			IGDBLaunchConfigurationConstants.ATTR_DEV, 
+			INVALID);
+	}
+	
+	/**
+	 * @since 4.3
+	 */
+	protected boolean autoLoadSolibSymbols() {
+		return CDebugUtils.getAttribute(
+			fAttributes,
+			IGDBLaunchConfigurationConstants.ATTR_DEBUGGER_AUTO_SOLIB,
+			IGDBLaunchConfigurationConstants.DEBUGGER_AUTO_SOLIB_DEFAULT);
+	}
+	
+	/**
+	 * @since 4.3
+	 */
+	protected boolean isNonStop() {
+		return CDebugUtils.getAttribute(
+			fAttributes,
+			IGDBLaunchConfigurationConstants.ATTR_DEBUGGER_NON_STOP,
+			LaunchUtils.getIsNonStopModeDefault());
+	}
+	
+	/**
+	 * @since 4.3
+	 */
+	protected IStringVariableManager getStringSubstitutor() {
+		String projectName = CDebugUtils.getAttribute(
+			fAttributes, 
+			ICDTLaunchConfigurationConstants.ATTR_PROJECT_NAME, 
+			""); //$NON-NLS-1$
+		return new DebugStringVariableSubstitutor(projectName);
 	}
 }
 

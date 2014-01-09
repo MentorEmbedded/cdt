@@ -12,13 +12,12 @@
 package org.eclipse.cdt.dsf.gdb.newlaunch;
 
 import java.util.Arrays;
+import java.util.Map;
 
 import org.eclipse.cdt.debug.core.launch.AbstractLaunchElement;
 import org.eclipse.cdt.debug.core.launch.ILaunchElement;
 import org.eclipse.cdt.dsf.gdb.newlaunch.ConnectionElement.ConnectionType;
 import org.eclipse.cdt.dsf.gdb.newlaunch.ConnectionElement.ConnectionTypeChangeEvent;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 
 /**
@@ -50,18 +49,13 @@ public class SerialConnectionElement extends AbstractLaunchElement {
 	}
 
 	@Override
-	protected void doCreateChildren(ILaunchConfiguration config) {
+	protected void doCreateChildren(Map<String, Object> attributes) {
 	}
 
 	@Override
-	protected void doInitializeFrom(ILaunchConfiguration config) {
-		try {
-			fDevice = config.getAttribute(getId() + ATTR_DEVICE, DEFAULT_DEVICE);
-			fSpeed = config.getAttribute(getId() + ATTR_DEVICE_SPEED, DEFAULT_DEVICE_SPEED);
-		}
-		catch(CoreException e) {
-			setErrorMessage(e.getLocalizedMessage());
-		}
+	protected void doInitializeFrom(Map<String, Object> attributes) {
+		fDevice = getAttribute(attributes, getId() + ATTR_DEVICE, DEFAULT_DEVICE);
+		fSpeed = getAttribute(attributes, getId() + ATTR_DEVICE_SPEED, DEFAULT_DEVICE_SPEED);
 	}
 
 	@Override
@@ -79,7 +73,7 @@ public class SerialConnectionElement extends AbstractLaunchElement {
 	}
 
 	@Override
-	protected boolean isContentValid(ILaunchConfiguration config) {
+	protected boolean isContentValid() {
 		setErrorMessage(null);
 		if (fDevice.isEmpty()) {
 			setErrorMessage("Device must be specified.");
@@ -105,6 +99,10 @@ public class SerialConnectionElement extends AbstractLaunchElement {
 		return fgSpeedChoices;
 	}
 
+	public static String getDefaultDevice() {
+		return DEFAULT_DEVICE;
+	}
+
 	public String getDevice() {
 		return fDevice;
 	}
@@ -118,6 +116,10 @@ public class SerialConnectionElement extends AbstractLaunchElement {
 
 	public String getSpeed() {
 		return fSpeed;
+	}
+
+	public static String getDefaultSpeed() {
+		return DEFAULT_DEVICE_SPEED;
 	}
 
 	public void setDeviceSpeed(String speed) {
