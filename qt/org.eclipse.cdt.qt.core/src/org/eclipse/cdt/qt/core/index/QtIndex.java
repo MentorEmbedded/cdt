@@ -7,6 +7,8 @@
  */
 package org.eclipse.cdt.qt.core.index;
 
+import java.util.Collection;
+
 import org.eclipse.cdt.internal.qt.core.index.QtFactory;
 import org.eclipse.cdt.qt.core.QtPlugin;
 import org.eclipse.core.resources.IProject;
@@ -62,4 +64,21 @@ public abstract class QtIndex {
 	 * the index does not have a subclass of QObject with the given name.
 	 */
 	public abstract IQObject findQObject(String[] qualifiedName);
+
+	/**
+	 * Find and return a class that has been marked with the Q_GADGET macro.  These are
+	 * normal C++ classes that are able to introduce Q_ENUMS and Q_FLAGS to the Qt
+	 * meta-object system.  Returns null if the index does not have a Q_GADGET with
+	 * the given name.
+	 */
+	public abstract IQGadget findQGadget(String[] qualifiedName);
+
+	/**
+	 * Find and return the types that have been registered with the Qt meta type system.  This
+	 * is the result of the function calls like:
+	 * <pre>
+	 * qmlRegisterType<Q>( "uri", 1, 2, "Qv1.2" );
+	 * </pre>
+	 */
+	public abstract Collection<IQmlRegistered> getQmlRegistered();
 }

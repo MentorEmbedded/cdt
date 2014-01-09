@@ -12,6 +12,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import org.eclipse.cdt.core.dom.ast.DOMException;
 import org.eclipse.cdt.core.dom.ast.IASTDeclaration;
 import org.eclipse.cdt.core.dom.ast.IASTExpression;
 import org.eclipse.cdt.core.dom.ast.IASTFunctionCallExpression;
@@ -27,6 +28,7 @@ import org.eclipse.cdt.core.dom.ast.cpp.ICPPASTExpression;
 import org.eclipse.cdt.core.dom.ast.cpp.ICPPASTFieldReference;
 import org.eclipse.cdt.core.dom.ast.cpp.ICPPASTInitializerClause;
 import org.eclipse.cdt.core.dom.ast.cpp.ICPPASTVisibilityLabel;
+import org.eclipse.cdt.core.dom.ast.cpp.ICPPBinding;
 import org.eclipse.cdt.core.dom.ast.cpp.ICPPClassType;
 import org.eclipse.cdt.core.dom.ast.cpp.ICPPMethod;
 import org.eclipse.cdt.core.model.ICProject;
@@ -34,6 +36,7 @@ import org.eclipse.cdt.core.model.ITranslationUnit;
 import org.eclipse.cdt.internal.core.dom.parser.ITypeContainer;
 import org.eclipse.cdt.internal.core.dom.parser.cpp.ICPPEvaluation;
 import org.eclipse.cdt.internal.core.dom.parser.cpp.ICPPInternalBinding;
+import org.eclipse.cdt.qt.core.QtPlugin;
 import org.eclipse.cdt.qt.core.index.IQMethod;
 import org.eclipse.cdt.qt.core.index.IQObject;
 import org.eclipse.core.resources.IProject;
@@ -61,15 +64,58 @@ public class ASTUtil {
 		return cProject.getProject();
 	}
 
+	/**
+	 * Return the fully qualified name of the binding for the given name.  Returns null
+	 * if the name has no binding.  Tries to resolve the binding if needed.
+	 */
+	public static String getFullyQualifiedName(IASTName name) {
+		return getFullyQualifiedName(name.resolveBinding());
+	}
+
+	/**
+	 * Return the fully qualified name of the given binding.  Returns null if there
+	 * is no binding.
+	 */
+	public static String getFullyQualifiedName(IBinding binding) {
+		if (binding == null)
+			return null;
+		if (binding instanceof ICPPBinding)
+			try {
+				return getFullyQualifiedName(((ICPPBinding) binding).getQualifiedName());
+			} catch(DOMException e) {
+				QtPlugin.log(e);
+				return null;
+			}
+
+		String ownerName = getFullyQualifiedName(binding.getOwner());
+		return (ownerName == null ? "" : ownerName) + "::" + binding.getName();
+	}
+
+	/**
+	 * Create and return a string representation of the fully qualified name in the
+	 * input array's elements.
+	 */
+	public static String getFullyQualifiedName(String[] qualName) {
+		boolean first = true;
+		StringBuilder str = new StringBuilder();
+		for(String name : qualName) {
+			if (first)
+				first = false;
+			else
+				str.append("::");
+			str.append(name);
+		}
+		return str.toString();
+	}
+
 	// NOTE: This expression allows embedded line terminators (?s) for cases where the code looks like:
 	// QObject::connect( &a, SIGNAL(
 	//					sig1(
 	//						int
 	//					), ...
-	// The two patterns are nearly identical.  The difference is because the first is for matching SIGNAL/
-	// SLOT expansions.  The second is for matching the argument to that expansion.
-	public static final Pattern Regex_SignalSlotExpansion = Pattern.compile("(?s)(SIGNAL|SLOT)\\s*\\(\\s*(.*?)\\s*\\)\\s*");
-	public static final Pattern Regex_FunctionCall = Pattern.compile("(?s)\\s*(.*)\\s*\\(\\s*(.*?)\\s*\\)\\s*");
+	// The regex trims leading and trailing whitespace within the expansion parameter.  This is needed
+	// so that the start of the capture group provides the proper offset into the expansion.
+	public static final Pattern Regex_MacroExpansion = Pattern.compile("(?s)([_a-zA-Z]\\w*)\\s*\\(\\s*(.*?)\\s*\\)\\s*");
 
 	public static IType getBaseType(IType type) {
 		while (type instanceof ITypeContainer)
@@ -118,11 +164,11 @@ public class ASTUtil {
 	/**
 	 * Does not return null.
 	 */
-	public static Collection<IQMethod> findMethods(IQObject qobj, QtSignalSlotReference ref) {
+	public static Collection<IQMethod> findMethods(IQObject qobj, QtMethodReference ref) {
 		Set<IQMethod> bindings = new LinkedHashSet<IQMethod>();
 
 		Iterable<IQMethod> methods = null;
-		switch(ref.type)
+		switch(ref.getType())
 		{
 		case Signal:
 			methods = qobj.getSignals().withoutOverrides();
@@ -133,7 +179,7 @@ public class ASTUtil {
 		}
 
 		if (methods != null) {
-			String qtNormalizedSig = QtMethodUtil.getQtNormalizedMethodSignature(ref.signature);
+			String qtNormalizedSig = QtMethodUtil.getQtNormalizedMethodSignature(ref.getRawSignature());
 			if (qtNormalizedSig == null)
 				return bindings;
 
@@ -145,7 +191,7 @@ public class ASTUtil {
 		return bindings;
 	}
 
-	public static IBinding resolveFunctionBinding(IASTFunctionCallExpression fnCall) {
+	public static <T extends IBinding> T resolveFunctionBinding(Class<T> cls, IASTFunctionCallExpression fnCall) {
 		IASTName fnName = null;
 		IASTExpression fnNameExpr = fnCall.getFunctionNameExpression();
 		if (fnNameExpr instanceof IASTIdExpression)
@@ -153,7 +199,11 @@ public class ASTUtil {
 		else if (fnNameExpr instanceof ICPPASTFieldReference)
 			fnName = ((ICPPASTFieldReference) fnNameExpr).getFieldName();
 
-		return fnName == null ? null : fnName.resolveBinding();
+		IBinding binding = fnName == null ? null : fnName.resolveBinding();
+		if (binding == null)
+			return null;
+
+		return cls.isAssignableFrom(binding.getClass()) ? cls.cast(binding) : null;
 	}
 
 	public static ICPPASTVisibilityLabel findVisibilityLabel(ICPPMethod method, IASTNode ast) {

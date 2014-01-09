@@ -7,19 +7,34 @@
  */
 package org.eclipse.cdt.internal.qt.core.index;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.regex.Pattern;
+
 import org.eclipse.cdt.core.dom.ILinkage;
 import org.eclipse.cdt.core.dom.ast.IBinding;
 import org.eclipse.cdt.core.index.IIndex;
 import org.eclipse.cdt.core.index.IIndexBinding;
 import org.eclipse.cdt.core.index.IndexFilter;
+import org.eclipse.cdt.internal.qt.core.ASTUtil;
+import org.eclipse.cdt.internal.qt.core.pdom.AbstractQtPDOMClass;
 import org.eclipse.cdt.internal.qt.core.pdom.QtPDOMQObject;
+import org.eclipse.cdt.qt.core.QtKeywords;
+import org.eclipse.cdt.qt.core.index.IQGadget;
 import org.eclipse.cdt.qt.core.index.IQObject;
+import org.eclipse.cdt.qt.core.index.IQmlRegistered;
 import org.eclipse.cdt.qt.core.index.QtIndex;
 import org.eclipse.core.runtime.CoreException;
 
 public class QtIndexImpl extends QtIndex {
 
 	private final CDTIndex cdtIndex;
+
+	private static final Pattern QmlTypeNameRegex
+		= Pattern.compile("^(?:"
+				+ QtKeywords.QML_REGISTER_TYPE + '|' + QtKeywords.QML_REGISTER_UNCREATABLE_TYPE
+				+ ")<.*>\0(.*)$");
 
 	private static final IndexFilter QtLinkageFilter = new IndexFilter() {
 		@Override
@@ -42,14 +57,23 @@ public class QtIndexImpl extends QtIndex {
 		return name == null ? null : cdtIndex.get(new QObjectImplAccessor(name));
 	}
 
+	@Override
+	public IQGadget findQGadget(String[] name) {
+		return name == null ? null : cdtIndex.get(new QGadgetImplAccessor(name));
+	}
+
+	@Override
+	public Collection<IQmlRegistered> getQmlRegistered() {
+		return cdtIndex.get(new QMLRegisteredAccessor());
+	}
+
 	private class QObjectImplAccessor implements CDTIndex.Accessor<IQObject> {
 
-		private final char[][] name;
+		private final char[] name;
 
 		public QObjectImplAccessor(String[] qualName) {
-			name = new char[qualName.length][];
-			for(int i = 0; i < name.length; ++i)
-				name[i] = qualName[i].toCharArray();
+			// QObjects are stored in the Qt linkage using their fully qualified name.
+			name = ASTUtil.getFullyQualifiedName(qualName).toCharArray();
 		}
 
 		@Override
@@ -61,6 +85,46 @@ public class QtIndexImpl extends QtIndex {
 					return new QObject(QtIndexImpl.this, cdtIndex, (QtPDOMQObject) binding);
 
 			return null;
+		}
+	}
+
+	private class QGadgetImplAccessor implements CDTIndex.Accessor<IQGadget> {
+
+		private final char[][] name;
+
+		public QGadgetImplAccessor(String[] qualName) {
+			name = new char[qualName.length][];
+			for(int i = 0; i < name.length; ++i)
+				name[i] = qualName[i].toCharArray();
+		}
+
+		@Override
+		public IQGadget access(IIndex index) throws CoreException {
+
+			// TODO can there be more than one result?
+			for(IIndexBinding binding : index.findBindings(name, QtLinkageFilter, null))
+				if (binding instanceof AbstractQtPDOMClass)
+					return new QGadget(QtIndexImpl.this, cdtIndex, (AbstractQtPDOMClass) binding);
+
+			return null;
+		}
+	}
+
+	private class QMLRegisteredAccessor implements CDTIndex.Accessor<Collection<IQmlRegistered>> {
+
+		@Override
+		public Collection<IQmlRegistered> access(IIndex index) throws CoreException {
+			Collection<IQmlRegistered> types = null;
+			for(IIndexBinding binding : index.findBindings(QmlTypeNameRegex, false, QtLinkageFilter, null)) {
+				IQmlRegistered qml = QmlRegistered.create(QtIndexImpl.this, binding);
+				if (qml != null) {
+					if (types == null)
+						types = new ArrayList<IQmlRegistered>();
+					types.add(qml);
+				}
+			}
+
+			return types == null ? Collections.<IQmlRegistered>emptyList() : types;
 		}
 	}
 }

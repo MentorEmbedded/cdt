@@ -16,9 +16,11 @@ public class AllQtTests extends TestSuite {
 		return
 			new TestSuite(
 				QMakeTests.class,
+				QGadgetTests.class,
 				QObjectTests.class,
 				QtContentAssistantTests.class,
 				QtIndexTests.class,
-				QtRegressionTests.class);
+				QtRegressionTests.class,
+				QmlRegisteredTests.class);
 	}
 }
