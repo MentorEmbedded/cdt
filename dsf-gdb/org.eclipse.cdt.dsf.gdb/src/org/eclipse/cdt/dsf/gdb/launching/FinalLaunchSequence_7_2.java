@@ -85,12 +85,18 @@ public class FinalLaunchSequence_7_2 extends FinalLaunchSequence_7_0 {
 	 */
 	@Execute
 	public void stepDetachOnFork(final RequestMonitor rm) {
-		boolean debugOnFork = CDebugUtils.getAttribute(getAttributes(), 
-				                                       IGDBLaunchConfigurationConstants.ATTR_DEBUGGER_DEBUG_ON_FORK,
-				                                       IGDBLaunchConfigurationConstants.DEBUGGER_DEBUG_ON_FORK_DEFAULT);
-
+		boolean debugOnFork = debugOnFork();
 		fGdbControl.queueCommand(
 				fGdbControl.getCommandFactory().createMIGDBSetDetachOnFork(fGdbControl.getContext(), !debugOnFork), 
 				new ImmediateDataRequestMonitor<MIInfo>(rm));
+	}
+	
+	/**
+	 * @since 4.3
+	 */
+	protected boolean debugOnFork() {
+		return CDebugUtils.getAttribute(getAttributes(), 
+            IGDBLaunchConfigurationConstants.ATTR_DEBUGGER_DEBUG_ON_FORK,
+            IGDBLaunchConfigurationConstants.DEBUGGER_DEBUG_ON_FORK_DEFAULT);
 	}
 }

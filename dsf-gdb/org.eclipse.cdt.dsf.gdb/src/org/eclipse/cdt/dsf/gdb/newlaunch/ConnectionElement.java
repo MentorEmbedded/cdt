@@ -11,12 +11,12 @@
 
 package org.eclipse.cdt.dsf.gdb.newlaunch;
 
+import java.util.Map;
+
 import org.eclipse.cdt.debug.core.launch.AbstractLaunchElement;
 import org.eclipse.cdt.debug.core.launch.ILaunchElement;
 import org.eclipse.cdt.dsf.gdb.newlaunch.OverviewElement.SessionTypeChangeEvent;
 import org.eclipse.cdt.dsf.gdb.service.SessionType;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 
 /**
@@ -59,7 +59,7 @@ public class ConnectionElement extends AbstractLaunchElement {
 	}
 
 	@Override
-	protected void doCreateChildren(ILaunchConfiguration config) {
+	protected void doCreateChildren(Map<String, Object> attributes) {
 		addChildren(new ILaunchElement[] {
 			new TCPConnectionElement(this),
 			new SerialConnectionElement(this),
@@ -67,9 +67,9 @@ public class ConnectionElement extends AbstractLaunchElement {
 	}
 
 	@Override
-	public void initialiazeFrom(ILaunchConfiguration config) {
+	public void initialiazeFrom(Map<String, Object> attributes) {
 		ConnectionType oldType = getConnectionType();
-		super.initialiazeFrom(config);
+		super.initialiazeFrom(attributes);
 		update(new ConnectionTypeChangeEvent(this, getConnectionType(), oldType));
 	}
 
@@ -81,18 +81,13 @@ public class ConnectionElement extends AbstractLaunchElement {
 	}
 
 	@Override
-	protected void doInitializeFrom(ILaunchConfiguration config) {
-		try {
-			int connType = config.getAttribute(getId() + ATTR_TYPE, ConnectionType.TCP.ordinal());
-			if (connType < 0 || connType > ConnectionType.values().length) {
-				setErrorMessage("Invalid connection type");
-			}
-			else {
-				fType = ConnectionType.values()[connType];
-			}
+	protected void doInitializeFrom(Map<String, Object> attributes) {
+		int connType = getAttribute(attributes, getId() + ATTR_TYPE, getDefaultConnectionType().ordinal());
+		if (connType < 0 || connType > ConnectionType.values().length) {
+			setErrorMessage("Invalid connection type");
 		}
-		catch(CoreException e) {
-			setErrorMessage(e.getLocalizedMessage());
+		else {
+			fType = ConnectionType.values()[connType];
 		}
 	}
 
@@ -103,17 +98,21 @@ public class ConnectionElement extends AbstractLaunchElement {
 
 	@Override
 	protected void doSetDefaults(ILaunchConfigurationWorkingCopy config) {
-		fType = ConnectionType.TCP;
-		config.setAttribute(ATTR_TYPE, ConnectionType.TCP.ordinal());
+		fType = getDefaultConnectionType();
+		config.setAttribute(ATTR_TYPE, fType.ordinal());
 	}
 
 	@Override
-	protected boolean isContentValid(ILaunchConfiguration config) {
+	protected boolean isContentValid() {
 		return true;
 	}
 
 	public ConnectionType getConnectionType() {
 		return fType;
+	}
+
+	public static ConnectionType getDefaultConnectionType() {
+		return ConnectionType.TCP;
 	}
 
 	public String getConnectionTypeLabel(ConnectionType type) {

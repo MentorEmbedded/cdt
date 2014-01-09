@@ -12,6 +12,7 @@
 package org.eclipse.cdt.dsf.gdb.newlaunch;
 
 import java.io.File;
+import java.util.Map;
 
 import org.eclipse.cdt.core.CCorePlugin;
 import org.eclipse.cdt.core.model.ICProject;
@@ -25,7 +26,6 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.variables.IStringVariableManager;
 import org.eclipse.core.variables.VariablesPlugin;
-import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 
 /**
@@ -45,18 +45,13 @@ public class WorkingDirectoryElement extends AbstractLaunchElement {
 	}
 
 	@Override
-	protected void doCreateChildren(ILaunchConfiguration config) {
+	protected void doCreateChildren(Map<String, Object> attributes) {
 	}
 
 	@Override
-	protected void doInitializeFrom(ILaunchConfiguration config) {
-		try {
-			fPath = config.getAttribute(getId() + ATTR_PATH, ""); //$NON-NLS-1$
-			fUseDefault = config.getAttribute(getId() + ATTR_USE_DEFAULT, true);
-		}
-		catch(CoreException e) {
-			setErrorMessage(e.getLocalizedMessage());
-		}
+	protected void doInitializeFrom(Map<String, Object> attributes) {
+		fPath = getAttribute(attributes, getId() + ATTR_PATH, ""); //$NON-NLS-1$
+		fUseDefault = getAttribute(attributes, getId() + ATTR_USE_DEFAULT, true);
 	}
 
 	@Override
@@ -74,7 +69,7 @@ public class WorkingDirectoryElement extends AbstractLaunchElement {
 	}
 
 	@Override
-	protected boolean isContentValid(ILaunchConfiguration config) {
+	protected boolean isContentValid() {
 		setErrorMessage(null);
 		if (useDefault())
 			return true;

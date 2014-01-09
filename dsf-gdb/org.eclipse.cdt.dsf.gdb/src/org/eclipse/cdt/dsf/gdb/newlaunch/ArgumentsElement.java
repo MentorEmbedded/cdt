@@ -11,11 +11,11 @@
 
 package org.eclipse.cdt.dsf.gdb.newlaunch;
 
+import java.util.Map;
+
 import org.eclipse.cdt.debug.core.launch.AbstractLaunchElement;
 import org.eclipse.cdt.dsf.gdb.newlaunch.OverviewElement.SessionTypeChangeEvent;
 import org.eclipse.cdt.dsf.gdb.service.SessionType;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 
 /**
@@ -33,17 +33,12 @@ public class ArgumentsElement extends AbstractLaunchElement {
 	}
 
 	@Override
-	protected void doCreateChildren(ILaunchConfiguration config) {
+	protected void doCreateChildren(Map<String, Object> attributes) {
 	}
 
 	@Override
-	protected void doInitializeFrom(ILaunchConfiguration config) {
-		try {
-			fArguments = config.getAttribute(getId() + ATTR_ARGUMENTS, ""); //$NON-NLS-1$
-		}
-		catch(CoreException e) {
-			setErrorMessage(e.getLocalizedMessage());
-		}
+	protected void doInitializeFrom(Map<String, Object> attributes) {
+		fArguments = getAttribute(attributes, getId() + ATTR_ARGUMENTS, ""); //$NON-NLS-1$
 	}
 
 	@Override
@@ -57,7 +52,7 @@ public class ArgumentsElement extends AbstractLaunchElement {
 	}
 
 	@Override
-	protected boolean isContentValid(ILaunchConfiguration config) {
+	protected boolean isContentValid() {
 		return true;
 	}
 

@@ -209,7 +209,7 @@ abstract public class RootUIElement implements ILinkListener, IChangeListener {
 	public boolean isValid(ILaunchConfiguration config) {
 		// TODO: validate unsaved changes in the UI element
 		if (getTopElement() != null) {
-			return getTopElement().isValid(config);
+			return getTopElement().isValid();
 		}
 		return true;
 	}

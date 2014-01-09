@@ -12,6 +12,7 @@
 package org.eclipse.cdt.dsf.gdb.newlaunch;
 
 import java.io.File;
+import java.util.Map;
 
 import org.eclipse.cdt.debug.core.launch.AbstractLaunchElement;
 import org.eclipse.cdt.debug.core.launch.ILaunchElement;
@@ -23,7 +24,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.variables.VariablesPlugin;
-import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 
 /**
@@ -48,30 +48,26 @@ public class CoreFileElement extends AbstractLaunchElement {
 	}
 
 	@Override
-	protected void doCreateChildren(ILaunchConfiguration config) {
+	protected void doCreateChildren(Map<String, Object> attributes) {
 	}
 
 	@Override
-	protected void doInitializeFrom(ILaunchConfiguration config) {
-		try {
-			String coreType = config.getAttribute(
-				getId() + ATTR_CORE_FILE_TYPE,
-				IGDBLaunchConfigurationConstants.DEBUGGER_POST_MORTEM_TYPE_DEFAULT);
-			if (IGDBLaunchConfigurationConstants.DEBUGGER_POST_MORTEM_CORE_FILE.equals(coreType)) {
-				fType = CoreFileType.CORE_FILE;
-			}
-			else if (IGDBLaunchConfigurationConstants.DEBUGGER_POST_MORTEM_TRACE_FILE.equals(coreType)) {
-				fType = CoreFileType.TRACE_FILE;
-			}
-			else {
-				setErrorMessage("Invalid core file type");
-			}
-			
-			fCoreFile = config.getAttribute(getId() + ATTR_CORE_FILE_PATH, ""); //$NON-NLS-1$
+	protected void doInitializeFrom(Map<String, Object> attributes) {
+		String coreType = getAttribute(
+			attributes,
+			getId() + ATTR_CORE_FILE_TYPE,
+			IGDBLaunchConfigurationConstants.DEBUGGER_POST_MORTEM_TYPE_DEFAULT);
+		if (IGDBLaunchConfigurationConstants.DEBUGGER_POST_MORTEM_CORE_FILE.equals(coreType)) {
+			fType = CoreFileType.CORE_FILE;
 		}
-		catch(CoreException e) {
-			setErrorMessage(e.getLocalizedMessage());
+		else if (IGDBLaunchConfigurationConstants.DEBUGGER_POST_MORTEM_TRACE_FILE.equals(coreType)) {
+			fType = CoreFileType.TRACE_FILE;
 		}
+		else {
+			setErrorMessage("Invalid core file type");
+		}
+		
+		fCoreFile = getAttribute(attributes, getId() + ATTR_CORE_FILE_PATH, ""); //$NON-NLS-1$
 	}
 
 	@Override
@@ -100,7 +96,7 @@ public class CoreFileElement extends AbstractLaunchElement {
 	}
 
 	@Override
-	protected boolean isContentValid(ILaunchConfiguration config) {
+	protected boolean isContentValid() {
 		if (fCoreFile == null || fCoreFile.isEmpty()) {
 			return true;
 		}

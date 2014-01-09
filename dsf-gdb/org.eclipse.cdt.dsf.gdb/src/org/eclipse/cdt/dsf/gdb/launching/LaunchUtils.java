@@ -288,7 +288,13 @@ public class LaunchUtils {
 
         return version;
 	}
-	
+
+	public static String getGDBVersion(final ILaunchConfiguration configuration) throws CoreException {
+		String gdbPath = getGDBPath(configuration).toOSString();
+		String[] env = getLaunchEnvironment(configuration);
+		return getGDBVersion(gdbPath, env);
+	}
+
 	/**
 	 * This method actually launches 'gdb --version' to determine the version
 	 * of the GDB that is being used.  This method should ideally be called
@@ -296,12 +302,12 @@ public class LaunchUtils {
 	 * 
 	 * A timeout is scheduled which will kill the process if it takes too long.
 	 */
-	public static String getGDBVersion(final ILaunchConfiguration configuration) throws CoreException {        
-        String cmd = getGDBPath(configuration).toOSString() + " --version"; //$NON-NLS-1$ 
-        Process process = null;
-        Job timeoutJob = null;
+	public static String getGDBVersion(String gdbPath, String[] environment) throws CoreException {        
+		String cmd = gdbPath + " --version"; //$NON-NLS-1$ 
+		Process process = null;
+		Job timeoutJob = null;
         try {
-        	process = ProcessFactory.getFactory().exec(cmd, getLaunchEnvironment(configuration));
+        	process = ProcessFactory.getFactory().exec(cmd, environment);
 
             // Start a timeout job to make sure we don't get stuck waiting for
             // an answer from a gdb that is hanging

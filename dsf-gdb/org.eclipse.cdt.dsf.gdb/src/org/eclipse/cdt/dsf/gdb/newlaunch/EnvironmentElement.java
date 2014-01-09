@@ -19,8 +19,6 @@ import org.eclipse.cdt.debug.core.launch.AbstractLaunchElement;
 import org.eclipse.cdt.debug.core.launch.ILaunchElement;
 import org.eclipse.cdt.dsf.gdb.newlaunch.OverviewElement.SessionTypeChangeEvent;
 import org.eclipse.cdt.dsf.gdb.service.SessionType;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 
 /**
@@ -46,19 +44,14 @@ public class EnvironmentElement extends AbstractLaunchElement {
 	}
 
 	@Override
-	protected void doCreateChildren(ILaunchConfiguration config) {
+	protected void doCreateChildren(Map<String, Object> attributes) {
 	}
 
 	@SuppressWarnings( "unchecked" )
 	@Override
-	protected void doInitializeFrom(ILaunchConfiguration config) {
-		try {
-			fVariables = config.getAttribute(getId() + ATTR_ENVIRONMENT_VARIABLES, Collections.EMPTY_MAP);
-			fAppend = config.getAttribute(getId() + ATTR_APPEND_ENVIRONMENT_VARIABLES, true);
-		}
-		catch(CoreException e) {
-			setErrorMessage(e.getLocalizedMessage());
-		}
+	protected void doInitializeFrom(Map<String, Object> attributes) {
+		fVariables = getAttribute(attributes, getId() + ATTR_ENVIRONMENT_VARIABLES, Collections.EMPTY_MAP);
+		fAppend = getAttribute(attributes, getId() + ATTR_APPEND_ENVIRONMENT_VARIABLES, true);
 	}
 
 	@Override
@@ -76,7 +69,7 @@ public class EnvironmentElement extends AbstractLaunchElement {
 	}
 
 	@Override
-	protected boolean isContentValid(ILaunchConfiguration config) {
+	protected boolean isContentValid() {
 		return true;
 	}
 

@@ -11,12 +11,12 @@
 
 package org.eclipse.cdt.dsf.gdb.newlaunch;
 
+import java.util.Map;
+
 import org.eclipse.cdt.debug.core.launch.AbstractLaunchElement;
 import org.eclipse.cdt.debug.core.launch.ILaunchElement;
 import org.eclipse.cdt.dsf.gdb.internal.GdbPlugin;
 import org.eclipse.cdt.dsf.gdb.service.SessionType;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 
 /**
@@ -24,7 +24,7 @@ import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
  */
 public class OverviewElement extends AbstractLaunchElement {
 	
-	public class SessionTypeChangeEvent extends ChangeEvent {
+	public static class SessionTypeChangeEvent extends ChangeEvent {
 
 		final private SessionType fNewType;
 		final private SessionType fOldType;
@@ -54,7 +54,7 @@ public class OverviewElement extends AbstractLaunchElement {
 	}
 
 	@Override
-	protected void doCreateChildren(ILaunchConfiguration config) {
+	protected void doCreateChildren(Map<String, Object> attributes) {
 		addChildren(new ILaunchElement[] {
 			new ExecutablesListElement(this),
 			new DebuggerElement(this),
@@ -64,38 +64,17 @@ public class OverviewElement extends AbstractLaunchElement {
 	}
 
 	@Override
-	public void initialiazeFrom(ILaunchConfiguration config) {
-		super.initialiazeFrom(config);
+	public void initialiazeFrom(Map<String, Object> attributes) {
+		super.initialiazeFrom(attributes);
 		update(new SessionTypeChangeEvent(this, getSessionType(), null));
 	}
 
 	@Override
-	protected void doInitializeFrom(ILaunchConfiguration config) {
+	protected void doInitializeFrom(Map<String, Object> attributes) {
 		try {
-			String typeString = config.getAttribute(getId() + ATTR_SESSION_TYPE, SessionType.LOCAL.name());
+			String typeString = getAttribute(attributes, getId() + ATTR_SESSION_TYPE, SessionType.LOCAL.name());
 			SessionType sessionType = SessionType.valueOf(typeString);
-//			String debugMode = config.getAttribute(
-//				ICDTLaunchConfigurationConstants.ATTR_DEBUGGER_START_MODE, 
-//				ICDTLaunchConfigurationConstants.DEBUGGER_MODE_RUN);
-//			SessionType type = SessionType.LOCAL;
-//			boolean attach = false;
-//			if (debugMode.equals(ICDTLaunchConfigurationConstants.DEBUGGER_MODE_RUN)) {
-//				type = SessionType.LOCAL;
-//			} else if (debugMode.equals(ICDTLaunchConfigurationConstants.DEBUGGER_MODE_ATTACH)) {
-//				type = SessionType.LOCAL;
-//				attach = true;
-//			} else if (debugMode.equals(ICDTLaunchConfigurationConstants.DEBUGGER_MODE_CORE)) {
-//				type = SessionType.CORE;
-//			} else if (debugMode.equals(IGDBLaunchConfigurationConstants.DEBUGGER_MODE_REMOTE)) {
-//				type = SessionType.REMOTE;
-//			} else if (debugMode.equals(IGDBLaunchConfigurationConstants.DEBUGGER_MODE_REMOTE_ATTACH)) {
-//				type = SessionType.REMOTE;
-//				attach = true;
-//			}
 			setSessionType(sessionType);
-		}
-		catch(CoreException e) {
-			setErrorMessage(e.getLocalizedMessage());
 		}
 		catch(IllegalArgumentException e) {
 			setErrorMessage("Invalid session type");
@@ -106,34 +85,15 @@ public class OverviewElement extends AbstractLaunchElement {
 	protected void doPerformApply(ILaunchConfigurationWorkingCopy config) {
 		SessionType type = getSessionType();
 		config.setAttribute(getId() + ATTR_SESSION_TYPE, type.name());
-//		boolean attach = isAttach();
-//		String value = ICDTLaunchConfigurationConstants.DEBUGGER_MODE_RUN;
-//		if (type == SessionType.LOCAL) {
-//			value = (attach) ? 
-//				ICDTLaunchConfigurationConstants.DEBUGGER_MODE_ATTACH : 
-//				ICDTLaunchConfigurationConstants.DEBUGGER_MODE_RUN;
-//		}
-//		else if (type == SessionType.REMOTE) {
-//			value = (attach) ? 
-//				IGDBLaunchConfigurationConstants.DEBUGGER_MODE_REMOTE_ATTACH : 
-//				IGDBLaunchConfigurationConstants.DEBUGGER_MODE_REMOTE;
-//		}
-//		else if (type == SessionType.CORE) {
-//			value = ICDTLaunchConfigurationConstants.DEBUGGER_MODE_CORE;
-//		}
-//		config.setAttribute(ICDTLaunchConfigurationConstants.ATTR_DEBUGGER_START_MODE, value);
 	}
 
 	@Override
 	protected void doSetDefaults(ILaunchConfigurationWorkingCopy config) {
 		config.setAttribute(getId() + ATTR_SESSION_TYPE, SessionType.LOCAL.name());
-//		config.setAttribute(
-//			ICDTLaunchConfigurationConstants.ATTR_DEBUGGER_START_MODE, 
-//			ICDTLaunchConfigurationConstants.DEBUGGER_MODE_RUN);
 	}
 
 	@Override
-	protected boolean isContentValid(ILaunchConfiguration config) {
+	protected boolean isContentValid() {
 		return getInternalErrorMessage() == null;
 	}
 

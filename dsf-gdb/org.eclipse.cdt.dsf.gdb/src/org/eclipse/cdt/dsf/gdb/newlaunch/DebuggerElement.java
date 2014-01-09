@@ -11,9 +11,10 @@
 
 package org.eclipse.cdt.dsf.gdb.newlaunch;
 
+import java.util.Map;
+
 import org.eclipse.cdt.debug.core.launch.AbstractLaunchElement;
 import org.eclipse.cdt.debug.core.launch.ILaunchElement;
-import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 
 /**
@@ -28,7 +29,7 @@ public class DebuggerElement extends AbstractLaunchElement {
 	}
 
 	@Override
-	protected void doCreateChildren(ILaunchConfiguration config) {
+	protected void doCreateChildren(Map<String, Object> attributes) {
 		addChildren(new ILaunchElement[] { 
 			new DebuggerSettingsElement(this),
 			new SharedLibrariesElement(this),
@@ -37,7 +38,7 @@ public class DebuggerElement extends AbstractLaunchElement {
 	}
 
 	@Override
-	protected void doInitializeFrom(ILaunchConfiguration config) {
+	protected void doInitializeFrom(Map<String, Object> attributes) {
 		// TODO Auto-generated method stub
 
 	}
@@ -55,7 +56,7 @@ public class DebuggerElement extends AbstractLaunchElement {
 	}
 
 	@Override
-	protected boolean isContentValid(ILaunchConfiguration config) {
+	protected boolean isContentValid() {
 		return true;
 	}
 

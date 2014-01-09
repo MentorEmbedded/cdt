@@ -11,9 +11,10 @@
 
 package org.eclipse.cdt.dsf.gdb.newlaunch;
 
+import java.util.Map;
+
 import org.eclipse.cdt.debug.core.launch.AbstractLaunchElement;
 import org.eclipse.cdt.debug.core.launch.ILaunchElement;
-import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 
 /**
@@ -28,14 +29,14 @@ public class DebugOptionsElement extends AbstractLaunchElement {
 	}
 
 	@Override
-	protected void doCreateChildren(ILaunchConfiguration config) {
+	protected void doCreateChildren(Map<String, Object> attributes) {
 		addChildren(new ILaunchElement[] { 
 			new StopOnStartupElement(this), 
 		});
 	}
 
 	@Override
-	protected void doInitializeFrom(ILaunchConfiguration config) {
+	protected void doInitializeFrom(Map<String, Object> attributes) {
 	}
 
 	@Override
@@ -47,7 +48,7 @@ public class DebugOptionsElement extends AbstractLaunchElement {
 	}
 
 	@Override
-	protected boolean isContentValid(ILaunchConfiguration config) {
+	protected boolean isContentValid() {
 		return true;
 	}
 }

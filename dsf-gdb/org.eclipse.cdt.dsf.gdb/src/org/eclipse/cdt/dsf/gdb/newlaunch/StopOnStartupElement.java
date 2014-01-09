@@ -11,12 +11,13 @@
 
 package org.eclipse.cdt.dsf.gdb.newlaunch;
 
+import java.util.Map;
+
 import org.eclipse.cdt.debug.core.launch.AbstractLaunchElement;
 import org.eclipse.cdt.debug.core.launch.ILaunchElement;
+import org.eclipse.cdt.dsf.gdb.launching.LaunchUtils;
 import org.eclipse.cdt.dsf.gdb.newlaunch.OverviewElement.SessionTypeChangeEvent;
 import org.eclipse.cdt.dsf.gdb.service.SessionType;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 
 /**
@@ -28,28 +29,21 @@ public class StopOnStartupElement extends AbstractLaunchElement {
 	final private static String ATTR_STOP = ".stop"; //$NON-NLS-1$
 	final private static String ATTR_STOP_SYMBOL = ".symbol"; //$NON-NLS-1$
 
-	final private static String DEFAULT_STOP_SYMBOL = "main"; //$NON-NLS-1$
-
 	private boolean fStop = true;
-	private String fStopSymbol = DEFAULT_STOP_SYMBOL;
+	private String fStopSymbol = LaunchUtils.getStopAtMainSymbolDefault();
 
 	public StopOnStartupElement(ILaunchElement parent) {
 		super(parent, parent.getId() + ELEMENT_ID, "Stop On Startup", "Stop on startup");
 	}
 
 	@Override
-	protected void doCreateChildren(ILaunchConfiguration config) {
+	protected void doCreateChildren(Map<String, Object> attributes) {
 	}
 
 	@Override
-	protected void doInitializeFrom(ILaunchConfiguration config) {
-		try {
-			fStop = config.getAttribute(getId() + ATTR_STOP, true);
-			fStopSymbol = config.getAttribute(getId() + ATTR_STOP_SYMBOL, DEFAULT_STOP_SYMBOL);
-		}
-		catch(CoreException e) {
-			setErrorMessage(e.getLocalizedMessage());
-		}
+	protected void doInitializeFrom(Map<String, Object> attributes) {
+		fStop = getAttribute(attributes, getId() + ATTR_STOP, LaunchUtils.getStopAtMainDefault());
+		fStopSymbol = getAttribute(attributes, getId() + ATTR_STOP_SYMBOL, LaunchUtils.getStopAtMainSymbolDefault());
 	}
 
 	@Override
@@ -60,14 +54,14 @@ public class StopOnStartupElement extends AbstractLaunchElement {
 
 	@Override
 	protected void doSetDefaults(ILaunchConfigurationWorkingCopy config) {
-		fStop = true;
-		fStopSymbol = DEFAULT_STOP_SYMBOL;
+		fStop = LaunchUtils.getStopAtMainDefault();
+		fStopSymbol = LaunchUtils.getStopAtMainSymbolDefault();
 		config.setAttribute(getId() + ATTR_STOP, fStop);
 		config.setAttribute(getId() + ATTR_STOP_SYMBOL, fStopSymbol);
 	}
 
 	@Override
-	protected boolean isContentValid(ILaunchConfiguration config) {
+	protected boolean isContentValid() {
 		if (fStop && fStopSymbol.isEmpty()) {
 			setErrorMessage("Stop symbol is not specified");
 			return false;

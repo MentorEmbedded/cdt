@@ -11,10 +11,11 @@
 
 package org.eclipse.cdt.dsf.gdb.newlaunch;
 
+import java.util.Map;
+
 import org.eclipse.cdt.debug.core.launch.ILaunchElement;
 import org.eclipse.cdt.dsf.gdb.newlaunch.OverviewElement.SessionTypeChangeEvent;
 import org.eclipse.cdt.dsf.gdb.service.SessionType;
-import org.eclipse.debug.core.ILaunchConfiguration;
 
 /**
  * @since 4.3
@@ -28,7 +29,7 @@ public class CoreExecutableElement extends ExecutableElement {
 	}
 
 	@Override
-	protected void doCreateChildren(ILaunchConfiguration config) {
+	protected void doCreateChildren(Map<String, Object> attributes) {
 		addChildren(new ILaunchElement[] { 
 			new CoreFileElement(this) 
 		});
