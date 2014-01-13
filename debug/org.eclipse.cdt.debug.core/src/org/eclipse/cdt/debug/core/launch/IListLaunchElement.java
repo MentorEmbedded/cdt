@@ -27,8 +27,6 @@ public interface IListLaunchElement extends ILaunchElement {
 	 */
 	public int getLowerLimit();
 
-	public void addNewElement();
-	
 	public void removeElement(ILaunchElement element);
 	
 	public void moveElementUp(ILaunchElement element);

@@ -28,4 +28,6 @@ public interface IGdbUIConstants {
 	public static final String IMG_OBJ_BROWSE = PLUGIN_ID + ".browse";	//$NON-NLS-1$
 	public static final String IMG_OBJ_SEARCH_PROJECT = PLUGIN_ID + ".searchProject";	//$NON-NLS-1$
 	public static final String IMG_OBJ_PATH_VARIABLES = PLUGIN_ID + ".pathVariables";	//$NON-NLS-1$
+	public static final String IMG_OBJ_NEW_EXECUTABLE = PLUGIN_ID + ".addExecutable";	//$NON-NLS-1$
+	public static final String IMG_OBJ_NEW_ATTACH = PLUGIN_ID + ".newAttach";	//$NON-NLS-1$
 }

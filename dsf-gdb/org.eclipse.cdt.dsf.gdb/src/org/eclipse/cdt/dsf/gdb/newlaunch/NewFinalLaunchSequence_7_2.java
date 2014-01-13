@@ -18,12 +18,14 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.cdt.debug.core.ICDTLaunchConfigurationConstants;
+import org.eclipse.cdt.debug.core.model.IConnectHandler;
 import org.eclipse.cdt.dsf.concurrent.DataRequestMonitor;
 import org.eclipse.cdt.dsf.concurrent.ImmediateDataRequestMonitor;
 import org.eclipse.cdt.dsf.concurrent.RequestMonitor;
 import org.eclipse.cdt.dsf.concurrent.RequestMonitorWithProgress;
 import org.eclipse.cdt.dsf.concurrent.Sequence;
 import org.eclipse.cdt.dsf.datamodel.IDMContext;
+import org.eclipse.cdt.dsf.gdb.actions.IConnect;
 import org.eclipse.cdt.dsf.gdb.internal.GdbPlugin;
 import org.eclipse.cdt.dsf.gdb.launching.FinalLaunchSequence_7_2;
 import org.eclipse.cdt.dsf.gdb.newlaunch.ConnectionElement.ConnectionType;
@@ -146,7 +148,6 @@ public class NewFinalLaunchSequence_7_2 extends FinalLaunchSequence_7_2 {
 	@Override
 	public void stepNewProcess(final RequestMonitor rm) {
 		final LaunchModel launchModel = getLaunchModel();
-		boolean nonStop = launchModel.isNonStop();
 		String[] execIds = launchModel.getExecutables();
 		int count = execIds.length;
 		// In all-stop mode we can only debug one process, so we chose the first executable; 
@@ -186,18 +187,37 @@ public class NewFinalLaunchSequence_7_2 extends FinalLaunchSequence_7_2 {
 						String binary = launchModel.getExecutablePath(execId);
 						Map<String, Object> attributes = new HashMap<String, Object>();
 						getBinaryAttributes(launchModel, execId, attributes);
-						fProcService.debugNewProcess(fCommandControl.getContext(), binary, attributes, 
-								new DataRequestMonitor<IDMContext>(getExecutor(), rm) {
-							@Override
-							protected void handleCancel() {
-								// If this step is cancelled, cancel the current sequence.
-								// This is to allow the user to press the cancel button
-								// when prompted for a post-mortem file.
-								// Bug 362105
-								rm.cancel();
-				    			rm.done();
+						if (launchModel.isAttach(execId)) {
+							int pid = getPid();
+							if (pid != -1) {
+								fProcService.attachDebuggerToProcess(
+										fProcService.createProcessContext(fCommandControl.getContext(), Integer.toString(pid)),
+										new DataRequestMonitor<IDMContext>(getExecutor(), rm));
+							} 
+							else {
+								IConnectHandler connectCommand = (IConnectHandler)getSession().getModelAdapter(IConnectHandler.class);
+								if (connectCommand instanceof IConnect) {
+									((IConnect)connectCommand).connect(rm);
+								} 
+								else {
+									rm.done();
+								}
 							}
-						});
+						}
+						else {
+							fProcService.debugNewProcess(fCommandControl.getContext(), binary, attributes, 
+									new DataRequestMonitor<IDMContext>(getExecutor(), rm) {
+								@Override
+								protected void handleCancel() {
+									// If this step is cancelled, cancel the current sequence.
+									// This is to allow the user to press the cancel button
+									// when prompted for a post-mortem file.
+									// Bug 362105
+									rm.cancel();
+					    			rm.done();
+								}
+							});
+						}
 					}
 				};
 			}

@@ -263,5 +263,9 @@ public class GdbUIPlugin extends AbstractUIPlugin {
     			getImageDescriptor( "icons/full/obj16/search_project.gif" ) ); //$NON-NLS-1$
     	reg.put( IGdbUIConstants.IMG_OBJ_PATH_VARIABLES, 
     			getImageDescriptor( "icons/full/obj16/path_vars.gif" ) ); //$NON-NLS-1$
+    	reg.put( IGdbUIConstants.IMG_OBJ_NEW_EXECUTABLE, 
+    			getImageDescriptor( "icons/full/obj16/new_exec.gif" ) ); //$NON-NLS-1$
+    	reg.put( IGdbUIConstants.IMG_OBJ_NEW_ATTACH, 
+    			getImageDescriptor( "icons/full/obj16/new_attach.gif" ) ); //$NON-NLS-1$
     }
 }

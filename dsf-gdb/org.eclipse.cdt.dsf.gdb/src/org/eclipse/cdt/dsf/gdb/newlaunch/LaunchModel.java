@@ -113,6 +113,11 @@ public class LaunchModel {
 		return (executables != null) ? executables.getChildren(ExecutableElement.class).length : 0;
 	}
 
+	public boolean isAttach(String execId) {
+		ExecutableElement executable = getExecutable(execId);
+		return executable instanceof AttachToProcessElement;
+	}
+
 	public String getExecutablePath(String execId) {
 		ExecutableElement executable = getExecutable(execId);
 		return (executable != null) ? executable.getFullProgramPath() : null;
@@ -150,7 +155,7 @@ public class LaunchModel {
 		if (executablesList == null) {
 			return new String[0];
 		}
-		ExecutableElement[] children = executablesList.getChildren(ExecutableElement.class);
+		ExecutableElement[] children = executablesList.getExecutables();
 		String[] ids = new String[children.length];
 		for (int i = 0; i < children.length; ++i) {
 			ids[i] = children[i].getId();
