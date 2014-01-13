@@ -17,17 +17,59 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.StringTokenizer;
 
 import org.eclipse.cdt.debug.core.launch.ILaunchElement;
 import org.eclipse.cdt.debug.core.launch.ListLaunchElement;
+import org.eclipse.cdt.dsf.gdb.internal.GdbPlugin;
 import org.eclipse.cdt.dsf.gdb.newlaunch.OverviewElement.SessionTypeChangeEvent;
 import org.eclipse.cdt.dsf.gdb.service.SessionType;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 
 /**
  * @since 4.3
  */
 public class ExecutablesListElement extends ListLaunchElement {
+
+	private class ListElementData {
+
+		private String fClassName;
+		private String fId;
+
+		private ListElementData(String data) throws CoreException {
+			StringTokenizer st = new StringTokenizer(data, ","); //$NON-NLS-1$
+			if (st.hasMoreTokens()) {
+				fClassName = st.nextToken();
+				if (st.hasMoreTokens()) {
+					fId = st.nextToken();
+					return;
+				}
+			}
+			throw new CoreException(new Status(IStatus.ERROR, GdbPlugin.PLUGIN_ID, "Invalid list element"));
+		}
+
+		private ListElementData(String className, String id) {
+			super();
+			fClassName = className;
+			fId = id;
+		}
+		
+		private String getClassName() {
+			return fClassName;
+		}
+
+		private String getId() {
+			return fId;
+		}
+
+		@Override
+		public String toString() {
+			return String.format("%s,%s", fClassName, fId); //$NON-NLS-1$
+		}
+	}
 
 	final private static String ELEMENT_ID = ".executableList"; //$NON-NLS-1$
 	
@@ -46,12 +88,27 @@ public class ExecutablesListElement extends ListLaunchElement {
 	@Override
 	protected void doCreateChildren(Map<String, Object> attributes) {
 		List<ExecutableElement> list = new ArrayList<ExecutableElement>();
-		List<String> ids = getAttribute(attributes, getId(), new ArrayList<String>());
-		for (String id : ids) {
-			list.add(new ExecutableElement(this, id));
-			Integer index = parseId(id);
-			if (index != null) {
-				fIds.add(index);
+		List<String> dataList = getAttribute(attributes, getId(), new ArrayList<String>());
+		for (String dataStr : dataList) {
+			try {
+				ListElementData data = new ListElementData(dataStr);
+				if (AttachToProcessElement.class.getName().equals(data.getClassName())) {
+					list.add(new AttachToProcessElement(this, data.getId()));
+					Integer index = parseId(data.getId());
+					if (index != null) {
+						fIds.add(index);
+					}
+				}
+				if (ExecutableElement.class.getName().equals(data.getClassName())) {
+					list.add(new ExecutableElement(this, data.getId()));
+					Integer index = parseId(data.getId());
+					if (index != null) {
+						fIds.add(index);
+					}
+				}
+			}
+			catch(CoreException e) {
+				GdbPlugin.log(e.getStatus());
 			}
 		}
 		addChildren(list.toArray(new ExecutableElement[list.size()]));
@@ -66,9 +123,24 @@ public class ExecutablesListElement extends ListLaunchElement {
 		return true;
 	}
 
-	@Override
-	public void addNewElement() {
+	public ExecutableElement[] getExecutables() {
+		List<ExecutableElement> list = new ArrayList<ExecutableElement>();
+		for (ILaunchElement child : getChildren()) {
+			if (child.isEnabled() && child instanceof ExecutableElement) {
+				list.add((ExecutableElement)child);
+			}
+		}
+		return list.toArray(new ExecutableElement[list.size()]);
+	}
+
+	public void addExecutable() {
 		ExecutableElement element = ExecutableElement.createNewExecutableElement(this, getUniqueChildId());
+		doInsertChild(getChildren().length, element);
+		elementAdded(element, ADD_DETAIL_ACTIVATE);
+	}
+
+	public void addAttachToProcess() {
+		AttachToProcessElement element = AttachToProcessElement.createNewAttachToProcessElement(this, getUniqueChildId());
 		doInsertChild(getChildren().length, element);
 		elementAdded(element, ADD_DETAIL_ACTIVATE);
 	}
@@ -122,7 +194,8 @@ public class ExecutablesListElement extends ListLaunchElement {
 	protected void doPerformApply(ILaunchConfigurationWorkingCopy config) {
 		List<String> ids = new ArrayList<String>(getChildren().length);
 		for (ILaunchElement child : getChildren()) {
-			ids.add(child.getId());
+			ListElementData data = new ListElementData(child.getClass().getName(), child.getId());
+			ids.add(data.toString());
 		}
 		config.setAttribute(getId(), ids);
 	}

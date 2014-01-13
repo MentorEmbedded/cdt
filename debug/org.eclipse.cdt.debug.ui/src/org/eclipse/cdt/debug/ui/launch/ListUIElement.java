@@ -17,12 +17,12 @@ import org.eclipse.cdt.debug.internal.ui.CDebugImages;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
-import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.Link;
 
 /**
@@ -72,9 +72,7 @@ public abstract class ListUIElement extends AbstractUIElement {
 			}
 			createListElementContent(child, fContent, showButtons);
 		}
-		if (length < listElement.getLowerLimit() || listElement.getUpperLimit() == 0) {
-			createAddButton(fContent);
-		}
+		createButtonBar(fContent);
 	}
 
 	@Override
@@ -122,7 +120,7 @@ public abstract class ListUIElement extends AbstractUIElement {
 		buttonsComp.setLayout(layout);
 		buttonsComp.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false));
 		if (showUpButton) {
-			Button button = createButton(buttonsComp, CDebugImages.IMG_LCL_UP_UIELEMENT, "Up", 1, 1);
+			Button button = createButton(buttonsComp, CDebugImages.get(CDebugImages.IMG_LCL_UP_UIELEMENT), "Up", 1, 1);
 			button.addSelectionListener(new SelectionAdapter() {
 				@Override
 				public void widgetSelected(SelectionEvent e) {
@@ -131,7 +129,7 @@ public abstract class ListUIElement extends AbstractUIElement {
 			});
 		}
 		if (showDownButton) {
-			Button button = createButton(buttonsComp, CDebugImages.IMG_LCL_DOWN_UIELEMENT, "Down", 1, 1);
+			Button button = createButton(buttonsComp, CDebugImages.get(CDebugImages.IMG_LCL_DOWN_UIELEMENT), "Down", 1, 1);
 			button.addSelectionListener(new SelectionAdapter() {
 				@Override
 				public void widgetSelected(SelectionEvent e) {
@@ -140,7 +138,7 @@ public abstract class ListUIElement extends AbstractUIElement {
 			});
 		}
 		if (showRemoveButton) {
-			Button button = createButton(buttonsComp, CDebugImages.IMG_LCL_REMOVE_UIELEMENT, "Delete", 1, 1);
+			Button button = createButton(buttonsComp, CDebugImages.get(CDebugImages.IMG_LCL_REMOVE_UIELEMENT), "Delete", 1, 1);
 			button.addSelectionListener(new SelectionAdapter() {
 				@Override
 				public void widgetSelected(SelectionEvent e) {
@@ -148,21 +146,6 @@ public abstract class ListUIElement extends AbstractUIElement {
 				}
 			});
 		}
-	}
-
-	protected void createAddButton(Composite parent) {
-		int horSpan = 1;
-		Layout layout = parent.getLayout();
-		if (layout instanceof GridLayout) {
-			horSpan = ((GridLayout)layout).numColumns;
-		}
-		Button button = createButton(parent, CDebugImages.IMG_LCL_ADD_UIELEMENT, "Add", horSpan, 1);
-		button.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				addButtonPressed();
-			}
-		});
 	}
 	
 	protected String getLinkLabel(ILaunchElement element) {
@@ -173,14 +156,16 @@ public abstract class ListUIElement extends AbstractUIElement {
 		return element.getDescription();
 	}
 	
-	protected Button createButton(Composite parent, String imageId, String tooltip, int horSpan, int verSpan) {
+	protected Button createButton(Composite parent, Image image, String tooltip, int horSpan, int verSpan) {
 		Button button = new Button(parent, SWT.PUSH);
 		button.setLayoutData(new GridData(SWT.RIGHT, SWT.TOP, false, false, horSpan, verSpan));
-		button.setImage(CDebugImages.get(imageId));
+		button.setImage(image);
 		button.setToolTipText(tooltip);
 		return button;
 	}
-	
+
+	abstract protected void createButtonBar(Composite parent);
+
 	protected void upButtonPressed(ILaunchElement element) {
 		getLaunchElement().moveElementUp(element);
 	}
@@ -191,9 +176,5 @@ public abstract class ListUIElement extends AbstractUIElement {
 	
 	protected void removeButtonPressed(ILaunchElement element) {
 		getLaunchElement().removeElement(element);;
-	}
-	
-	protected void addButtonPressed() {
-		getLaunchElement().addNewElement();
 	}
 }

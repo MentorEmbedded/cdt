@@ -93,13 +93,13 @@ public class ConnectionElement extends AbstractLaunchElement {
 
 	@Override
 	protected void doPerformApply(ILaunchConfigurationWorkingCopy config) {
-		config.setAttribute(ATTR_TYPE, fType.ordinal());
+		config.setAttribute(getId() + ATTR_TYPE, fType.ordinal());
 	}
 
 	@Override
 	protected void doSetDefaults(ILaunchConfigurationWorkingCopy config) {
 		fType = getDefaultConnectionType();
-		config.setAttribute(ATTR_TYPE, fType.ordinal());
+		config.setAttribute(getId() + ATTR_TYPE, fType.ordinal());
 	}
 
 	@Override

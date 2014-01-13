@@ -34,10 +34,6 @@ abstract public class ListLaunchElement extends AbstractLaunchElement implements
 	}
 
 	@Override
-	public void addNewElement() {
-	}
-
-	@Override
 	public void removeElement(ILaunchElement element) {
 		removeChild(element);
 	}
