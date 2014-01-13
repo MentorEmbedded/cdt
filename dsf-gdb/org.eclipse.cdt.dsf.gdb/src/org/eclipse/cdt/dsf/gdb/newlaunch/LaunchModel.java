@@ -76,8 +76,8 @@ public class LaunchModel {
 	public boolean isNonStop() {
 		boolean defNonStop = Platform.getPreferencesService().getBoolean(
 				GdbPlugin.PLUGIN_ID, IGdbDebugPreferenceConstants.PREF_DEFAULT_NON_STOP, false, null);
-		DebuggerSettingsElement settings = fRootElement.findChild(DebuggerSettingsElement.class);
-		return (settings != null) ? settings.isNonStop() : defNonStop;
+		StopModeElement stopMode = fRootElement.findChild(StopModeElement.class);
+		return (stopMode != null && stopMode.isEnabled()) ? stopMode.isNonStop() : defNonStop;
 	}
 
 	public boolean isPostMortemTracing() {
@@ -166,5 +166,19 @@ public class LaunchModel {
 	private ExecutableElement getExecutable(String execId) {
 		ILaunchElement child = fRootElement.findChild(execId);
 		return (child instanceof ExecutableElement) ? (ExecutableElement)child : null;
+	}
+	
+	public String getCoreExecutable() {
+		CoreExecutableElement exec = fRootElement.findChild(CoreExecutableElement.class);
+		return (exec != null) ? exec.getId() : null;
+	}
+	
+	public String getCoreFile(String execId) {
+		CoreFileElement coreFile = null; 
+		ILaunchElement element = fRootElement.findChild(execId);
+		if (element instanceof CoreExecutableElement) {
+			coreFile = element.findChild(CoreFileElement.class);
+		}
+		return (coreFile != null) ? coreFile.getCoreFile() : null;
 	}
 }

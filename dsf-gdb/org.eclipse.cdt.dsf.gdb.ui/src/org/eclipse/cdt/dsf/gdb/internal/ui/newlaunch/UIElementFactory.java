@@ -28,6 +28,7 @@ import org.eclipse.cdt.dsf.gdb.newlaunch.OverviewElement;
 import org.eclipse.cdt.dsf.gdb.newlaunch.RemoteBinaryElement;
 import org.eclipse.cdt.dsf.gdb.newlaunch.SerialConnectionElement;
 import org.eclipse.cdt.dsf.gdb.newlaunch.SharedLibrariesElement;
+import org.eclipse.cdt.dsf.gdb.newlaunch.StopModeElement;
 import org.eclipse.cdt.dsf.gdb.newlaunch.StopOnStartupElement;
 import org.eclipse.cdt.dsf.gdb.newlaunch.TCPConnectionElement;
 import org.eclipse.cdt.dsf.gdb.newlaunch.WorkingDirectoryElement;
@@ -53,6 +54,9 @@ public class UIElementFactory implements IUIElementFactory {
 		}
 		if (element instanceof DebuggerSettingsElement) {
 			return new DebuggerSettingsUIElement((DebuggerSettingsElement)element, showDetails);
+		}
+		if (element instanceof StopModeElement) {
+			return new StopModeUIElement((StopModeElement)element);
 		}
 		if (element instanceof ConnectionElement) {
 			return new ConnectionUIElement((ConnectionElement)element, showDetails);
