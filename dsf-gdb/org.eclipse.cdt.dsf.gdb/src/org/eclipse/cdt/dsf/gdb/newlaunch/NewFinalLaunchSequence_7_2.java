@@ -140,13 +140,96 @@ public class NewFinalLaunchSequence_7_2 extends FinalLaunchSequence_7_2 {
 	@Execute
 	@Override
 	public void stepAttachToProcess(RequestMonitor requestMonitor) {
-		// TODO Auto-generated method stub
-		super.stepAttachToProcess(requestMonitor);
+		// This step is not used
+		requestMonitor.done();
 	}
 
 	@Execute
 	@Override
 	public void stepNewProcess(final RequestMonitor rm) {
+		if (getLaunchModel().getSessionType() == SessionType.CORE) {
+			createPostMortemProcess(rm);
+		}
+		else {
+			createProcesses(rm);
+		}
+	}
+
+	@Override
+	protected int getPid() {
+		return super.getPid();
+	}
+
+	@Override
+	protected boolean isNoBinarySpecified() {
+		return super.isNoBinarySpecified();
+	}
+
+	@Override
+	protected ConnectionType getRemoteConnectionType() {
+		return getLaunchModel().getConnectionType();
+	}
+
+	@Override
+	protected String getTcpHost() {
+		return getLaunchModel().getTCPHost();
+	}
+
+	@Override
+	protected String getTcpPort() {
+		return getLaunchModel().getTCPPort();
+	}
+
+	@Override
+	protected String getSerialDevice() {
+		return getLaunchModel().getSerialDevice();
+	}
+
+	@Override
+	protected boolean autoLoadSolibSymbols() {
+		// TODO Auto-generated method stub
+		return super.autoLoadSolibSymbols();
+	}
+
+	@Override
+	protected boolean isNonStop() {
+		return getLaunchModel().isNonStop();
+	}
+
+	@Override
+	protected IStringVariableManager getStringSubstitutor() {
+		// TODO Auto-generated method stub
+		return super.getStringSubstitutor();
+	}
+
+	@Override
+	protected boolean debugOnFork() {
+		// TODO Auto-generated method stub
+		return super.debugOnFork();
+	}
+	
+	protected void getBinaryAttributes(LaunchModel launchModel, String execId, Map<String, Object> attributes) {
+		// Executable id
+		attributes.put(NewDebugNewProcessSequence_7_2.ATTR_EXECUTABLE_ID, execId);
+		
+		// Arguments
+		String args = launchModel.getArguments(execId);
+		attributes.put(ICDTLaunchConfigurationConstants.ATTR_PROGRAM_ARGUMENTS, (args != null) ? args : ""); //$NON-NLS-1$
+		
+		// Stop on startup 
+		String stopOnStartupSymbol = launchModel.getStopOnStartupSymbol(execId);
+		attributes.put(ICDTLaunchConfigurationConstants.ATTR_DEBUGGER_STOP_AT_MAIN, stopOnStartupSymbol != null);
+		if (stopOnStartupSymbol != null) {
+			attributes.put(ICDTLaunchConfigurationConstants.ATTR_DEBUGGER_STOP_AT_MAIN_SYMBOL, stopOnStartupSymbol);
+		}
+		
+		String coreFile = launchModel.getCoreFile(execId);
+		if (coreFile != null && !coreFile.isEmpty()) {
+			attributes.put(ICDTLaunchConfigurationConstants.ATTR_COREFILE_PATH, coreFile);
+		}
+	}
+	
+	private void createProcesses(final RequestMonitor rm) {
 		final LaunchModel launchModel = getLaunchModel();
 		String[] execIds = launchModel.getExecutables();
 		int count = execIds.length;
@@ -231,73 +314,32 @@ public class NewFinalLaunchSequence_7_2 extends FinalLaunchSequence_7_2 {
 			});
 		}
 	}
-
-	@Override
-	protected int getPid() {
-		return super.getPid();
-	}
-
-	@Override
-	protected boolean isNoBinarySpecified() {
-		return super.isNoBinarySpecified();
-	}
-
-	@Override
-	protected ConnectionType getRemoteConnectionType() {
-		return getLaunchModel().getConnectionType();
-	}
-
-	@Override
-	protected String getTcpHost() {
-		return getLaunchModel().getTCPHost();
-	}
-
-	@Override
-	protected String getTcpPort() {
-		return getLaunchModel().getTCPPort();
-	}
-
-	@Override
-	protected String getSerialDevice() {
-		return getLaunchModel().getSerialDevice();
-	}
-
-	@Override
-	protected boolean autoLoadSolibSymbols() {
-		// TODO Auto-generated method stub
-		return super.autoLoadSolibSymbols();
-	}
-
-	@Override
-	protected boolean isNonStop() {
-		return getLaunchModel().isNonStop();
-	}
-
-	@Override
-	protected IStringVariableManager getStringSubstitutor() {
-		// TODO Auto-generated method stub
-		return super.getStringSubstitutor();
-	}
-
-	@Override
-	protected boolean debugOnFork() {
-		// TODO Auto-generated method stub
-		return super.debugOnFork();
-	}
 	
-	protected void getBinaryAttributes(LaunchModel launchModel, String execId, Map<String, Object> attributes) {
-		// Executable id
-		attributes.put(NewDebugNewProcessSequence_7_2.ATTR_EXECUTABLE_ID, execId);
-		
-		// Arguments
-		String args = launchModel.getArguments(execId);
-		attributes.put(ICDTLaunchConfigurationConstants.ATTR_PROGRAM_ARGUMENTS, (args != null) ? args : ""); //$NON-NLS-1$
-		
-		// Stop on startup 
-		String stopOnStartupSymbol = launchModel.getStopOnStartupSymbol(execId);
-		attributes.put(ICDTLaunchConfigurationConstants.ATTR_DEBUGGER_STOP_AT_MAIN, stopOnStartupSymbol != null);
-		if (stopOnStartupSymbol != null) {
-			attributes.put(ICDTLaunchConfigurationConstants.ATTR_DEBUGGER_STOP_AT_MAIN_SYMBOL, stopOnStartupSymbol);
+	private void createPostMortemProcess(final RequestMonitor rm) {
+		final LaunchModel launchModel = getLaunchModel();
+		String execId = launchModel.getCoreExecutable();
+		if (execId == null) {
+			rm.setStatus(new Status(IStatus.ERROR, GdbPlugin.PLUGIN_ID, "Executable is not specified"));
+			rm.done();
+			return;
 		}
+		Map<String, Object> attributes = new HashMap<String, Object>();
+		String binary = launchModel.getExecutablePath(execId);
+		getBinaryAttributes(launchModel, execId, attributes);
+		
+		// Even if binary is null, we must call this to do all the other steps
+		// necessary to create a process.  It is possible that the binary is not needed
+		fProcService.debugNewProcess(fCommandControl.getContext(), binary, attributes, 
+				new DataRequestMonitor<IDMContext>(getExecutor(), rm) {
+			@Override
+			protected void handleCancel() {
+				// If this step is cancelled, cancel the current sequence.
+				// This is to allow the user to press the cancel button
+				// when prompted for a post-mortem file.
+				// Bug 362105
+				rm.cancel();
+    			rm.done();
+			}
+		});
 	}
 }
