@@ -48,10 +48,10 @@ public class StopOnStartupUIElement extends AbstractUIElement {
 	@Override
 	protected void doCreateDetailsContent(Composite parent) {
 		Composite comp = new Composite(parent, SWT.NONE);
-		GridLayout coreLayout = new GridLayout(2, false);
-		coreLayout.marginHeight = 0;
-		coreLayout.marginWidth = 0;
-		comp.setLayout(coreLayout);
+		GridLayout layout = new GridLayout(2, false);
+		layout.marginHeight = 0;
+		layout.marginWidth = 0;
+		comp.setLayout(layout);
 		comp.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
 		
 		fStopButton = new Button(comp, SWT.CHECK);

@@ -15,12 +15,10 @@ import java.util.Map;
 
 import org.eclipse.cdt.dsf.concurrent.RequestMonitorWithProgress;
 import org.eclipse.cdt.dsf.concurrent.Sequence;
-import org.eclipse.cdt.dsf.gdb.newlaunch.LaunchModel;
 import org.eclipse.cdt.dsf.gdb.newlaunch.NewFinalLaunchSequence_7_2;
 import org.eclipse.cdt.dsf.gdb.service.command.GDBControl_7_2;
 import org.eclipse.cdt.dsf.mi.service.command.CommandFactory;
 import org.eclipse.cdt.dsf.service.DsfSession;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.ILaunchConfiguration;
 
 public class NewGDBControl_7_2 extends GDBControl_7_2 {
@@ -31,12 +29,6 @@ public class NewGDBControl_7_2 extends GDBControl_7_2 {
 
 	@Override
 	protected Sequence getCompleteInitializationSequence(Map<String, Object> attributes, RequestMonitorWithProgress rm) {
-		try {
-			LaunchModel launchModel = LaunchModel.create(attributes);
-			return new NewFinalLaunchSequence_7_2(getSession(), launchModel, rm);
-		}
-		catch(CoreException e) {
-			return super.getCompleteInitializationSequence(attributes, rm);
-		}
+		return new NewFinalLaunchSequence_7_2(getSession(), rm);
 	}
 }

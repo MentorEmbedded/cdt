@@ -18,10 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.cdt.debug.core.CDebugUtils;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.ListenerList;
-import org.eclipse.debug.core.ILaunchConfiguration;
-import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 
 /**
  * @since 7.4
@@ -102,31 +99,20 @@ abstract public class AbstractLaunchElement implements ILaunchElement {
 		fIsInitializing = false;
 	}
 
-	@SuppressWarnings( "unchecked" )
 	@Override
-	public void initialiazeFrom(ILaunchConfiguration config) {
-		try {
-			initialiazeFrom(config.getAttributes());
+	public void performApply(Map<String, Object> attributes) {
+		for (ILaunchElement el : getChildren()) {
+			el.performApply(attributes);
 		}
-		catch(CoreException e) {
-			setErrorMessage(e.getLocalizedMessage());
-		}
+		doPerformApply(attributes);
 	}
 
 	@Override
-	public void performApply(ILaunchConfigurationWorkingCopy config) {
+	public void setDefaults(Map<String, Object> attributes) {
 		for (ILaunchElement el : getChildren()) {
-			el.performApply(config);
+			el.setDefaults(attributes);
 		}
-		doPerformApply(config);
-	}
-
-	@Override
-	public void setDefaults(ILaunchConfigurationWorkingCopy config) {
-		for (ILaunchElement el : getChildren()) {
-			el.setDefaults(config);
-		}
-		doSetDefaults(config);
+		doSetDefaults(attributes);
 	}
 
 	@Override
@@ -396,9 +382,9 @@ abstract public class AbstractLaunchElement implements ILaunchElement {
 	
 	abstract protected void doInitializeFrom(Map<String, Object> attributes);
 	
-	abstract protected void doPerformApply(ILaunchConfigurationWorkingCopy config);
+	abstract protected void doPerformApply(Map<String, Object> attributes);
 	
-	abstract protected void doSetDefaults(ILaunchConfigurationWorkingCopy config);
+	abstract protected void doSetDefaults(Map<String, Object> attributes);
 	
 	abstract protected boolean isContentValid();
 }

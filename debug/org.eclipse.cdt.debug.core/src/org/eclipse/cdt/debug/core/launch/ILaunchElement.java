@@ -13,9 +13,6 @@ package org.eclipse.cdt.debug.core.launch;
 
 import java.util.Map;
 
-import org.eclipse.debug.core.ILaunchConfiguration;
-import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
-
 /**
  * Represents a logically related group of launch configuration attributes
  * which is meant to be presented by a separate UI element in the launch 
@@ -63,11 +60,9 @@ public interface ILaunchElement {
 	
 	public void initialiazeFrom(Map<String, Object> attributes);
 	
-	public void initialiazeFrom(ILaunchConfiguration config);
+	public void performApply(Map<String, Object> attributes);
 	
-	public void performApply(ILaunchConfigurationWorkingCopy config);
-	
-	public void setDefaults(ILaunchConfigurationWorkingCopy config);
+	public void setDefaults(Map<String, Object> attributes);
 	
 	public boolean isValid();
 	

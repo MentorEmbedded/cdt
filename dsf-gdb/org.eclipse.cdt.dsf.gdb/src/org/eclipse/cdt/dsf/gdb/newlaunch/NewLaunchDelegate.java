@@ -14,7 +14,6 @@ package org.eclipse.cdt.dsf.gdb.newlaunch;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 
-import org.eclipse.cdt.debug.core.launch.ILaunchElement;
 import org.eclipse.cdt.dsf.concurrent.DataRequestMonitor;
 import org.eclipse.cdt.dsf.concurrent.ImmediateExecutor;
 import org.eclipse.cdt.dsf.concurrent.Query;
@@ -198,12 +197,6 @@ public class NewLaunchDelegate extends GdbLaunchDelegate {
         		null));        	
 	}
 
-	protected ILaunchElement createLaunchModel(ILaunchConfiguration config) {
-		OverviewElement overview = new OverviewElement();
-		overview.initialiazeFrom(config);
-		return overview;
-	}
-	
 	protected String getGDBVersion(LaunchModel model) throws CoreException {
 		return LaunchUtils.getGDBVersion(model.getGDBPath(), model.getEnvironment());
 	}

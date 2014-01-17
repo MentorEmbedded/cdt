@@ -17,7 +17,6 @@ import org.eclipse.cdt.debug.core.launch.AbstractLaunchElement;
 import org.eclipse.cdt.debug.core.launch.ILaunchElement;
 import org.eclipse.cdt.dsf.gdb.internal.GdbPlugin;
 import org.eclipse.cdt.dsf.gdb.service.SessionType;
-import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 
 /**
  * @since 4.3
@@ -82,14 +81,13 @@ public class OverviewElement extends AbstractLaunchElement {
 	}
 
 	@Override
-	protected void doPerformApply(ILaunchConfigurationWorkingCopy config) {
-		SessionType type = getSessionType();
-		config.setAttribute(getId() + ATTR_SESSION_TYPE, type.name());
+	protected void doPerformApply(Map<String, Object> attributes) {
+		attributes.put(getId() + ATTR_SESSION_TYPE, getSessionType().name());
 	}
 
 	@Override
-	protected void doSetDefaults(ILaunchConfigurationWorkingCopy config) {
-		config.setAttribute(getId() + ATTR_SESSION_TYPE, SessionType.LOCAL.name());
+	protected void doSetDefaults(Map<String, Object> attributes) {
+		attributes.put(getId() + ATTR_SESSION_TYPE, SessionType.LOCAL.name());
 	}
 
 	@Override

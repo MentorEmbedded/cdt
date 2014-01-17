@@ -15,7 +15,6 @@ import java.util.Map;
 
 import org.eclipse.cdt.debug.core.launch.AbstractLaunchElement;
 import org.eclipse.cdt.debug.core.launch.ILaunchElement;
-import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 
 /**
  * @since 4.3
@@ -44,13 +43,13 @@ public class DebuggerElement extends AbstractLaunchElement {
 	}
 
 	@Override
-	protected void doPerformApply(ILaunchConfigurationWorkingCopy config) {
+	protected void doPerformApply(Map<String, Object> attributes) {
 		// TODO Auto-generated method stub
 
 	}
 
 	@Override
-	protected void doSetDefaults(ILaunchConfigurationWorkingCopy config) {
+	protected void doSetDefaults(Map<String, Object> attributes) {
 		// TODO Auto-generated method stub
 
 	}

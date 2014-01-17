@@ -16,7 +16,6 @@ import java.util.Map;
 import org.eclipse.cdt.debug.core.launch.AbstractLaunchElement;
 import org.eclipse.cdt.dsf.gdb.newlaunch.OverviewElement.SessionTypeChangeEvent;
 import org.eclipse.cdt.dsf.gdb.service.SessionType;
-import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 
 /**
  * @since 4.3
@@ -42,13 +41,13 @@ public class ArgumentsElement extends AbstractLaunchElement {
 	}
 
 	@Override
-	protected void doPerformApply(ILaunchConfigurationWorkingCopy config) {
-		config.setAttribute(getId() + ATTR_ARGUMENTS, fArguments);
+	protected void doPerformApply(Map<String, Object> attributes) {
+		attributes.put(getId() + ATTR_ARGUMENTS, fArguments);
 	}
 
 	@Override
-	protected void doSetDefaults(ILaunchConfigurationWorkingCopy config) {
-		config.setAttribute(getId() + ATTR_ARGUMENTS, "");
+	protected void doSetDefaults(Map<String, Object> attributes) {
+		attributes.put(getId() + ATTR_ARGUMENTS, ""); //$NON-NLS-1$
 	}
 
 	@Override

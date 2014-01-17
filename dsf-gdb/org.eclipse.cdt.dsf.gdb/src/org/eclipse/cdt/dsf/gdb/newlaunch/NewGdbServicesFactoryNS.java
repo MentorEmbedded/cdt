@@ -15,7 +15,6 @@ import org.eclipse.cdt.dsf.debug.service.IProcesses;
 import org.eclipse.cdt.dsf.debug.service.command.ICommandControl;
 import org.eclipse.cdt.dsf.gdb.newlaunch.services.NewGDBBackend;
 import org.eclipse.cdt.dsf.gdb.newlaunch.services.NewGDBControl;
-import org.eclipse.cdt.dsf.gdb.newlaunch.services.NewGDBControl_7_0;
 import org.eclipse.cdt.dsf.gdb.newlaunch.services.NewGDBControl_7_2;
 import org.eclipse.cdt.dsf.gdb.newlaunch.services.NewGDBControl_7_4;
 import org.eclipse.cdt.dsf.gdb.newlaunch.services.NewGDBProcesses_7_2_1;
@@ -44,12 +43,6 @@ public class NewGdbServicesFactoryNS extends GdbDebugServicesFactoryNS {
 		}
 		if (GDB_7_2_VERSION.compareTo(getVersion()) <= 0) {
 			return new NewGDBControl_7_2(session, config, new CommandFactory_6_8());
-		}
-		if (GDB_7_0_VERSION.compareTo(getVersion()) <= 0) {
-			return new NewGDBControl_7_0(session, config, new CommandFactory_6_8());
-		}
-		if (GDB_6_8_VERSION.compareTo(getVersion()) <= 0) {
-			return new NewGDBControl_7_0(session, config, new CommandFactory_6_8());
 		}
 		return new NewGDBControl(session, config, new CommandFactory());
 	}

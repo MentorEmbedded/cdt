@@ -26,7 +26,6 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.variables.IStringVariableManager;
 import org.eclipse.core.variables.VariablesPlugin;
-import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 
 /**
  * @since 4.3
@@ -55,17 +54,17 @@ public class WorkingDirectoryElement extends AbstractLaunchElement {
 	}
 
 	@Override
-	protected void doPerformApply(ILaunchConfigurationWorkingCopy config) {
-		config.setAttribute(getId() + ATTR_PATH, getPath());
-		config.setAttribute(getId() + ATTR_USE_DEFAULT, useDefault());
+	protected void doPerformApply(Map<String, Object> attributes) {
+		attributes.put(getId() + ATTR_PATH, getPath());
+		attributes.put(getId() + ATTR_USE_DEFAULT, useDefault());
 	}
 
 	@Override
-	protected void doSetDefaults(ILaunchConfigurationWorkingCopy config) {
+	protected void doSetDefaults(Map<String, Object> attributes) {
 		fPath = ""; //$NON-NLS-1$
 		fUseDefault = true;
-		config.setAttribute(getId() + ATTR_PATH, ""); //$NON-NLS-1$
-		config.setAttribute(getId() + ATTR_USE_DEFAULT, true);
+		attributes.put(getId() + ATTR_PATH, ""); //$NON-NLS-1$
+		attributes.put(getId() + ATTR_USE_DEFAULT, true);
 	}
 
 	@Override

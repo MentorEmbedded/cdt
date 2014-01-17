@@ -64,7 +64,7 @@ public class RemoteBinaryUIElement extends AbstractUIElement {
 	}
 
 	@Override
-	protected void initializeSummaryContent() {
+	protected void initializeDetailsContent() {
 		if (fRemotePath != null) {
 			fRemotePath.setText(getLaunchElement().getRemotePath());
 		}
