@@ -17,7 +17,6 @@ import org.eclipse.cdt.debug.core.launch.AbstractLaunchElement;
 import org.eclipse.cdt.debug.core.launch.ILaunchElement;
 import org.eclipse.cdt.dsf.gdb.newlaunch.ConnectionElement.ConnectionType;
 import org.eclipse.cdt.dsf.gdb.newlaunch.ConnectionElement.ConnectionTypeChangeEvent;
-import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 
 /**
  * @since 4.3
@@ -49,17 +48,17 @@ public class TCPConnectionElement extends AbstractLaunchElement {
 	}
 
 	@Override
-	protected void doPerformApply(ILaunchConfigurationWorkingCopy config) {
-		config.setAttribute(getId() + ATTR_HOST_NAME, fHostName);
-		config.setAttribute(getId() + ATTR_PORT_NUMBER, fPortNumber);
+	protected void doPerformApply(Map<String, Object> attributes) {
+		attributes.put(getId() + ATTR_HOST_NAME, fHostName);
+		attributes.put(getId() + ATTR_PORT_NUMBER, fPortNumber);
 	}
 
 	@Override
-	protected void doSetDefaults(ILaunchConfigurationWorkingCopy config) {
+	protected void doSetDefaults(Map<String, Object> attributes) {
 		fHostName = DEFAULT_HOST_NAME;
 		fPortNumber = DEFAULT_PORT_NUMBER;
-		config.setAttribute(getId() + ATTR_HOST_NAME, DEFAULT_HOST_NAME);
-		config.setAttribute(getId() + ATTR_PORT_NUMBER, DEFAULT_PORT_NUMBER);
+		attributes.put(getId() + ATTR_HOST_NAME, DEFAULT_HOST_NAME);
+		attributes.put(getId() + ATTR_PORT_NUMBER, DEFAULT_PORT_NUMBER);
 	}
 
 	@Override

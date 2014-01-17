@@ -19,7 +19,6 @@ import org.eclipse.cdt.debug.core.launch.AbstractLaunchElement;
 import org.eclipse.cdt.debug.core.launch.ILaunchElement;
 import org.eclipse.cdt.dsf.gdb.newlaunch.OverviewElement.SessionTypeChangeEvent;
 import org.eclipse.cdt.dsf.gdb.service.SessionType;
-import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 
 /**
  * @since 4.3
@@ -55,17 +54,17 @@ public class EnvironmentElement extends AbstractLaunchElement {
 	}
 
 	@Override
-	protected void doPerformApply(ILaunchConfigurationWorkingCopy config) {
-		config.setAttribute(getId() + ATTR_ENVIRONMENT_VARIABLES, new HashMap<String, String>(getVariables()));
-		config.setAttribute(getId() + ATTR_APPEND_ENVIRONMENT_VARIABLES, isAppend());
+	protected void doPerformApply(Map<String, Object> attributes) {
+		attributes.put(getId() + ATTR_ENVIRONMENT_VARIABLES, new HashMap<String, String>(getVariables()));
+		attributes.put(getId() + ATTR_APPEND_ENVIRONMENT_VARIABLES, isAppend());
 	}
 
 	@Override
-	protected void doSetDefaults(ILaunchConfigurationWorkingCopy config) {
+	protected void doSetDefaults(Map<String, Object> attributes) {
 		fVariables.clear();
 		fAppend = true;
-		config.setAttribute(getId() + ATTR_ENVIRONMENT_VARIABLES, Collections.EMPTY_MAP);
-		config.setAttribute(getId() + ATTR_APPEND_ENVIRONMENT_VARIABLES, true);
+		attributes.put(getId() + ATTR_ENVIRONMENT_VARIABLES, Collections.EMPTY_MAP);
+		attributes.put(getId() + ATTR_APPEND_ENVIRONMENT_VARIABLES, true);
 	}
 
 	@Override

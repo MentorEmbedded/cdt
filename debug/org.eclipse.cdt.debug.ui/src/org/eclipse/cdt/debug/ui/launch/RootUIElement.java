@@ -59,11 +59,6 @@ abstract public class RootUIElement implements ILinkListener, IChangeListener {
 				}
 			});
 		}
-
-		@Override
-		public void dispose() {
-			super.dispose();
-		}
 		
 		public void setCurrent(ILaunchElement element) {
 			if (element != null) {
@@ -166,13 +161,14 @@ abstract public class RootUIElement implements ILinkListener, IChangeListener {
 		fContent.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 	}
 
-	public void initializeFrom(ILaunchConfigurationWorkingCopy config) {
+	@SuppressWarnings("unchecked")
+	public void initializeFrom(ILaunchConfigurationWorkingCopy config) throws CoreException {
 		fInitializing = true;
 		fUIElementFactory = createUIElementFactory(config);
 		ILaunchElement topElement = createTopElement(config);
 		setTopElement(topElement);
 		if (topElement != null) {
-			topElement.initialiazeFrom(config);
+			topElement.initialiazeFrom(config.getAttributes());
 		}
 		// Restore previous state
 		String id = getStoredElementId(config);
@@ -196,13 +192,17 @@ abstract public class RootUIElement implements ILinkListener, IChangeListener {
 			getCurrentUIElement().save();
 		}
 		if (getTopElement() != null) {
-			getTopElement().performApply(config);
+			Map<String, Object> attributes = new HashMap<String, Object>();
+			getTopElement().performApply(attributes);
+			config.setAttributes(attributes);
 		}
 	}
 
 	public void setDefaults(ILaunchConfigurationWorkingCopy config) {
 		if (getTopElement() != null) {
-			getTopElement().setDefaults(config);
+			Map<String, Object> attributes = new HashMap<String, Object>();
+			getTopElement().setDefaults(attributes);
+			config.setAttributes(attributes);
 		}
 	}
 

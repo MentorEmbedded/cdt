@@ -24,7 +24,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.variables.VariablesPlugin;
-import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 
 /**
  * @since 4.3
@@ -71,28 +70,28 @@ public class CoreFileElement extends AbstractLaunchElement {
 	}
 
 	@Override
-	protected void doPerformApply(ILaunchConfigurationWorkingCopy config) {
+	protected void doPerformApply(Map<String, Object> attributes) {
 		if (fType == CoreFileType.CORE_FILE) {
-			config.setAttribute(
+			attributes.put(
 				getId() + ATTR_CORE_FILE_TYPE,
 				IGDBLaunchConfigurationConstants.DEBUGGER_POST_MORTEM_CORE_FILE);
 		}
 		else if (fType == CoreFileType.TRACE_FILE) {
-			config.setAttribute(
+			attributes.put(
 				getId() + ATTR_CORE_FILE_TYPE,
 				IGDBLaunchConfigurationConstants.DEBUGGER_POST_MORTEM_TRACE_FILE);
 		}
-		config.setAttribute(getId() + ATTR_CORE_FILE_PATH, fCoreFile);
+		attributes.put(getId() + ATTR_CORE_FILE_PATH, fCoreFile);
 	}
 
 	@Override
-	protected void doSetDefaults(ILaunchConfigurationWorkingCopy config) {
+	protected void doSetDefaults(Map<String, Object> attributes) {
 		fType = CoreFileType.CORE_FILE;
 		fCoreFile = ""; //$NON-NLS-1$
-		config.setAttribute(
+		attributes.put(
 			getId() + ATTR_CORE_FILE_TYPE,
 			IGDBLaunchConfigurationConstants.DEBUGGER_POST_MORTEM_TYPE_DEFAULT);
-		config.setAttribute(getId() + ATTR_CORE_FILE_PATH, ""); //$NON-NLS-1$
+		attributes.put(getId() + ATTR_CORE_FILE_PATH, ""); //$NON-NLS-1$
 	}
 
 	@Override
@@ -122,7 +121,7 @@ public class CoreFileElement extends AbstractLaunchElement {
 			setErrorMessage(LaunchMessages.getString("CMainTab.File_does_not_exist")); //$NON-NLS-1$
 			return false;
 		}
-		return false;
+		return true;
 	}
 
 	public CoreFileType getCoreFileType() {

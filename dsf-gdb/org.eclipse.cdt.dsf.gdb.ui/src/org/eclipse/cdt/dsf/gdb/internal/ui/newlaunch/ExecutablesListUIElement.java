@@ -15,6 +15,7 @@ import org.eclipse.cdt.debug.core.launch.ILaunchElement;
 import org.eclipse.cdt.debug.ui.launch.ListUIElement;
 import org.eclipse.cdt.dsf.gdb.internal.ui.GdbUIPlugin;
 import org.eclipse.cdt.dsf.gdb.internal.ui.IGdbUIConstants;
+import org.eclipse.cdt.dsf.gdb.newlaunch.AttachToProcessElement;
 import org.eclipse.cdt.dsf.gdb.newlaunch.ExecutableElement;
 import org.eclipse.cdt.dsf.gdb.newlaunch.ExecutablesListElement;
 import org.eclipse.swt.SWT;
@@ -39,11 +40,17 @@ public class ExecutablesListUIElement extends ListUIElement {
 
 	@Override
 	protected String getLinkLabel(ILaunchElement element) {
+		String programName = null;
 		if (element instanceof ExecutableElement) {
-			String programName = ((ExecutableElement)element).getProgramName();
+			programName = ((ExecutableElement)element).getProgramName();
 			if (programName.isEmpty()) {
 				programName = "Not specified";
 			}
+		}
+		if (element instanceof AttachToProcessElement) {
+			programName += " (attach)";
+		}
+		if (programName != null) {
 			return programName;
 		}
 		return super.getLinkLabel(element);

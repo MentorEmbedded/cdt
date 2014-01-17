@@ -27,7 +27,6 @@ import org.eclipse.cdt.dsf.gdb.service.SessionType;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 
 /**
  * @since 4.3
@@ -191,17 +190,17 @@ public class ExecutablesListElement extends ListLaunchElement {
 	}
 
 	@Override
-	protected void doPerformApply(ILaunchConfigurationWorkingCopy config) {
+	protected void doPerformApply(Map<String, Object> attributes) {
 		List<String> ids = new ArrayList<String>(getChildren().length);
 		for (ILaunchElement child : getChildren()) {
 			ListElementData data = new ListElementData(child.getClass().getName(), child.getId());
 			ids.add(data.toString());
 		}
-		config.setAttribute(getId(), ids);
+		attributes.put(getId(), ids);
 	}
 
 	@Override
-	protected void doSetDefaults(ILaunchConfigurationWorkingCopy config) {
-		config.setAttribute(getId(), Collections.EMPTY_LIST);
+	protected void doSetDefaults(Map<String, Object> attributes) {
+		attributes.put(getId(), Collections.EMPTY_LIST);
 	}
 }

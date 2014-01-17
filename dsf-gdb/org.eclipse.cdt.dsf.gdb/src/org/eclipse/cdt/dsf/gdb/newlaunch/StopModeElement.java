@@ -20,7 +20,6 @@ import org.eclipse.cdt.dsf.gdb.internal.GdbPlugin;
 import org.eclipse.cdt.dsf.gdb.newlaunch.OverviewElement.SessionTypeChangeEvent;
 import org.eclipse.cdt.dsf.gdb.service.SessionType;
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 
 /**
  * @since 4.3
@@ -30,8 +29,7 @@ public class StopModeElement extends AbstractLaunchElement {
 	final private static String ELEMENT_ID = ".stopMode"; //$NON-NLS-1$
 	final private static String ATTR_NON_STOP = ".nonStop"; //$NON-NLS-1$
 
-	private boolean fNonStop = Platform.getPreferencesService().getBoolean(
-		GdbPlugin.PLUGIN_ID, IGdbDebugPreferenceConstants.PREF_DEFAULT_NON_STOP, false, null);
+	private boolean fNonStop = isNonStopDefault();
 
 	public StopModeElement(ILaunchElement parent) {
 		super(parent, parent.getId() + ELEMENT_ID, "Stop Mode", "Stop mode");
@@ -47,20 +45,24 @@ public class StopModeElement extends AbstractLaunchElement {
 	}
 
 	@Override
-	protected void doPerformApply(ILaunchConfigurationWorkingCopy config) {
-		config.setAttribute(getId() + ATTR_NON_STOP, fNonStop);
+	protected void doPerformApply(Map<String, Object> attributes) {
+		attributes.put(getId() + ATTR_NON_STOP, fNonStop);
 	}
 
 	@Override
-	protected void doSetDefaults(ILaunchConfigurationWorkingCopy config) {
-		fNonStop = Platform.getPreferencesService().getBoolean(
-				GdbPlugin.PLUGIN_ID, IGdbDebugPreferenceConstants.PREF_DEFAULT_NON_STOP, false, null);
-			config.setAttribute(getId() + ATTR_NON_STOP, fNonStop);
+	protected void doSetDefaults(Map<String, Object> attributes) {
+		fNonStop = isNonStopDefault();
+		attributes.put(getId() + ATTR_NON_STOP, fNonStop);
 	}
 
 	@Override
 	protected boolean isContentValid() {
 		return true;
+	}
+
+	public static boolean isNonStopDefault() {
+		return Platform.getPreferencesService().getBoolean(
+			GdbPlugin.PLUGIN_ID, IGdbDebugPreferenceConstants.PREF_DEFAULT_NON_STOP, false, null);
 	}
 
 	public boolean isNonStop() {

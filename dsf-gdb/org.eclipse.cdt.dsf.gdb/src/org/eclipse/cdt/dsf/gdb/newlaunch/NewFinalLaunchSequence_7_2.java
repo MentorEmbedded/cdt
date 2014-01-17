@@ -29,7 +29,7 @@ import org.eclipse.cdt.dsf.gdb.actions.IConnect;
 import org.eclipse.cdt.dsf.gdb.internal.GdbPlugin;
 import org.eclipse.cdt.dsf.gdb.launching.FinalLaunchSequence_7_2;
 import org.eclipse.cdt.dsf.gdb.newlaunch.ConnectionElement.ConnectionType;
-import org.eclipse.cdt.dsf.gdb.service.IGDBBackend;
+import org.eclipse.cdt.dsf.gdb.newlaunch.services.NewGDBBackend;
 import org.eclipse.cdt.dsf.gdb.service.SessionType;
 import org.eclipse.cdt.dsf.gdb.service.command.IGDBControl;
 import org.eclipse.cdt.dsf.mi.service.IMIProcesses;
@@ -45,17 +45,16 @@ import org.eclipse.core.variables.IStringVariableManager;
  * @since 4.3
  */
 public class NewFinalLaunchSequence_7_2 extends FinalLaunchSequence_7_2 {
-
-	final private LaunchModel fLaunchModel;
 	
 	private IGDBControl fCommandControl;
-	private IGDBBackend	fGDBBackend;
+	private NewGDBBackend fGDBBackend;
 	private IMIProcesses fProcService;
 	private CommandFactory fCommandFactory;
+
+	private LaunchModel fLaunchModel;
 	
-	public NewFinalLaunchSequence_7_2(DsfSession session, LaunchModel launchModel, RequestMonitorWithProgress rm) {
+	public NewFinalLaunchSequence_7_2(DsfSession session, RequestMonitorWithProgress rm) {
 		super(session, new HashMap<String, Object>(), rm);
-		fLaunchModel = launchModel;
 	}
 
 	protected LaunchModel getLaunchModel() {
@@ -81,7 +80,7 @@ public class NewFinalLaunchSequence_7_2 extends FinalLaunchSequence_7_2 {
 	@Execute
 	public void stepInitializeNewFinalLaunchSequence(RequestMonitor requestMonitor) {
 		DsfServicesTracker tracker = new DsfServicesTracker(GdbPlugin.getBundleContext(), getSession().getId());
-		fGDBBackend = tracker.getService(IGDBBackend.class);
+		fGDBBackend = tracker.getService(NewGDBBackend.class);
 		fCommandControl = tracker.getService(IGDBControl.class);
 		fProcService = tracker.getService(IMIProcesses.class);
 		tracker.dispose();
@@ -105,6 +104,7 @@ public class NewFinalLaunchSequence_7_2 extends FinalLaunchSequence_7_2 {
 		}
 
 		fCommandFactory = fCommandControl.getCommandFactory();
+		fLaunchModel = fGDBBackend.getLaunchModel();
 
 		requestMonitor.done();
 	}

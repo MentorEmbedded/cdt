@@ -17,7 +17,6 @@ import org.eclipse.cdt.debug.core.launch.AbstractLaunchElement;
 import org.eclipse.cdt.debug.core.launch.ILaunchElement;
 import org.eclipse.cdt.dsf.gdb.newlaunch.OverviewElement.SessionTypeChangeEvent;
 import org.eclipse.cdt.dsf.gdb.service.SessionType;
-import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 
 /**
  * @since 4.3
@@ -43,13 +42,13 @@ public class RemoteBinaryElement extends AbstractLaunchElement {
 	}
 
 	@Override
-	protected void doPerformApply(ILaunchConfigurationWorkingCopy config) {
-		config.setAttribute(getId() + ATTR_REMOTE_PATH, fRemotePath);
+	protected void doPerformApply(Map<String, Object> attributes) {
+		attributes.put(getId() + ATTR_REMOTE_PATH, fRemotePath);
 	}
 
 	@Override
-	protected void doSetDefaults(ILaunchConfigurationWorkingCopy config) {
-		config.setAttribute(getId() + ATTR_REMOTE_PATH, ""); //$NON-NLS-1$
+	protected void doSetDefaults(Map<String, Object> attributes) {
+		attributes.put(getId() + ATTR_REMOTE_PATH, ""); //$NON-NLS-1$
 	}
 
 	@Override
@@ -78,7 +77,9 @@ public class RemoteBinaryElement extends AbstractLaunchElement {
 	}
 
 	public void setRemotePath(String remotePath) {
-		fRemotePath = remotePath;
-		elementChanged(CHANGE_DETAIL_STATE);
+		if (!fRemotePath.equals(remotePath)) {
+			fRemotePath = remotePath;
+			elementChanged(CHANGE_DETAIL_STATE);
+		}
 	}
 }

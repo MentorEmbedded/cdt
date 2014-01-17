@@ -18,7 +18,6 @@ import org.eclipse.cdt.debug.core.launch.AbstractLaunchElement;
 import org.eclipse.cdt.debug.core.launch.ILaunchElement;
 import org.eclipse.cdt.dsf.gdb.newlaunch.ConnectionElement.ConnectionType;
 import org.eclipse.cdt.dsf.gdb.newlaunch.ConnectionElement.ConnectionTypeChangeEvent;
-import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 
 /**
  * @since 4.3
@@ -59,17 +58,17 @@ public class SerialConnectionElement extends AbstractLaunchElement {
 	}
 
 	@Override
-	protected void doPerformApply(ILaunchConfigurationWorkingCopy config) {
-		config.setAttribute(getId() + ATTR_DEVICE, fDevice);
-		config.setAttribute(getId() + ATTR_DEVICE_SPEED, fSpeed);
+	protected void doPerformApply(Map<String, Object> attributes) {
+		attributes.put(getId() + ATTR_DEVICE, fDevice);
+		attributes.put(getId() + ATTR_DEVICE_SPEED, fSpeed);
 	}
 
 	@Override
-	protected void doSetDefaults(ILaunchConfigurationWorkingCopy config) {
+	protected void doSetDefaults(Map<String, Object> attributes) {
 		fDevice = DEFAULT_DEVICE;
 		fSpeed = DEFAULT_DEVICE_SPEED;
-		config.setAttribute(getId() + ATTR_DEVICE, DEFAULT_DEVICE);
-		config.setAttribute(getId() + ATTR_DEVICE_SPEED, DEFAULT_DEVICE_SPEED);
+		attributes.put(getId() + ATTR_DEVICE, DEFAULT_DEVICE);
+		attributes.put(getId() + ATTR_DEVICE_SPEED, DEFAULT_DEVICE_SPEED);
 	}
 
 	@Override

@@ -259,6 +259,8 @@ public class GdbUIPlugin extends AbstractUIPlugin {
     			getImageDescriptor( "icons/full/wizban/advtosettings_wiz.png" ) ); //$NON-NLS-1$
     	reg.put( IGdbUIConstants.IMG_OBJ_BROWSE, 
     			getImageDescriptor( "icons/full/obj16/browse.gif" ) ); //$NON-NLS-1$
+    	reg.put( IGdbUIConstants.IMG_OBJ_WORKSPACE, 
+    			getImageDescriptor( "icons/full/obj16/workspace_obj.gif" ) ); //$NON-NLS-1$
     	reg.put( IGdbUIConstants.IMG_OBJ_SEARCH_PROJECT, 
     			getImageDescriptor( "icons/full/obj16/search_project.gif" ) ); //$NON-NLS-1$
     	reg.put( IGdbUIConstants.IMG_OBJ_PATH_VARIABLES, 

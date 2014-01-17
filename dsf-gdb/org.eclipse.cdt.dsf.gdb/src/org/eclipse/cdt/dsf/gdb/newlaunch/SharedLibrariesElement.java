@@ -20,7 +20,6 @@ import java.util.Map;
 import org.eclipse.cdt.debug.core.launch.AbstractLaunchElement;
 import org.eclipse.cdt.debug.core.launch.ILaunchElement;
 import org.eclipse.cdt.dsf.gdb.IGDBLaunchConfigurationConstants;
-import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 
 /**
  * @since 4.3
@@ -54,17 +53,17 @@ public class SharedLibrariesElement extends AbstractLaunchElement {
 	}
 
 	@Override
-	protected void doPerformApply(ILaunchConfigurationWorkingCopy config) {
-		config.setAttribute(getId() + ATTR_SOLIB_PATHS, Arrays.asList(getSharedLibraryPaths()));
-		config.setAttribute(getId() + ATTR_AUTO_SOLIB, fAutoSolib);
+	protected void doPerformApply(Map<String, Object> attributes) {
+		attributes.put(getId() + ATTR_SOLIB_PATHS, Arrays.asList(getSharedLibraryPaths()));
+		attributes.put(getId() + ATTR_AUTO_SOLIB, fAutoSolib);
 	}
 
 	@Override
-	protected void doSetDefaults(ILaunchConfigurationWorkingCopy config) {
+	protected void doSetDefaults(Map<String, Object> attributes) {
 		fSolibPaths.clear();
 		fAutoSolib = IGDBLaunchConfigurationConstants.DEBUGGER_AUTO_SOLIB_DEFAULT;
-		config.setAttribute(getId() + ATTR_SOLIB_PATHS, Collections.EMPTY_LIST);
-		config.setAttribute(getId() + ATTR_AUTO_SOLIB, 
+		attributes.put(getId() + ATTR_SOLIB_PATHS, Collections.EMPTY_LIST);
+		attributes.put(getId() + ATTR_AUTO_SOLIB, 
 			IGDBLaunchConfigurationConstants.DEBUGGER_AUTO_SOLIB_DEFAULT);
 	}
 

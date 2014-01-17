@@ -29,7 +29,6 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.variables.VariablesPlugin;
-import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 
 /**
  * @since 4.3
@@ -84,15 +83,15 @@ public class ExecutableElement extends AbstractLaunchElement {
 	}
 
 	@Override
-	protected void doPerformApply(ILaunchConfigurationWorkingCopy config) {
-		config.setAttribute(getId() + ATTR_PROGRAM_NAME, getProgramName());
-		config.setAttribute(getId() + ATTR_PROJECT_NAME, getProjectName());
+	protected void doPerformApply(Map<String, Object> attributes) {
+		attributes.put(getId() + ATTR_PROGRAM_NAME, getProgramName());
+		attributes.put(getId() + ATTR_PROJECT_NAME, getProjectName());
 	}
 
 	@Override
-	protected void doSetDefaults(ILaunchConfigurationWorkingCopy config) {
-		config.setAttribute(getId() + ATTR_PROGRAM_NAME, ""); //$NON-NLS-1$
-		config.setAttribute(getId() + ATTR_PROJECT_NAME, ""); //$NON-NLS-1$
+	protected void doSetDefaults(Map<String, Object> attributes) {
+		attributes.put(getId() + ATTR_PROGRAM_NAME, ""); //$NON-NLS-1$
+		attributes.put(getId() + ATTR_PROJECT_NAME, ""); //$NON-NLS-1$
 	}
 
 	@Override

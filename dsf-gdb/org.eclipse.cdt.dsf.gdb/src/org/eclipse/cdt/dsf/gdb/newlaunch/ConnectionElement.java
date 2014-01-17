@@ -17,7 +17,6 @@ import org.eclipse.cdt.debug.core.launch.AbstractLaunchElement;
 import org.eclipse.cdt.debug.core.launch.ILaunchElement;
 import org.eclipse.cdt.dsf.gdb.newlaunch.OverviewElement.SessionTypeChangeEvent;
 import org.eclipse.cdt.dsf.gdb.service.SessionType;
-import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 
 /**
  * @since 4.3
@@ -74,9 +73,9 @@ public class ConnectionElement extends AbstractLaunchElement {
 	}
 
 	@Override
-	public void setDefaults(ILaunchConfigurationWorkingCopy config) {
+	public void setDefaults(Map<String, Object> attributes) {
 		ConnectionType oldType = getConnectionType();
-		super.setDefaults(config);
+		super.setDefaults(attributes);
 		update(new ConnectionTypeChangeEvent(this, getConnectionType(), oldType));
 	}
 
@@ -92,14 +91,14 @@ public class ConnectionElement extends AbstractLaunchElement {
 	}
 
 	@Override
-	protected void doPerformApply(ILaunchConfigurationWorkingCopy config) {
-		config.setAttribute(getId() + ATTR_TYPE, fType.ordinal());
+	protected void doPerformApply(Map<String, Object> attributes) {
+		attributes.put(getId() + ATTR_TYPE, fType.ordinal());
 	}
 
 	@Override
-	protected void doSetDefaults(ILaunchConfigurationWorkingCopy config) {
+	protected void doSetDefaults(Map<String, Object> attributes) {
 		fType = getDefaultConnectionType();
-		config.setAttribute(getId() + ATTR_TYPE, fType.ordinal());
+		attributes.put(getId() + ATTR_TYPE, fType.ordinal());
 	}
 
 	@Override
