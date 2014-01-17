@@ -62,13 +62,13 @@ public class LaunchModel {
 	}
 
 	public String getGDBPath() {
-		DebuggerSettingsElement settings = fRootElement.findChild(DebuggerSettingsElement.class);
-		return (settings != null) ? settings.getGDBPath() : DebuggerSettingsElement.getDefaultGDBPath();
+		DebuggerElement debugger = fRootElement.findChild(DebuggerElement.class);
+		return (debugger != null) ? debugger.getGDBPath() : DebuggerElement.getDefaultGDBPath();
 	}
 	
 	public String getGDBInitFile() {
-		DebuggerSettingsElement settings = fRootElement.findChild(DebuggerSettingsElement.class);
-		return (settings != null) ? settings.getGDBInitFile() : DebuggerSettingsElement.getDefaultGDBInitFile();
+		DebuggerElement debugger = fRootElement.findChild(DebuggerElement.class);
+		return (debugger != null) ? debugger.getGDBInitFile() : DebuggerElement.getDefaultGDBInitFile();
 	}
 
 	public String[] getEnvironment() {
