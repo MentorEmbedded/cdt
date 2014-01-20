@@ -88,7 +88,7 @@ public class Breadcrumbs extends Composite {
 	}
 
 	public Object getCurrent() {
-		return (fComponents.size() > 0) ? fComponents.get(fComponents.size() - 1) : null;
+		return (fComponents.size() > 0) ? fComponents.get(fComponents.size() - 1).fComponent : null;
 	}
 	
 	/**
