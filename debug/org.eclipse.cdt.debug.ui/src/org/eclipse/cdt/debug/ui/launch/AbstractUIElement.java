@@ -20,6 +20,7 @@ import java.util.Set;
 import org.eclipse.cdt.debug.core.launch.ILaunchElement;
 import org.eclipse.cdt.debug.internal.ui.CDebugImages;
 import org.eclipse.cdt.debug.ui.dialogs.GridUtils;
+import org.eclipse.cdt.debug.ui.dialogs.Breadcrumbs.ILinkListener;
 import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -195,7 +196,7 @@ abstract public class AbstractUIElement {
 	
 	protected void linkActivated(ILaunchElement element) {
 		for (Object o : fLinkListeners.getListeners()) {
-			((ILinkListener)o).linkActivated(element);
+			((ILinkListener)o).linkActivated(element.getId());
 		}
 	}
 	
