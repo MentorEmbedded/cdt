@@ -20,68 +20,22 @@ import org.eclipse.cdt.debug.core.CDebugCorePlugin;
 import org.eclipse.cdt.debug.core.launch.ILaunchElement;
 import org.eclipse.cdt.debug.core.launch.ILaunchElement.IChangeListener;
 import org.eclipse.cdt.debug.core.launch.IListLaunchElement;
+import org.eclipse.cdt.debug.ui.dialogs.Breadcrumbs;
 import org.eclipse.cdt.debug.ui.dialogs.GridUtils;
+import org.eclipse.cdt.debug.ui.dialogs.Breadcrumbs.ILinkListener;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
-import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Link;
 
 /**
  * @since 7.4
  */
 abstract public class RootUIElement implements ILinkListener, IChangeListener {
-
-	class Breadcrumbs extends Composite {
-
-		private Link fNavigator;
-		private String fCurrent;
-
-		public Breadcrumbs(Composite parent, int style) {
-			super(parent, style);
-			setLayout(new GridLayout());
-			setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
-			fNavigator = new Link(this, SWT.NONE);
-			fNavigator.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
-			fNavigator.setFont(JFaceResources.getHeaderFont());
-			fNavigator.addSelectionListener(new SelectionAdapter() {
-				@Override
-				public void widgetSelected(SelectionEvent e) {
-					ILaunchElement element = getLaunchElement(e.text);
-					activateElement((element != null) ? element : getTopElement());
-				}
-			});
-		}
-		
-		public void setCurrent(ILaunchElement element) {
-			if (element != null) {
-				fCurrent = element.getId();
-				ILaunchElement current = element;
-				String text = current.getName();
-				while (current.getParent() != null) {
-					current = current.getParent();
-					if (current instanceof IListLaunchElement)
-						continue;
-					text = String.format("<a href=\"%s\">%s</a> / %s", current.getId(), current.getName(), text); //$NON-NLS-1$
-				}		
-				fNavigator.setText(text);
-			}
-			else {
-				fNavigator.setText(""); //$NON-NLS-1$
-			}
-		}
-		
-		public String getCurrentElementId() {
-			return fCurrent;
-		}
-	}
 
 	@Override
 	public void elementAdded(ILaunchElement element, int details) {
@@ -152,7 +106,7 @@ abstract public class RootUIElement implements ILinkListener, IChangeListener {
 		base.setLayout(new GridLayout());
 		base.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
-		fBreadcrumbs = new Breadcrumbs(base, SWT.NONE);
+		fBreadcrumbs = new Breadcrumbs(base, SWT.NONE, this);
 
 		GridUtils.addHorizontalSeparatorToGrid(base, 1);
 		
@@ -242,21 +196,20 @@ abstract public class RootUIElement implements ILinkListener, IChangeListener {
 	}
 
 	private void doActivateElement(ILaunchElement element) {
-		fBreadcrumbs.setCurrent(element);
 		if (element != null) {
+			fBreadcrumbs.setCurrent(element.getId(), element.getName());
 			AbstractUIElement uiElement = createUIElement(element, true);
 			setCurrentUIElement(uiElement);
 			uiElement.createContent(getControl());
-		}		
+		}
+		else {
+			fBreadcrumbs.setCurrent(null, ""); //$NON-NLS-1$
+		}
 		getControl().layout();
 	}
 
-	private ILaunchElement getLaunchElement(String id) {
-		return (id != null) ? getTopElement().findChild(id) : null;
-	}
-
 	private String getCurrentElementId() {
-		return fBreadcrumbs.getCurrentElementId();
+		return (String)fBreadcrumbs.getCurrent();
 	}
 
 	public ILaunchElement getTopElement() {
@@ -309,8 +262,13 @@ abstract public class RootUIElement implements ILinkListener, IChangeListener {
 	}
 
 	@Override
-	public void linkActivated(ILaunchElement element) {
-		activateElement(element);
+	public void linkActivated(Object obj) {
+		if (obj instanceof String) {
+			ILaunchElement element = getTopElement().findChild((String)obj);
+			if (element != null) {
+				activateElement(element);
+			}
+		}
 	}
 	
 	protected boolean isInitializing() {
