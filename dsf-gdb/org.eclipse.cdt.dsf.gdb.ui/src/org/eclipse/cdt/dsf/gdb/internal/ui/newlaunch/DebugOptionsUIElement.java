@@ -17,7 +17,7 @@ import org.eclipse.cdt.dsf.gdb.newlaunch.DebugOptionsElement;
 public class DebugOptionsUIElement extends AbstractUIElement {
 
 	public DebugOptionsUIElement(DebugOptionsElement launchElement, boolean showDetails) {
-		super(launchElement, showDetails);
+		super(launchElement, true);
 	}
 
 	@Override

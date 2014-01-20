@@ -11,6 +11,7 @@
 
 package org.eclipse.cdt.dsf.gdb.internal.ui.newlaunch;
 
+import org.eclipse.cdt.debug.ui.dialogs.PillsControl;
 import org.eclipse.cdt.debug.ui.launch.AbstractUIElement;
 import org.eclipse.cdt.dsf.gdb.newlaunch.ConnectionElement;
 import org.eclipse.cdt.dsf.gdb.newlaunch.ConnectionElement.ConnectionType;
@@ -21,7 +22,6 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
@@ -31,7 +31,7 @@ public class ConnectionUIElement extends AbstractUIElement {
 	private Label fSummaryText;
 	
 	// Details widgets
-	private Combo fTypeCombo;
+	private PillsControl fTypeSelector;
 
 	public ConnectionUIElement(ConnectionElement launchElement, boolean showDetails ) {
 		super(launchElement, showDetails);
@@ -46,7 +46,7 @@ public class ConnectionUIElement extends AbstractUIElement {
 	public void disposeContent() {
 		super.disposeContent();
 		fSummaryText = null;
-		fTypeCombo = null;
+		fTypeSelector = null;
 	}
 
 	@Override
@@ -93,9 +93,11 @@ public class ConnectionUIElement extends AbstractUIElement {
 		Label label = new Label(comp, SWT.NONE);
 		label.setText("Connection type: ");
 		
-		fTypeCombo = new Combo(comp, SWT.DROP_DOWN | SWT.READ_ONLY);
-		fTypeCombo.addSelectionListener(new SelectionAdapter() {
-
+		fTypeSelector = new PillsControl(comp, SWT.NONE);
+		fTypeSelector.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+		fTypeSelector.setBackground(parent.getBackground());		
+		fTypeSelector.setAlignment(SWT.LEFT);
+		fTypeSelector.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				connectionTypeChanged();
@@ -105,21 +107,21 @@ public class ConnectionUIElement extends AbstractUIElement {
 
 	@Override
 	protected void initializeDetailsContent() {
-		if (fTypeCombo == null)
+		if (fTypeSelector == null)
 			return;
 		String[] types = new String[ConnectionType.values().length];
 		for (int i = 0; i < ConnectionType.values().length; ++i) {
 			types[i] = getLaunchElement().getConnectionTypeLabel(ConnectionType.values()[i]);
 		}
-		fTypeCombo.setItems(types);
-		fTypeCombo.select(getLaunchElement().getConnectionType().ordinal());
+		fTypeSelector.setItems(types);
+		fTypeSelector.setSelection(getLaunchElement().getConnectionType().ordinal());
 	}
 
 	@Override
 	public void save() {
-		if (fTypeCombo == null)
+		if (fTypeSelector == null)
 			return;
-		ConnectionType type = ConnectionType.values()[fTypeCombo.getSelectionIndex()];
+		ConnectionType type = ConnectionType.values()[fTypeSelector.getSelection()];
 		getLaunchElement().setConnectionType(type);
 	}
 	

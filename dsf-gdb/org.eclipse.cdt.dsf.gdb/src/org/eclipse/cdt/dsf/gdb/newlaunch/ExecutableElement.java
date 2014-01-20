@@ -69,9 +69,9 @@ public class ExecutableElement extends AbstractLaunchElement {
 		addChildren(new ILaunchElement[] {
 				new RemoteBinaryElement(this),
 				new ArgumentsElement(this),
+				new StopOnStartupElement(this),
 				new WorkingDirectoryElement(this),
 				new BuildSettingsElement(this),
-				new DebugOptionsElement(this),
 			});
 	}
 
