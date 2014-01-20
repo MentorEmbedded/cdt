@@ -146,15 +146,6 @@ public class ExecutableUIElement extends AbstractUIElement {
 	}
 
 	protected void createProjectGroup(final Composite parent) {
-//		Composite projComp = new Composite(parent, SWT.NONE);
-//		GridLayout projLayout = new GridLayout();
-//		projLayout.numColumns = 2;
-//		projLayout.marginHeight = 0;
-//		projLayout.marginWidth = 0;
-//		projComp.setLayout(projLayout);
-//		GridData gd = new GridData(GridData.FILL_HORIZONTAL);
-//		projComp.setLayoutData(gd);
-
 		Label fProjLabel = new Label(parent, SWT.NONE);
 		fProjLabel.setText(LaunchMessages.getString("CMainTab.&ProjectColon")); //$NON-NLS-1$
 		GridData gd = new GridData(SWT.LEFT, SWT.CENTER, false, false);
@@ -185,16 +176,6 @@ public class ExecutableUIElement extends AbstractUIElement {
 				handleProjectButtonSelected(parent.getShell());
 			}
 		});
-/*
-		Button fProjButton = SWTFactory.createPushButton(projComp, LaunchMessages.getString("Launch.common.Browse_1"), null);  //$NON-NLS-1$
-		fProjButton.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent evt) {
-//				handleProjectButtonSelected();
-//				updateLaunchConfigurationDialog();
-			}
-		});
-*/
 	}
 
 	protected String handleBrowseButtonSelected(Shell shell, String title) {

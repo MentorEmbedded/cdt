@@ -55,8 +55,8 @@ public class OverviewElement extends AbstractLaunchElement {
 	@Override
 	protected void doCreateChildren(Map<String, Object> attributes) {
 		addChildren(new ILaunchElement[] {
-			new ExecutablesListElement(this),
 			new DebuggerElement(this),
+			new ExecutablesListElement(this),
 			new CoreExecutableElement(this),
 			new EnvironmentElement(this),
 		});

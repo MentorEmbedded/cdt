@@ -12,6 +12,7 @@
 package org.eclipse.cdt.dsf.gdb.internal.ui.newlaunch;
 
 import org.eclipse.cdt.debug.ui.dialogs.GridUtils;
+import org.eclipse.cdt.debug.ui.dialogs.PillsControl;
 import org.eclipse.cdt.debug.ui.launch.AbstractUIElement;
 import org.eclipse.cdt.dsf.gdb.newlaunch.OverviewElement;
 import org.eclipse.cdt.dsf.gdb.service.SessionType;
@@ -20,7 +21,6 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
@@ -31,18 +31,18 @@ public class OverviewUIElement extends AbstractUIElement {
 	static {
 		for (int i = 0; i < fgTypes.length; ++i) {
 			if (SessionType.values()[i].equals(SessionType.LOCAL)) {
-				fgTypes[i] = "locally";
+				fgTypes[i] = "Locally";
 			}
 			else if (SessionType.values()[i].equals(SessionType.REMOTE)) {
-				fgTypes[i] = "using gdbserver";
+				fgTypes[i] = "Using gdbserver";
 			}
 			else if (SessionType.values()[i].equals(SessionType.CORE)) {
-				fgTypes[i] = "core file";
+				fgTypes[i] = "Core file";
 			}
 		}
 	}
 
-	private Combo fTypeCombo;
+	private PillsControl fTypeSelector;
 
 	public OverviewUIElement(OverviewElement launchElement) {
 		super(launchElement, true);
@@ -69,15 +69,17 @@ public class OverviewUIElement extends AbstractUIElement {
 		
 		Label label = new Label(comboComp, SWT.NONE);
 		label.setText("Debug ");
-		
-		fTypeCombo = new Combo(comboComp, SWT.DROP_DOWN | SWT.READ_ONLY);
-		fTypeCombo.setItems(fgTypes);
-		fTypeCombo.select(0);
-		
-		fTypeCombo.addSelectionListener(new SelectionAdapter() {
+
+		fTypeSelector = new PillsControl(comboComp, SWT.NONE);
+		fTypeSelector.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+		fTypeSelector.setBackground(parent.getBackground());		
+		fTypeSelector.setAlignment(SWT.LEFT);
+		fTypeSelector.setItems(fgTypes);
+		fTypeSelector.setSelection(0);
+		fTypeSelector.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				SessionType type = SessionType.values()[fTypeCombo.getSelectionIndex()];
+				SessionType type = SessionType.values()[fTypeSelector.getSelection()];
 				if (getLaunchElement().getSessionType() == type) {
 					return;
 				}
@@ -94,21 +96,21 @@ public class OverviewUIElement extends AbstractUIElement {
 
 	@Override
 	public void save() {
-		if (fTypeCombo != null) {
-			getLaunchElement().setSessionType(SessionType.values()[fTypeCombo.getSelectionIndex()]);
+		if (fTypeSelector != null) {
+			getLaunchElement().setSessionType(SessionType.values()[fTypeSelector.getSelection()]);
 		}
 	}
 
 	@Override
 	protected void initializeDetailsContent() {
-		if (fTypeCombo != null) {
-			fTypeCombo.select(getLaunchElement().getSessionType().ordinal());
+		if (fTypeSelector != null) {
+			fTypeSelector.setSelection(getLaunchElement().getSessionType().ordinal());
 		}
 	}
 
 	@Override
 	public void disposeContent() {
 		super.disposeContent();
-		fTypeCombo = null;
+		fTypeSelector = null;
 	}
 }
