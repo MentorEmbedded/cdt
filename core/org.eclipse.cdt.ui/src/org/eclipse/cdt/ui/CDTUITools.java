@@ -18,6 +18,11 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentExtension3;
 import org.eclipse.jface.text.IDocumentPartitioner;
 import org.eclipse.jface.text.rules.FastPartitioner;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.PartInitException;
@@ -29,6 +34,7 @@ import org.eclipse.cdt.core.model.ISourceReference;
 import org.eclipse.cdt.core.model.IWorkingCopy;
 import org.eclipse.cdt.ui.text.ICPartitions;
 import org.eclipse.cdt.ui.text.IColorManager;
+
 import org.eclipse.cdt.internal.ui.editor.ITranslationUnitEditorInput;
 import org.eclipse.cdt.internal.ui.text.asm.AsmPartitionScanner;
 import org.eclipse.cdt.internal.ui.util.EditorUtility;
@@ -206,5 +212,48 @@ public final class CDTUITools {
 		}
 		partitioner.connect(document);
 	}
+	
+	/**
+	 * @since 5.7
+	 */
+	public static GridData getGridLayoutData(Control c) 
+	{
+		Object ld = c.getLayoutData();
+		GridData gd;
+		if (ld == null)
+		{
+			gd = new GridData();
+			c.setLayoutData(gd);
+		}
+		else
+		{
+			assert ld instanceof GridData;				
+			gd = (GridData)ld;
+		}
+		return gd;
+	}
 
+	/**
+	 * @since 5.7
+	 */
+	public static void grabAllWidth(Control c)
+	{
+		GridData gd = getGridLayoutData(c);		
+		gd.grabExcessHorizontalSpace = true;
+		gd.horizontalAlignment = SWT.FILL;
+	}
+	
+	/**
+	 * Add a horizontal separator to a grid layout.
+	 * 
+	 * @param c the composite to which the separator is added.
+	 * @since 5.7
+	 */
+	public static Label addHorizontalSeparatorToGrid(Composite c) {
+		Label l = new Label(c, SWT.SEPARATOR | SWT.HORIZONTAL);
+		GridData g = new GridData();
+		g.horizontalAlignment = GridData.FILL;
+		l.setLayoutData(g);
+		return l;
+	}	
 }
