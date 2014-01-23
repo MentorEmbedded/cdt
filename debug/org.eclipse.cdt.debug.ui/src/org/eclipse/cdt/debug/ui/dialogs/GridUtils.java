@@ -6,6 +6,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Layout;
 
 /**
  * @since 7.4
@@ -58,5 +59,24 @@ public class GridUtils {
 		Object data = control.getLayoutData();
 		GridData gridData = (data instanceof GridData) ? gridData = (GridData)data : new GridData();
 		gridData.horizontalSpan = numColumns;
+		control.setLayoutData(gridData);
+	}
+
+	public static void createVerticalSpacer(Composite parent, int numlines) {
+		Label lbl = new Label(parent, SWT.NONE);
+		GridData gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
+		Layout layout = parent.getLayout();
+		if(layout instanceof GridLayout) {
+			gd.horizontalSpan = ((GridLayout)parent.getLayout()).numColumns;
+		}
+		gd.heightHint = numlines;
+		lbl.setLayoutData(gd);
+	}
+	
+	public static void createHorizontalSpacer(Composite comp, int numlines) {
+		Label lbl = new Label(comp, SWT.NONE);
+		GridData gd = new GridData(GridData.FILL_HORIZONTAL);
+		gd.horizontalSpan = numlines;
+		lbl.setLayoutData(gd);
 	}
 }

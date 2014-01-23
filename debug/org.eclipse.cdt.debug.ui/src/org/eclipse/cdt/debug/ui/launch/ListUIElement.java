@@ -14,6 +14,7 @@ package org.eclipse.cdt.debug.ui.launch;
 import org.eclipse.cdt.debug.core.launch.ILaunchElement;
 import org.eclipse.cdt.debug.core.launch.IListLaunchElement;
 import org.eclipse.cdt.debug.internal.ui.CDebugImages;
+import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -49,6 +50,7 @@ public abstract class ListUIElement extends AbstractUIElement {
 //		int horSpan = (parent.getLayout() instanceof GridLayout) ? ((GridLayout)parent.getLayout()).numColumns : 1;
 //		fContent.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, horSpan, 1));
 		fContent = new Group(parent, SWT.NONE);
+		fContent.setFont(JFaceResources.getFontRegistry().getBold(JFaceResources.DIALOG_FONT));
 		GridLayout layout = new GridLayout(2, false);
 //		layout.marginHeight = layout.marginWidth = 0;
 		fContent.setLayout(layout);

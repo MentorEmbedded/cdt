@@ -11,6 +11,7 @@
 
 package org.eclipse.cdt.dsf.gdb.internal.ui.newlaunch;
 
+import org.eclipse.cdt.debug.ui.dialogs.GridUtils;
 import org.eclipse.cdt.debug.ui.launch.AbstractUIElement;
 import org.eclipse.cdt.dsf.gdb.newlaunch.StopOnStartupElement;
 import org.eclipse.swt.SWT;
@@ -49,11 +50,11 @@ public class StopOnStartupUIElement extends AbstractUIElement {
 	protected void doCreateDetailsContent(Composite parent) {
 		Composite comp = new Composite(parent, SWT.NONE);
 		GridLayout layout = new GridLayout(2, false);
-		layout.marginHeight = 0;
-		layout.marginWidth = 0;
+		layout.marginHeight = layout.marginWidth = 0;
 		comp.setLayout(layout);
-		comp.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
-		
+		comp.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+		GridUtils.fillIntoGrid(comp, parent);
+
 		fStopButton = new Button(comp, SWT.CHECK);
 		fStopButton.setText("Stop on startup at ");
 		fStopButton.addSelectionListener(new SelectionAdapter() {
@@ -70,6 +71,8 @@ public class StopOnStartupUIElement extends AbstractUIElement {
 				symbolChanged();
 			}
 		});
+		
+		GridUtils.createHorizontalSpacer(parent, 2);
 	}
 
 	@Override

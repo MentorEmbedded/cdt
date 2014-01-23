@@ -11,6 +11,7 @@
 
 package org.eclipse.cdt.dsf.gdb.internal.ui.newlaunch;
 
+import org.eclipse.cdt.debug.ui.dialogs.GridUtils;
 import org.eclipse.cdt.debug.ui.launch.AbstractUIElement;
 import org.eclipse.cdt.dsf.gdb.internal.ui.launching.LaunchUIMessages;
 import org.eclipse.cdt.dsf.gdb.newlaunch.SharedLibrariesElement;
@@ -52,6 +53,7 @@ public class SharedLibrariesUIElement extends AbstractUIElement {
 	@Override
 	protected void doCreateDetailsContent(Composite parent) {
 		fAutoSolibButton = new Button(parent, SWT.CHECK);
+		GridUtils.fillIntoGrid(fAutoSolibButton, parent);
 		fAutoSolibButton.setText(LaunchUIMessages.getString("GDBSolibBlock.0")); //$NON-NLS-1$
 		fAutoSolibButton.addSelectionListener(new SelectionAdapter() {
 			@Override

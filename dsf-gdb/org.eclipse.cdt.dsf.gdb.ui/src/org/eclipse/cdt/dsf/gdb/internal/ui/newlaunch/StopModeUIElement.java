@@ -11,14 +11,13 @@
 
 package org.eclipse.cdt.dsf.gdb.internal.ui.newlaunch;
 
+import org.eclipse.cdt.debug.ui.dialogs.GridUtils;
 import org.eclipse.cdt.debug.ui.launch.AbstractUIElement;
 import org.eclipse.cdt.dsf.gdb.internal.ui.launching.LaunchUIMessages;
 import org.eclipse.cdt.dsf.gdb.newlaunch.StopModeElement;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 
@@ -43,14 +42,8 @@ public class StopModeUIElement extends AbstractUIElement {
 
 	@Override
 	protected void doCreateDetailsContent(Composite parent) {
-		Composite comp = new Composite(parent, SWT.NONE);
-		GridLayout coreLayout = new GridLayout();
-		coreLayout.marginHeight = 0;
-		coreLayout.marginWidth = 0;
-		comp.setLayout(coreLayout);
-		comp.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
-		
-		fNonStopButton = new Button(comp, SWT.CHECK);
+		fNonStopButton = new Button(parent, SWT.CHECK);
+		GridUtils.fillIntoGrid(fNonStopButton, parent);
 		fNonStopButton.setText(LaunchUIMessages.getString("GDBDebuggerPage.nonstop_mode")); //$NON-NLS-1$
 		fNonStopButton.addSelectionListener(new SelectionAdapter() {
 

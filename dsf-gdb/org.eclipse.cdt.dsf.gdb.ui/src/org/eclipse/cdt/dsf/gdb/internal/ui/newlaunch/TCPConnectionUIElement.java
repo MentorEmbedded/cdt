@@ -11,14 +11,15 @@
 
 package org.eclipse.cdt.dsf.gdb.internal.ui.newlaunch;
 
+import org.eclipse.cdt.debug.ui.dialogs.GridUtils;
 import org.eclipse.cdt.debug.ui.launch.AbstractUIElement;
 import org.eclipse.cdt.dsf.gdb.internal.ui.launching.LaunchUIMessages;
 import org.eclipse.cdt.dsf.gdb.newlaunch.TCPConnectionElement;
+import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
@@ -46,16 +47,11 @@ public class TCPConnectionUIElement extends AbstractUIElement {
 
 	@Override
 	protected void doCreateDetailsContent(Composite parent) {
-		Composite comp = new Composite(parent, SWT.NONE);
-		GridLayout layout = new GridLayout(2, false);
-		layout.marginWidth = layout.marginHeight = 0;
-		comp.setLayout(layout);
-		comp.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
-		
-		Label label = new Label(comp, SWT.NONE);
+		Label label = new Label(parent, SWT.NONE);
+		label.setFont(JFaceResources.getFontRegistry().getBold(JFaceResources.DIALOG_FONT));
 		label.setText(LaunchUIMessages.getString("TCPSettingsBlock.0")); //$NON-NLS-1$
 		
-		fHostNameText = new Text(comp, SWT.BORDER | SWT.SINGLE);
+		fHostNameText = new Text(parent, SWT.BORDER | SWT.SINGLE);
 		fHostNameText.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
 		fHostNameText.addModifyListener(new ModifyListener() {
 			@Override
@@ -63,11 +59,14 @@ public class TCPConnectionUIElement extends AbstractUIElement {
 				hostNameChanged();
 			}
 		});
-		
-		label = new Label(comp, SWT.NONE);
+
+		GridUtils.createHorizontalSpacer(parent, 2);
+
+		label = new Label(parent, SWT.NONE);
+		label.setFont(JFaceResources.getFontRegistry().getBold(JFaceResources.DIALOG_FONT));
 		label.setText(LaunchUIMessages.getString("TCPSettingsBlock.1")); //$NON-NLS-1$
 		
-		fPortText = new Text(comp, SWT.BORDER | SWT.SINGLE);
+		fPortText = new Text(parent, SWT.BORDER | SWT.SINGLE);
 		fPortText.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));		
 		fPortText.addModifyListener(new ModifyListener() {
 			@Override
@@ -75,6 +74,8 @@ public class TCPConnectionUIElement extends AbstractUIElement {
 				portNumberChanged();
 			}
 		});
+
+		GridUtils.createHorizontalSpacer(parent, 2);
 	}
 
 	@Override
