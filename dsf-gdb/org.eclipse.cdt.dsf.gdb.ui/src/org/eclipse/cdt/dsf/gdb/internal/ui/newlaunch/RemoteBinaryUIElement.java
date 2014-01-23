@@ -11,13 +11,14 @@
 
 package org.eclipse.cdt.dsf.gdb.internal.ui.newlaunch;
 
+import org.eclipse.cdt.debug.ui.dialogs.GridUtils;
 import org.eclipse.cdt.debug.ui.launch.AbstractUIElement;
 import org.eclipse.cdt.dsf.gdb.newlaunch.RemoteBinaryElement;
+import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
@@ -42,17 +43,12 @@ public class RemoteBinaryUIElement extends AbstractUIElement {
 
 	@Override
 	protected void doCreateDetailsContent(Composite parent) {
-		Composite comp = new Composite(parent, SWT.NONE);
-		GridLayout layout = new GridLayout();
-		layout.marginHeight = 0;
-		layout.marginWidth = 0;
-		comp.setLayout(layout);
-		comp.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
-		
-		Label label = new Label(comp, SWT.NONE);
+		Label label = new Label(parent, SWT.NONE);
 		label.setText("Binary on target: ");
+		label.setFont(JFaceResources.getFontRegistry().getBold(JFaceResources.DIALOG_FONT));
+		GridUtils.fillIntoGrid(label, parent);
 		
-		fRemotePath = new Text(comp, SWT.BORDER | SWT.SINGLE);
+		fRemotePath = new Text(parent, SWT.BORDER | SWT.SINGLE);
 		fRemotePath.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
 		fRemotePath.addModifyListener(new ModifyListener() {
 			

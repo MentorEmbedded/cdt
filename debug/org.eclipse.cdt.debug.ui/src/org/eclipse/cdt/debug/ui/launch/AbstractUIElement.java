@@ -43,7 +43,6 @@ abstract public class AbstractUIElement {
 	private ListenerList fLinkListeners = new ListenerList();
 
 	private Composite fParent;
-	private Composite fDetailsContent;
 	private Set<Widget> fSummaryWidgets = new HashSet<Widget>();
 	
 	public AbstractUIElement(ILaunchElement launchElement, boolean showDetails) {
@@ -66,6 +65,24 @@ abstract public class AbstractUIElement {
 		return fLaunchElement;
 	}
 
+	public AbstractUIElement[] getAllChildren() {
+		return fChildren.toArray(new AbstractUIElement[fChildren.size()]);
+	}
+
+	@SuppressWarnings("unchecked")
+	public<V> V findChild(Class<V> childClass) {
+		if (this.getClass().equals(childClass)) {
+			return (V)this;
+		}
+		for (AbstractUIElement el : getAllChildren()) {
+			V child = el.findChild(childClass);
+			if (child != null) {
+				return child;
+			}
+		}
+		return null;
+	}
+
 	public void createContent(Composite parent) {
 		fParent = parent;
 		disposeContent();
@@ -81,10 +98,6 @@ abstract public class AbstractUIElement {
 		for (AbstractUIElement child : fChildren) {
 			child.disposeContent();
 		}
-		if (fDetailsContent != null) {
-			fDetailsContent.dispose();
-			fDetailsContent = null;
-		}
 		for (Widget w : fSummaryWidgets) {
 			w.dispose();
 		}
@@ -92,9 +105,7 @@ abstract public class AbstractUIElement {
 	}
 
 	protected void createSummaryContent(Composite parent) {		
-		Composite base = parent;
-
-		Link link = new Link(base, SWT.NONE);
+		Link link = new Link(parent, SWT.BORDER);
 		link.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, false, false, hasContent() ? 1 : 4, 1));
 		link.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -108,9 +119,9 @@ abstract public class AbstractUIElement {
 
 		if (hasContent()) {
 			if (hasMultipleRows()) {
-				fSummaryWidgets.add(GridUtils.createBar(base, 1));
+				fSummaryWidgets.add(GridUtils.createBar(parent, 1));
 			}
-			Composite content = new Composite(base, SWT.NONE);
+			Composite content = new Composite(parent, SWT.NONE);
 			GridLayout layout = new GridLayout();
 			layout.marginHeight = layout.marginWidth = 0;
 			content.setLayout(layout);
@@ -124,7 +135,7 @@ abstract public class AbstractUIElement {
 			content.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, horSpan, 1));
 			fSummaryWidgets.add(content);
 			if (isRemovable()) {
-				Button removeButton = new Button(base, SWT.PUSH);
+				Button removeButton = new Button(parent, SWT.PUSH);
 				removeButton.setImage(CDebugImages.get(CDebugImages.IMG_LCL_REMOVE_UIELEMENT));
 				removeButton.setToolTipText("Remove");
 				removeButton.setLayoutData(new GridData(SWT.RIGHT, SWT.TOP, false, false));
@@ -146,13 +157,7 @@ abstract public class AbstractUIElement {
 	}
 
 	protected void createDetailsContent(Composite parent) {
-		fDetailsContent = new Composite(parent, SWT.NONE);
-		GridLayout layout = new GridLayout();
-		layout.marginWidth = layout.marginHeight = 0;
-		fDetailsContent.setLayout(layout);
-		int horSpan = (parent.getLayout() instanceof GridLayout) ? ((GridLayout)parent.getLayout()).numColumns : 1;
-		fDetailsContent.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, horSpan, 1));
-		doCreateDetailsContent(fDetailsContent);
+		doCreateDetailsContent(parent);
 		createChildrenContent(parent);
 		initializeDetailsContent();
 	}
@@ -227,7 +232,7 @@ abstract public class AbstractUIElement {
 	}
 	
 	protected void createChildrenContent(Composite parent) {
-		for (AbstractUIElement child : fChildren) {
+		for (AbstractUIElement child : getFiteredChildren()) {
 			child.createContent(parent);
 		}
 	}
@@ -236,5 +241,9 @@ abstract public class AbstractUIElement {
 	}
 	
 	protected void initializeDetailsContent() {
+	}
+	
+	protected AbstractUIElement[] getFiteredChildren() {
+		return fChildren.toArray(new AbstractUIElement[fChildren.size()]);
 	}
 }

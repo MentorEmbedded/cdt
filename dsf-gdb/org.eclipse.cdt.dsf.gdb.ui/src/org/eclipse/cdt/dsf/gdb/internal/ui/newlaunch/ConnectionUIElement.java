@@ -11,17 +11,18 @@
 
 package org.eclipse.cdt.dsf.gdb.internal.ui.newlaunch;
 
+import org.eclipse.cdt.debug.ui.dialogs.GridUtils;
 import org.eclipse.cdt.debug.ui.dialogs.PillsControl;
 import org.eclipse.cdt.debug.ui.launch.AbstractUIElement;
 import org.eclipse.cdt.dsf.gdb.newlaunch.ConnectionElement;
 import org.eclipse.cdt.dsf.gdb.newlaunch.ConnectionElement.ConnectionType;
 import org.eclipse.cdt.dsf.gdb.newlaunch.SerialConnectionElement;
 import org.eclipse.cdt.dsf.gdb.newlaunch.TCPConnectionElement;
+import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
@@ -83,17 +84,12 @@ public class ConnectionUIElement extends AbstractUIElement {
 	}
 
 	@Override
-	protected void doCreateDetailsContent(Composite parent) {
-		Composite comp = new Composite(parent, SWT.NONE);
-		GridLayout layout = new GridLayout(2, false);
-		layout.marginWidth = layout.marginHeight = 0;
-		comp.setLayout(layout);
-		comp.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
-		
-		Label label = new Label(comp, SWT.NONE);
+	protected void doCreateDetailsContent(Composite parent) {		
+		Label label = new Label(parent, SWT.NONE);
+		label.setFont(JFaceResources.getFontRegistry().getBold(JFaceResources.DIALOG_FONT));
 		label.setText("Connection type: ");
 		
-		fTypeSelector = new PillsControl(comp, SWT.NONE);
+		fTypeSelector = new PillsControl(parent, SWT.NONE);
 		fTypeSelector.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		fTypeSelector.setBackground(parent.getBackground());		
 		fTypeSelector.setAlignment(SWT.LEFT);
@@ -103,6 +99,8 @@ public class ConnectionUIElement extends AbstractUIElement {
 				connectionTypeChanged();
 			}
 		});
+		
+		GridUtils.createHorizontalSpacer(parent, 2);
 	}
 
 	@Override

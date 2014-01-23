@@ -13,6 +13,7 @@ package org.eclipse.cdt.dsf.gdb.internal.ui.newlaunch;
 
 import java.io.File;
 
+import org.eclipse.cdt.debug.ui.dialogs.GridUtils;
 import org.eclipse.cdt.debug.ui.launch.AbstractUIElement;
 import org.eclipse.cdt.dsf.gdb.internal.ui.GdbUIPlugin;
 import org.eclipse.cdt.dsf.gdb.internal.ui.IGdbUIConstants;
@@ -20,6 +21,7 @@ import org.eclipse.cdt.dsf.gdb.internal.ui.launching.LaunchUIMessages;
 import org.eclipse.cdt.dsf.gdb.newlaunch.DebuggerElement;
 import org.eclipse.cdt.dsf.gdb.newlaunch.StopModeElement;
 import org.eclipse.cdt.utils.ui.controls.ControlFactory;
+import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -63,13 +65,17 @@ public class DebuggerUIElement extends AbstractUIElement {
 	@Override
 	protected void doCreateDetailsContent(final Composite parent) {
 		Composite comp = new Composite(parent, SWT.NONE);
-		GridLayout layout = new GridLayout(3, false);
+		GridLayout layout = new GridLayout(2, false);
 		layout.marginHeight = layout.marginWidth = 0;
 		comp.setLayout(layout);
 		comp.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
+		GridUtils.fillIntoGrid(comp, parent);
 		
 		Label label = ControlFactory.createLabel(comp, LaunchUIMessages.getString("GDBDebuggerPage.gdb_debugger")); //$NON-NLS-1$
 		label.setLayoutData(new GridData());
+		label.setFont(JFaceResources.getFontRegistry().getBold(JFaceResources.DIALOG_FONT));
+		GridUtils.fillIntoGrid(label, comp);
+
 		fGDBCommandText = ControlFactory.createTextField(comp, SWT.SINGLE | SWT.BORDER);
 		fGDBCommandText.addModifyListener(new ModifyListener() {
             @Override
@@ -86,8 +92,12 @@ public class DebuggerUIElement extends AbstractUIElement {
 				handleGDBButtonSelected(parent.getShell());
 			}
 		});
+
 		label = ControlFactory.createLabel(comp, LaunchUIMessages.getString("GDBDebuggerPage.gdb_command_file")); //$NON-NLS-1$
 		label.setLayoutData(new GridData());
+		label.setFont(JFaceResources.getFontRegistry().getBold(JFaceResources.DIALOG_FONT));
+		GridUtils.fillIntoGrid(label, comp);
+		
 		fGDBInitText = ControlFactory.createTextField(comp, SWT.SINGLE | SWT.BORDER);
 		fGDBInitText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		fGDBInitText.addModifyListener(new ModifyListener() {
@@ -117,6 +127,8 @@ public class DebuggerUIElement extends AbstractUIElement {
 		GridData gd = new GridData(SWT.FILL, SWT.CENTER, true, false, 3, 1);
 		gd.widthHint = 200;
 		label.setLayoutData(gd);
+		
+		GridUtils.createVerticalSpacer(comp, 1);
 	}
 
 	private void handleGDBButtonSelected(Shell shell) {
@@ -161,17 +173,24 @@ public class DebuggerUIElement extends AbstractUIElement {
 
 	@Override
 	protected void doCreateSummaryContent(Composite parent) {
-		fGDBCommandSummary = new Label(parent, SWT.NONE);
-		String gdbPath = getLaunchElement().getGDBPath();
-		if (DebuggerElement.getDefaultGDBPath().equals(gdbPath)) {
-			gdbPath += " (default)";
-		}
-		fGDBCommandSummary.setText(gdbPath);
-		
-		StopModeElement stopMode = getLaunchElement().findChild(StopModeElement.class);
-		boolean isNonStop = (stopMode != null) ? stopMode.isNonStop() : StopModeElement.isNonStopDefault();
+		fGDBCommandSummary = new Label(parent, SWT.NONE);		
 		fStopModeSummary = new Label(parent, SWT.NONE);
-		fStopModeSummary.setText(String.format("Mode: %s", (isNonStop) ? "non-stop" : "all-mode"));  //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
+	}
+
+	@Override
+	protected void initializeSummaryContent() {
+		if (fGDBCommandSummary != null) {
+			String gdbPath = getLaunchElement().getGDBPath();
+			if (DebuggerElement.getDefaultGDBPath().equals(gdbPath)) {
+				gdbPath += " (default)";
+			}
+			fGDBCommandSummary.setText(gdbPath);
+		}
+		if (fStopModeSummary != null) {
+			StopModeElement stopMode = getLaunchElement().findChild(StopModeElement.class);
+			boolean isNonStop = (stopMode != null) ? stopMode.isNonStop() : StopModeElement.isNonStopDefault();
+			fStopModeSummary.setText(String.format("Mode: %s", (isNonStop) ? "non-stop" : "all-stop"));  //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
+		}
 	}
 
 	@Override

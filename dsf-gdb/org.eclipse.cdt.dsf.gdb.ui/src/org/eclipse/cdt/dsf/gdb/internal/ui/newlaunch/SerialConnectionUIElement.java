@@ -13,16 +13,17 @@ package org.eclipse.cdt.dsf.gdb.internal.ui.newlaunch;
 
 import java.util.Arrays;
 
+import org.eclipse.cdt.debug.ui.dialogs.GridUtils;
 import org.eclipse.cdt.debug.ui.launch.AbstractUIElement;
 import org.eclipse.cdt.dsf.gdb.internal.ui.launching.LaunchUIMessages;
 import org.eclipse.cdt.dsf.gdb.newlaunch.SerialConnectionElement;
+import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
@@ -51,16 +52,11 @@ public class SerialConnectionUIElement extends AbstractUIElement {
 
 	@Override
 	protected void doCreateDetailsContent( Composite parent ) {
-		Composite comp = new Composite(parent, SWT.NONE);
-		GridLayout layout = new GridLayout(2, false);
-		layout.marginWidth = layout.marginHeight = 0;
-		comp.setLayout(layout);
-		comp.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
-		
-		Label label = new Label(comp, SWT.NONE);
+		Label label = new Label(parent, SWT.NONE);
+		label.setFont(JFaceResources.getFontRegistry().getBold(JFaceResources.DIALOG_FONT));
 		label.setText(LaunchUIMessages.getString("SerialPortSettingsBlock.0")); //$NON-NLS-1$
 		
-		fDeviceText = new Text(comp, SWT.BORDER | SWT.SINGLE);
+		fDeviceText = new Text(parent, SWT.BORDER | SWT.SINGLE);
 		fDeviceText.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
 		fDeviceText.addModifyListener(new ModifyListener() {
 			@Override
@@ -68,17 +64,22 @@ public class SerialConnectionUIElement extends AbstractUIElement {
 				deviceChanged();
 			}
 		});
+
+		GridUtils.createHorizontalSpacer(parent, 2);
 		
-		label = new Label(comp, SWT.NONE);
+		label = new Label(parent, SWT.NONE);
+		label.setFont(JFaceResources.getFontRegistry().getBold(JFaceResources.DIALOG_FONT));
 		label.setText(LaunchUIMessages.getString("SerialPortSettingsBlock.1")); //$NON-NLS-1$
 		
-		fSpeedCombo = new Combo(comp, SWT.DROP_DOWN | SWT.READ_ONLY);
+		fSpeedCombo = new Combo(parent, SWT.DROP_DOWN | SWT.READ_ONLY);
 		fSpeedCombo.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				deviceSpeedChanged();
 			}
 		});
+
+		GridUtils.createHorizontalSpacer(parent, 2);
 	}
 
 	@Override

@@ -16,6 +16,7 @@ import org.eclipse.cdt.debug.ui.dialogs.PillsControl;
 import org.eclipse.cdt.debug.ui.launch.AbstractUIElement;
 import org.eclipse.cdt.dsf.gdb.newlaunch.OverviewElement;
 import org.eclipse.cdt.dsf.gdb.service.SessionType;
+import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -55,22 +56,20 @@ public class OverviewUIElement extends AbstractUIElement {
 
 	@Override
 	protected void doCreateDetailsContent(Composite parent) {
-		Composite base = new Composite(parent, SWT.NONE);
-		GridLayout layout = new GridLayout(2, false);
-		layout.marginWidth = layout.marginHeight = 0;
-		base.setLayout(layout);
-		base.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
-		
-		Composite comboComp = new Composite(base, SWT.NONE);
+		GridLayout layout = (GridLayout)parent.getLayout();
+		int horSpan = layout.numColumns;
+		Composite comp = new Composite(parent, SWT.NONE);
 		layout = new GridLayout(2, false);
 		layout.marginWidth = layout.marginHeight = 0;
-		comboComp.setLayout(layout);
-		comboComp.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
+		comp.setLayout(layout);
+		comp.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
+		GridUtils.fillIntoGrid(comp, parent);
 		
-		Label label = new Label(comboComp, SWT.NONE);
-		label.setText("Debug ");
+		Label label = new Label(comp, SWT.NONE);
+		label.setFont(JFaceResources.getFontRegistry().getBold(JFaceResources.DIALOG_FONT));
+		label.setText("Debug: ");
 
-		fTypeSelector = new PillsControl(comboComp, SWT.NONE);
+		fTypeSelector = new PillsControl(comp, SWT.NONE);
 		fTypeSelector.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		fTypeSelector.setBackground(parent.getBackground());		
 		fTypeSelector.setAlignment(SWT.LEFT);
@@ -87,7 +86,7 @@ public class OverviewUIElement extends AbstractUIElement {
 			}
 		});
 
-		GridUtils.addHorizontalSeparatorToGrid(parent, 4);
+		GridUtils.addHorizontalSeparatorToGrid(parent, horSpan);
 	}
 
 	private void sessionTypeChanged() {

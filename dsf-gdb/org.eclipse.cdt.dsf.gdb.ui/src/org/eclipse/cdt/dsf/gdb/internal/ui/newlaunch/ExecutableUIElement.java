@@ -12,6 +12,7 @@
 package org.eclipse.cdt.dsf.gdb.internal.ui.newlaunch;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.eclipse.cdt.core.CCorePlugin;
 import org.eclipse.cdt.core.ICDescriptor;
@@ -35,6 +36,7 @@ import org.eclipse.debug.ui.DebugUITools;
 import org.eclipse.debug.ui.IDebugUIConstants;
 import org.eclipse.debug.ui.StringVariableSelectionDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
@@ -60,6 +62,7 @@ import org.eclipse.ui.dialogs.TwoPaneElementSelector;
 public class ExecutableUIElement extends AbstractUIElement {
 
 	// Details view widgets
+	private Composite fDetailsContent;
 	private Text fProgText;
 	private Text fProjText;
 	private Button fSearchButton;
@@ -78,33 +81,58 @@ public class ExecutableUIElement extends AbstractUIElement {
 
 	@Override
 	protected void doCreateDetailsContent(Composite parent) {
-		createExecFileGroup(parent);
-		createProjectGroup(parent);
+		Composite comp = new Composite(parent, SWT.NONE);
+		GridLayout layout = new GridLayout(4, false);
+		layout.marginHeight = layout.marginWidth = 0;
+		comp.setLayout(layout);
+		comp.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+		GridUtils.fillIntoGrid(comp, parent);
+
+		createExecFileGroup(comp);
+		createProjectGroup(comp);
+		createRemoteBinaryGroup(comp);
+		createArgumentsGroup(comp);
+		createStopOnStartupGroup(comp);
+		createCoreFileGroup(comp);
+
+		GridUtils.createVerticalSpacer(parent, 1);
 	}
 
 	@Override
 	public void disposeContent() {
+		if (fDetailsContent != null) {
+			fDetailsContent.dispose();
+		}
 		super.disposeContent();
+		fDetailsContent = null;
 		fProgText = null;
 		fProjText = null;
+		fSearchButton = null;
+	}
+
+	@Override
+	protected AbstractUIElement[] getFiteredChildren() {
+		AbstractUIElement[] children = getAllChildren();
+		List<AbstractUIElement> list = new ArrayList<AbstractUIElement>(children.length);
+		for (AbstractUIElement child : children) {
+			if (child instanceof RemoteBinaryUIElement || 
+				child instanceof ArgumentsUIElement || 
+				child instanceof StopOnStartupUIElement ||
+				child instanceof CoreFileUIElement)
+				continue;
+			list.add(child);
+		}
+		return list.toArray(new AbstractUIElement[list.size()]);
 	}
 
 	protected void createExecFileGroup(final Composite parent) {
 		Label progLabel = new Label(parent, SWT.NONE);
 		progLabel.setText(LaunchMessages.getString("CMainTab.C/C++_Application")); //$NON-NLS-1$
-		GridData gd = new GridData();
-		progLabel.setLayoutData(gd);
+		progLabel.setFont(JFaceResources.getFontRegistry().getBold(JFaceResources.DIALOG_FONT));
+		GridUtils.fillIntoGrid(progLabel, parent);
 
-		Composite progTextComp = new Composite(parent, SWT.NONE);
-		GridLayout layout = new GridLayout(4, false);
-		layout.marginHeight = layout.marginWidth = 0;
-		progTextComp.setLayout(layout);
-		gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
-		progTextComp.setLayoutData(gd);
-		
-		fProgText = new Text(progTextComp, SWT.SINGLE | SWT.BORDER);
-		gd = new GridData(GridData.FILL_HORIZONTAL);
-		fProgText.setLayoutData(gd);
+		fProgText = new Text(parent, SWT.SINGLE | SWT.BORDER);
+		fProgText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		fProgText.addModifyListener(new ModifyListener() {
             @Override
 			public void modifyText(ModifyEvent evt) {
@@ -112,7 +140,13 @@ public class ExecutableUIElement extends AbstractUIElement {
 			}
 		});
 
-		Button browseButton = new Button(progTextComp, SWT.PUSH);
+		Composite buttonBar = new Composite(parent, SWT.NONE);
+		GridLayout layout = new GridLayout(3, false);
+		layout.marginHeight = layout.marginWidth = 0;
+		buttonBar.setLayout(layout);
+		buttonBar.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 3, 1));
+
+		Button browseButton = new Button(buttonBar, SWT.PUSH);
 		browseButton.setImage(GdbUIPlugin.getImage(IGdbUIConstants.IMG_OBJ_BROWSE));
 		browseButton.setToolTipText(LaunchMessages.getString("Launch.common.Browse_2")); //$NON-NLS-1$
 		browseButton.addSelectionListener(new SelectionAdapter() {
@@ -124,7 +158,7 @@ public class ExecutableUIElement extends AbstractUIElement {
 			}
 		});
 		
-		fSearchButton = new Button(progTextComp, SWT.PUSH);
+		fSearchButton = new Button(buttonBar, SWT.PUSH);
 		fSearchButton.setImage(GdbUIPlugin.getImage(IGdbUIConstants.IMG_OBJ_SEARCH_PROJECT));
 		fSearchButton.setToolTipText(LaunchMessages.getString("CMainTab.Search...")); //$NON-NLS-1$
 		fSearchButton.addSelectionListener(new SelectionAdapter() {
@@ -134,7 +168,7 @@ public class ExecutableUIElement extends AbstractUIElement {
 			}
 		});
 		
-		Button varButton = new Button(progTextComp, SWT.PUSH);
+		Button varButton = new Button(buttonBar, SWT.PUSH);
 		varButton.setImage(GdbUIPlugin.getImage(IGdbUIConstants.IMG_OBJ_PATH_VARIABLES));
 		varButton.setToolTipText(LaunchMessages.getString("CMainTab.Variables")); //$NON-NLS-1$
 		varButton.addSelectionListener(new SelectionAdapter() {
@@ -146,19 +180,12 @@ public class ExecutableUIElement extends AbstractUIElement {
 	}
 
 	protected void createProjectGroup(final Composite parent) {
-		Label fProjLabel = new Label(parent, SWT.NONE);
-		fProjLabel.setText(LaunchMessages.getString("CMainTab.&ProjectColon")); //$NON-NLS-1$
-		GridData gd = new GridData(SWT.LEFT, SWT.CENTER, false, false);
-		fProjLabel.setLayoutData(gd);
+		Label projLabel = new Label(parent, SWT.NONE);
+		projLabel.setText(LaunchMessages.getString("CMainTab.&ProjectColon")); //$NON-NLS-1$
+		projLabel.setFont(JFaceResources.getFontRegistry().getBold(JFaceResources.DIALOG_FONT));
+		GridUtils.fillIntoGrid(projLabel, parent);
 
-		Composite projTextComp = new Composite(parent, SWT.NONE);
-		GridLayout layout = new GridLayout(2, false);
-		layout.marginHeight = layout.marginWidth = 0;
-		projTextComp.setLayout(layout);
-		gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
-		projTextComp.setLayoutData(gd);
-		
-		fProjText = new Text(projTextComp, SWT.SINGLE | SWT.BORDER);
+		fProjText = new Text(parent, SWT.SINGLE | SWT.BORDER);
 		fProjText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		fProjText.addModifyListener(new ModifyListener() {
 			@Override
@@ -167,7 +194,8 @@ public class ExecutableUIElement extends AbstractUIElement {
 			}
 		});
 
-		Button browseButton = new Button(projTextComp, SWT.PUSH);
+		Button browseButton = new Button(parent, SWT.PUSH);
+		browseButton.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 3, 1));
 		browseButton.setImage(GdbUIPlugin.getImage(IGdbUIConstants.IMG_OBJ_BROWSE));
 		browseButton.setToolTipText(LaunchMessages.getString("Launch.common.Browse_2")); //$NON-NLS-1$
 		browseButton.addSelectionListener(new SelectionAdapter() {
@@ -415,5 +443,33 @@ public class ExecutableUIElement extends AbstractUIElement {
 	
 	protected void handleDeleteButtonSelected() {
 		getLaunchElement().getParent().removeChild(getLaunchElement());
+	}
+	
+	protected void createArgumentsGroup(Composite parent) {
+		ArgumentsUIElement element = findChild(ArgumentsUIElement.class);
+		if (element != null) {
+			element.createContent(parent);
+		}
+	}
+	
+	protected void createRemoteBinaryGroup(Composite parent) {
+		RemoteBinaryUIElement element = findChild(RemoteBinaryUIElement.class);
+		if (element != null) {
+			element.createContent(parent);
+		}
+	}
+
+	protected void createStopOnStartupGroup(Composite parent) {
+		StopOnStartupUIElement element = findChild(StopOnStartupUIElement.class);
+		if (element != null) {
+			element.createContent(parent);
+		}
+	}
+
+	protected void createCoreFileGroup(Composite parent) {
+		CoreFileUIElement element = findChild(CoreFileUIElement.class);
+		if (element != null) {
+			element.createContent(parent);
+		}
 	}
 }

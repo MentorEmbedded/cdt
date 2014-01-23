@@ -24,6 +24,7 @@ import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.debug.ui.StringVariableSelectionDialog;
+import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -77,6 +78,7 @@ public class WorkingDirectoryUIElement extends AbstractUIElement {
 		
 		Label label = new Label(comp, SWT.NONE);
 		label.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, false, false, 4, 1));
+		label.setFont(JFaceResources.getFontRegistry().getBold(JFaceResources.DIALOG_FONT));
 		label.setText(LaunchUIMessages.getString("WorkingDirectoryBlock.Working_directory")); //$NON-NLS-1$
 		
 		fPathText = new Text(comp, SWT.BORDER | SWT.SINGLE);
