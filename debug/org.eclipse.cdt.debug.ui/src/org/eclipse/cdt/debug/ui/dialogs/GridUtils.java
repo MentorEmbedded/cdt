@@ -62,7 +62,7 @@ public class GridUtils {
 		control.setLayoutData(gridData);
 	}
 
-	public static void createVerticalSpacer(Composite parent, int numlines) {
+	public static Control createVerticalSpacer(Composite parent, int numlines) {
 		Label lbl = new Label(parent, SWT.NONE);
 		GridData gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
 		Layout layout = parent.getLayout();
@@ -71,6 +71,7 @@ public class GridUtils {
 		}
 		gd.heightHint = numlines;
 		lbl.setLayoutData(gd);
+		return lbl;
 	}
 	
 	public static void createHorizontalSpacer(Composite comp, int numlines) {

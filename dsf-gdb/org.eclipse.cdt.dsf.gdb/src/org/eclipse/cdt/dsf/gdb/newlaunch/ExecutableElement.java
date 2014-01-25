@@ -121,7 +121,7 @@ public class ExecutableElement extends AbstractLaunchElement {
 		}
 	}
 	
-	public ICProject getProject(String name) {
+	public static ICProject getProject(String name) {
 		return CoreModel.getDefault().getCModel().getCProject(name);
 	}
 

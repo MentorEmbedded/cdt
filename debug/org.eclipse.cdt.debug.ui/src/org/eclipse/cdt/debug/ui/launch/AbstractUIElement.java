@@ -151,7 +151,7 @@ abstract public class AbstractUIElement {
 			doCreateSummaryContent(content);
 		}
 		
-		fSummaryWidgets.add(GridUtils.addHorizontalSeparatorToGrid(parent, 4));
+		fSummaryWidgets.add(GridUtils.createVerticalSpacer(parent, 1));
 
 		initializeSummaryContent();
 	}
