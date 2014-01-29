@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.eclipse.cdt.debug.core.launch.ILaunchElement;
+import org.eclipse.cdt.debug.core.launch.ILaunchElement.IChangeListener;
 import org.eclipse.cdt.debug.internal.ui.CDebugImages;
 import org.eclipse.cdt.debug.ui.dialogs.GridUtils;
 import org.eclipse.cdt.debug.ui.dialogs.Breadcrumbs.ILinkListener;
@@ -35,7 +36,7 @@ import org.eclipse.swt.widgets.Widget;
 /**
  * @since 7.4
  */
-abstract public class AbstractUIElement {
+abstract public class AbstractUIElement implements IChangeListener {
 
 	private ILaunchElement fLaunchElement;
 	final private boolean fShowDetails;
@@ -49,9 +50,11 @@ abstract public class AbstractUIElement {
 		super();
 		fLaunchElement = launchElement;
 		fShowDetails = showDetails;
+		fLaunchElement.addChangeListener(this);
 	}
 
 	public void dispose() {
+		fLaunchElement.removeChangeListener(this);
 		fLinkListeners.clear();
 		disposeContent();
 		for (AbstractUIElement child : fChildren) {
@@ -245,5 +248,24 @@ abstract public class AbstractUIElement {
 	
 	protected AbstractUIElement[] getFiteredChildren() {
 		return fChildren.toArray(new AbstractUIElement[fChildren.size()]);
+	}
+
+	@Override
+	public void elementAdded(ILaunchElement element, int details) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void elementRemoved(ILaunchElement element) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void elementChanged(ILaunchElement element, int details) {
+		if (getLaunchElement().equals(element) && (details & ILaunchElement.CHANGE_DETAIL_STATE) != 0) {
+			refresh(false);
+		}
 	}
 }

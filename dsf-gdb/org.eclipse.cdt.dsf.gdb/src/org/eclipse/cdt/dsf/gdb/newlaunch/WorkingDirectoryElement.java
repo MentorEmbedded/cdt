@@ -18,6 +18,7 @@ import org.eclipse.cdt.core.CCorePlugin;
 import org.eclipse.cdt.core.model.ICProject;
 import org.eclipse.cdt.debug.core.launch.AbstractLaunchElement;
 import org.eclipse.cdt.debug.core.launch.ILaunchElement;
+import org.eclipse.cdt.dsf.gdb.newlaunch.ExecutableElement.ProjectChangeEvent;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -161,5 +162,19 @@ public class WorkingDirectoryElement extends AbstractLaunchElement {
 			}
 		}
 		return null;
+	}
+
+	@Override
+	public void update(IChangeEvent event) {
+		if (event instanceof ProjectChangeEvent) {
+			handleProjectChange((ProjectChangeEvent)event);
+		}
+		super.update(event);
+	}
+
+	private void handleProjectChange(ProjectChangeEvent event) {
+		if (useDefault()) {
+			elementChanged(CHANGE_DETAIL_STATE);
+		}
 	}
 }

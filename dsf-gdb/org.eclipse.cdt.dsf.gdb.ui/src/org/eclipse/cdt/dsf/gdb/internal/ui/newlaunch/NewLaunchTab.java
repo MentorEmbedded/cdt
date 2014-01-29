@@ -1,5 +1,7 @@
 package org.eclipse.cdt.dsf.gdb.internal.ui.newlaunch;
 
+import java.util.Map;
+
 import org.eclipse.cdt.core.CCorePlugin;
 import org.eclipse.cdt.core.model.CModelException;
 import org.eclipse.cdt.core.model.IBinary;
@@ -10,7 +12,7 @@ import org.eclipse.cdt.debug.core.ICDTLaunchConfigurationConstants;
 import org.eclipse.cdt.debug.core.launch.ILaunchElement;
 import org.eclipse.cdt.debug.ui.CDebugUIPlugin;
 import org.eclipse.cdt.debug.ui.launch.IUIElementFactory;
-import org.eclipse.cdt.debug.ui.launch.RootUIElement;
+import org.eclipse.cdt.debug.ui.launch.LaunchRootUIElement;
 import org.eclipse.cdt.dsf.gdb.internal.ui.GdbUIPlugin;
 import org.eclipse.cdt.dsf.gdb.internal.ui.launching.CLaunchConfigurationTab;
 import org.eclipse.cdt.dsf.gdb.internal.ui.launching.ICDTLaunchHelpContextIds;
@@ -31,10 +33,10 @@ import org.eclipse.swt.widgets.Display;
 
 public class NewLaunchTab extends CLaunchConfigurationTab {
 	
-	private class NewLaunchUIRootElement extends RootUIElement {
+	private class NewLaunchUIRootElement extends LaunchRootUIElement {
 
 		@Override
-		protected IUIElementFactory createUIElementFactory(ILaunchConfiguration configuration) {
+		protected IUIElementFactory createUIElementFactory(Map<String, Object> attributes) {
 			return new UIElementFactory();
 		}
 
@@ -60,13 +62,13 @@ public class NewLaunchTab extends CLaunchConfigurationTab {
 		}
 
 		@Override
-		protected ILaunchElement createTopElement(ILaunchConfiguration config) {
+		protected ILaunchElement createTopElement(Map<String, Object> attributes) {
 			return new OverviewElement();
 		}
 	}
 
 	private ILaunchConfigurationWorkingCopy fLaunchConfiguration;
-	private RootUIElement fRoot;
+	private LaunchRootUIElement fRoot;
 
     public NewLaunchTab() {
 		super();
@@ -166,7 +168,7 @@ public class NewLaunchTab extends CLaunchConfigurationTab {
 
 	@Override
 	public boolean isValid(ILaunchConfiguration configuration) {
-		return fRoot.isValid(configuration);
+		return fRoot.isValid();
 	}
 
 	@Override

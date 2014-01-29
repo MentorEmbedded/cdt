@@ -11,6 +11,9 @@
 
 package org.eclipse.cdt.dsf.gdb.internal.ui.launching;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * This class provides information required to start 
  * debugging an executable. 
@@ -19,12 +22,17 @@ public class NewExecutableInfo {
 	private String fHostPath;
 	private String fTargetPath;
 	private String fArguments;
+	private HashMap<String, Object> fAttributes;
 
 	public NewExecutableInfo(String hostPath, String targetPath, String args) {
-		super();
+		this(hostPath, targetPath, args, new HashMap<String, Object>());
+	}
+	
+	public NewExecutableInfo(String hostPath, String targetPath, String args, Map<String, Object> attributes) {
 		fHostPath = hostPath;
 		fTargetPath = targetPath;
 		fArguments = args;
+		fAttributes = new HashMap<String, Object>(attributes);
 	}
 	
 	/**
@@ -47,5 +55,10 @@ public class NewExecutableInfo {
 	 */
 	public String getArguments() {
 		return fArguments;
+	}
+	
+	@SuppressWarnings( "unchecked" )
+	public Map<String, Object> getAttributes() {
+		return (Map<String, Object>)fAttributes.clone();
 	}
 }
