@@ -11,12 +11,10 @@
 
 package org.eclipse.cdt.dsf.gdb.internal.ui.commands;
 
-import java.util.Map;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.RejectedExecutionException;
 
-import org.eclipse.cdt.debug.core.ICDTLaunchConfigurationConstants;
 import org.eclipse.cdt.debug.core.model.IDebugNewExecutableHandler;
 import org.eclipse.cdt.dsf.concurrent.DataRequestMonitor;
 import org.eclipse.cdt.dsf.concurrent.DsfExecutor;
@@ -27,10 +25,9 @@ import org.eclipse.cdt.dsf.concurrent.RequestMonitor;
 import org.eclipse.cdt.dsf.datamodel.IDMContext;
 import org.eclipse.cdt.dsf.debug.service.IProcesses;
 import org.eclipse.cdt.dsf.debug.service.command.ICommandControlService;
-import org.eclipse.cdt.dsf.gdb.IGDBLaunchConfigurationConstants;
 import org.eclipse.cdt.dsf.gdb.internal.ui.GdbUIPlugin;
-import org.eclipse.cdt.dsf.gdb.internal.ui.launching.NewExecutableDialog;
 import org.eclipse.cdt.dsf.gdb.internal.ui.launching.NewExecutableInfo;
+import org.eclipse.cdt.dsf.gdb.internal.ui.launching.NewNewExecutableDialog;
 import org.eclipse.cdt.dsf.gdb.launching.GdbLaunch;
 import org.eclipse.cdt.dsf.gdb.service.IGDBBackend;
 import org.eclipse.cdt.dsf.gdb.service.SessionType;
@@ -62,8 +59,8 @@ public class GdbDebugNewExecutableCommand extends RefreshableDebugCommand implem
 
 		@Override
 		public IStatus runInUIThread( IProgressMonitor monitor ) {
-			int flags = ( fRemote ) ? NewExecutableDialog.REMOTE : 0;
-			NewExecutableDialog dialog = new NewExecutableDialog( GdbUIPlugin.getShell(), flags );
+			int flags = ( fRemote ) ? NewNewExecutableDialog.REMOTE : 0;
+			NewNewExecutableDialog dialog = new NewNewExecutableDialog( GdbUIPlugin.getShell(), flags );
 			final boolean canceled = dialog.open() == Window.CANCEL;
 			final NewExecutableInfo info = dialog.getExecutableInfo();
 			fExecutor.execute( new DsfRunnable() {
@@ -144,21 +141,21 @@ public class GdbDebugNewExecutableCommand extends RefreshableDebugCommand implem
 
 				@Override
 				protected void handleSuccess() {
-					try {
-						@SuppressWarnings( "unchecked" )
-						Map<String, Object> attributes = getLaunchConfiguration().getAttributes();
-						attributes.put( IGDBLaunchConfigurationConstants.ATTR_DEBUGGER_REMOTE_BINARY, getData().getTargetPath() );
-						attributes.put( ICDTLaunchConfigurationConstants.ATTR_PROGRAM_ARGUMENTS, getData().getArguments() );
+//					try {
+//						@SuppressWarnings( "unchecked" )
+//						Map<String, Object> attributes = getLaunchConfiguration().getAttributes();
+//						attributes.put( IGDBLaunchConfigurationConstants.ATTR_DEBUGGER_REMOTE_BINARY, getData().getTargetPath() );
+//						attributes.put( ICDTLaunchConfigurationConstants.ATTR_PROGRAM_ARGUMENTS, getData().getArguments() );
 						procService.debugNewProcess(
 								commandControl.getContext(), 
 								getData().getHostPath(), 
-								attributes, 
+								getData().getAttributes(), 
 								new ImmediateDataRequestMonitor<IDMContext>( rm ) );
-					}
-					catch( CoreException e ) {
-						rm.setStatus( e.getStatus() );
-						rm.done();
-					}
+//					}
+//					catch( CoreException e ) {
+//						rm.setStatus( e.getStatus() );
+//						rm.done();
+//					}
 				};
 			} );
 		job.schedule();

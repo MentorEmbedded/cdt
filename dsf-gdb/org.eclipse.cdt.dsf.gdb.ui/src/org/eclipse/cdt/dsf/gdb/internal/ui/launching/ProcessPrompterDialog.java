@@ -64,7 +64,7 @@ public class ProcessPrompterDialog extends TwoPaneElementSelector {
 	@Override
 	protected void buttonPressed(int buttonId) {
 		if (buttonId == NEW_BUTTON_ID) {
-			NewExecutableDialog dialog = new NewExecutableDialog(getShell(), (fRemote) ? NewExecutableDialog.REMOTE : 0);
+			NewNewExecutableDialog dialog = new NewNewExecutableDialog(getShell(), (fRemote) ? NewNewExecutableDialog.REMOTE : 0);
 			if (dialog.open() == IDialogConstants.OK_ID) {
 				fExecInfo = dialog.getExecutableInfo();
 				setReturnCode(OK);

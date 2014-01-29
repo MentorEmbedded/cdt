@@ -56,7 +56,6 @@ public class StopModeUIElement extends AbstractUIElement {
 
 	@Override
 	protected void initializeDetailsContent() {
-		super.initializeDetailsContent();
 		if (fNonStopButton != null) {
 			fNonStopButton.setSelection(getLaunchElement().isNonStop());
 		}

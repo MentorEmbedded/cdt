@@ -35,6 +35,26 @@ import org.eclipse.core.variables.VariablesPlugin;
  */
 public class ExecutableElement extends AbstractLaunchElement {
 
+	public class ProjectChangeEvent extends ChangeEvent {
+		
+		final private String fOldName;
+		final private String fNewName;
+
+		public ProjectChangeEvent(AbstractLaunchElement source, String oldName, String newName) {
+			super(source);
+			fOldName = oldName;
+			fNewName = newName;
+		}
+
+		public String getOldName() {
+			return fOldName;
+		}
+
+		public String getNewName() {
+			return fNewName;
+		}
+	}
+
 	final private static String ATTR_PROGRAM_NAME = ".programName"; //$NON-NLS-1$
 	final private static String ATTR_PROJECT_NAME = ".projectName"; //$NON-NLS-1$
 	final private static String ATTR_PLATFORM = ".platform"; //$NON-NLS-1$
@@ -116,7 +136,9 @@ public class ExecutableElement extends AbstractLaunchElement {
 
 	public void setProjectName(String projectName) {
 		if (fProjectName == null || !fProjectName.equals(projectName)) {
+			String oldName = fProjectName;
 			fProjectName = projectName;
+			update(new ProjectChangeEvent(this, oldName, projectName));
 			elementChanged(CHANGE_DETAIL_STATE);
 		}
 	}

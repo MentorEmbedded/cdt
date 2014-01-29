@@ -109,8 +109,7 @@ public class Breadcrumbs extends Composite {
 			text = data.fLabel;
 			for (int i = fComponents.size() - 2; i >= 0; --i) {
 				ComponentData current = fComponents.get(i);
-				text = String.format("<a href=\"%d\">%s</a> / %s", i, current.fLabel, text); //$NON-NLS-1$
-				
+				text = String.format("<a href=\"%d\">%s</a> / %s", i, current.fLabel, text); //$NON-NLS-1$				
 			}
 		}
 		else {

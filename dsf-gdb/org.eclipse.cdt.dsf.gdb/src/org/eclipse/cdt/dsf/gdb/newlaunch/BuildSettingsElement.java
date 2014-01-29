@@ -15,6 +15,7 @@ import java.util.Map;
 
 import org.eclipse.cdt.debug.core.launch.AbstractLaunchElement;
 import org.eclipse.cdt.debug.core.launch.ILaunchElement;
+import org.eclipse.cdt.dsf.gdb.newlaunch.ExecutableElement.ProjectChangeEvent;
 
 /**
  * @since 4.3
@@ -136,5 +137,17 @@ public class BuildSettingsElement extends AbstractLaunchElement {
 	public String getProjectName() {
 		ExecutableElement exec = findAncestor(ExecutableElement.class);
 		return (exec != null) ? exec.getProjectName() : null;
+	}
+
+	@Override
+	public void update(IChangeEvent event) {
+		if (event instanceof ProjectChangeEvent) {
+			handleProjectChange((ProjectChangeEvent)event);
+		}
+		super.update(event);
+	}
+
+	private void handleProjectChange(ProjectChangeEvent event) {
+		elementChanged(CHANGE_DETAIL_STATE);
 	}
 }

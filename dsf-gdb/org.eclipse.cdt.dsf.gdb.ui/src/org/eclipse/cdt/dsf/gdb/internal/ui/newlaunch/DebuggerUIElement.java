@@ -38,13 +38,9 @@ import org.eclipse.swt.widgets.Text;
 
 public class DebuggerUIElement extends AbstractUIElement {
 
-	// Summary widgets
-	private Label fGDBCommandSummary;
-	private Label fStopModeSummary;
-
-	// Detail widgets
 	private Text fGDBCommandText;
 	private Text fGDBInitText;
+	private Button fNonStopButton;
 
 	public DebuggerUIElement(DebuggerElement launchElement, boolean showDetails ) {
 		super(launchElement, showDetails);
@@ -60,6 +56,7 @@ public class DebuggerUIElement extends AbstractUIElement {
 		super.disposeContent();
 		fGDBCommandText = null;
 		fGDBInitText = null;
+		fNonStopButton = null;
 	}
 
 	@Override
@@ -172,24 +169,54 @@ public class DebuggerUIElement extends AbstractUIElement {
 	}
 
 	@Override
-	protected void doCreateSummaryContent(Composite parent) {
-		fGDBCommandSummary = new Label(parent, SWT.NONE);		
-		fStopModeSummary = new Label(parent, SWT.NONE);
+	protected void doCreateSummaryContent(final Composite parent) {
+		Composite comp = new Composite(parent, SWT.NONE);
+		GridLayout layout = new GridLayout(2, false);
+		layout.marginHeight = layout.marginWidth = 0;
+		comp.setLayout(layout);
+		comp.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
+		GridUtils.fillIntoGrid(comp, parent);
+		
+		fGDBCommandText = ControlFactory.createTextField(comp, SWT.SINGLE | SWT.BORDER);
+		fGDBCommandText.addModifyListener(new ModifyListener() {
+            @Override
+			public void modifyText(ModifyEvent evt) {
+            	getLaunchElement().setGDBPath(fGDBCommandText.getText().trim());
+			}
+		});
+		Button button = new Button(comp, SWT.PUSH);
+		button.setImage(GdbUIPlugin.getImage(IGdbUIConstants.IMG_OBJ_BROWSE));
+		button.setToolTipText(LaunchUIMessages.getString("GDBDebuggerPage.gdb_browse")); //$NON-NLS-1$
+		button.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent evt) {
+				handleGDBButtonSelected(parent.getShell());
+			}
+		});
+		
+		final StopModeElement stopMode = getLaunchElement().findChild(StopModeElement.class);
+		if (stopMode != null && stopMode.isEnabled()) {
+			fNonStopButton = new Button(parent, SWT.CHECK);
+			GridUtils.fillIntoGrid(fNonStopButton, parent);
+			fNonStopButton.setText(LaunchUIMessages.getString("GDBDebuggerPage.nonstop_mode")); //$NON-NLS-1$
+			fNonStopButton.addSelectionListener(new SelectionAdapter() {
+	
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+					stopMode.setNonStop(fNonStopButton.getSelection());
+				}
+			});
+		}
 	}
 
 	@Override
 	protected void initializeSummaryContent() {
-		if (fGDBCommandSummary != null) {
-			String gdbPath = getLaunchElement().getGDBPath();
-			if (DebuggerElement.getDefaultGDBPath().equals(gdbPath)) {
-				gdbPath += " (default)";
-			}
-			fGDBCommandSummary.setText(gdbPath);
+		if (fGDBCommandText != null) {
+			fGDBCommandText.setText(getLaunchElement().getGDBPath());
 		}
-		if (fStopModeSummary != null) {
-			StopModeElement stopMode = getLaunchElement().findChild(StopModeElement.class);
-			boolean isNonStop = (stopMode != null) ? stopMode.isNonStop() : StopModeElement.isNonStopDefault();
-			fStopModeSummary.setText(String.format("Mode: %s", (isNonStop) ? "non-stop" : "all-stop"));  //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
+		StopModeElement stopMode = getLaunchElement().findChild(StopModeElement.class);
+		if (fNonStopButton != null && stopMode != null && stopMode.isEnabled()) {
+			fNonStopButton.setSelection(stopMode.isNonStop());
 		}
 	}
 

@@ -16,16 +16,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.cdt.debug.core.CDebugCorePlugin;
 import org.eclipse.cdt.debug.core.launch.ILaunchElement;
 import org.eclipse.cdt.debug.core.launch.ILaunchElement.IChangeListener;
 import org.eclipse.cdt.debug.core.launch.IListLaunchElement;
 import org.eclipse.cdt.debug.ui.dialogs.Breadcrumbs;
-import org.eclipse.cdt.debug.ui.dialogs.GridUtils;
 import org.eclipse.cdt.debug.ui.dialogs.Breadcrumbs.ILinkListener;
+import org.eclipse.cdt.debug.ui.dialogs.GridUtils;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.debug.core.ILaunchConfiguration;
-import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -41,7 +38,11 @@ abstract public class RootUIElement implements ILinkListener, IChangeListener {
 	public void elementAdded(ILaunchElement element, int details) {
 		if (isInitializing())
 			return;
-		refresh(element.getParent());
+		ILaunchElement parent = element.getParent();
+		if (parent instanceof IListLaunchElement) {
+			parent = parent.getParent();
+		}
+		refresh(parent);
 	}
 
 	@Override
@@ -115,52 +116,35 @@ abstract public class RootUIElement implements ILinkListener, IChangeListener {
 		fContent.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 	}
 
-	@SuppressWarnings("unchecked")
-	public void initializeFrom(ILaunchConfigurationWorkingCopy config) throws CoreException {
+	public void initializeFrom(Map<String, Object> attributes) throws CoreException {
 		fInitializing = true;
-		fUIElementFactory = createUIElementFactory(config);
-		ILaunchElement topElement = createTopElement(config);
+		fUIElementFactory = createUIElementFactory(attributes);
+		ILaunchElement topElement = createTopElement(attributes);
 		setTopElement(topElement);
 		if (topElement != null) {
-			topElement.initialiazeFrom(config.getAttributes());
-		}
-		// Restore previous state
-		String id = getStoredElementId(config);
-		ILaunchElement current = null;
-		if (id != null && topElement != null) {
-			current = topElement.findChild(id);
-		}
-		if (current == null) {
-			current = topElement;
-		}
-		if (current != null) {
-			activateElement(current);
+			topElement.initialiazeFrom(attributes);
 		}
 		fInitializing = false;
 	}
 
-	public void performApply(ILaunchConfigurationWorkingCopy config) {
+	public void performApply(Map<String, Object> attributes) {
 		if (isInitializing())
 			return;
 		if (getCurrentUIElement() != null) {
 			getCurrentUIElement().save();
 		}
 		if (getTopElement() != null) {
-			Map<String, Object> attributes = new HashMap<String, Object>();
 			getTopElement().performApply(attributes);
-			config.setAttributes(attributes);
 		}
 	}
 
-	public void setDefaults(ILaunchConfigurationWorkingCopy config) {
+	public void setDefaults(Map<String, Object> attributes) {
 		if (getTopElement() != null) {
-			Map<String, Object> attributes = new HashMap<String, Object>();
 			getTopElement().setDefaults(attributes);
-			config.setAttributes(attributes);
 		}
 	}
 
-	public boolean isValid(ILaunchConfiguration config) {
+	public boolean isValid() {
 		// TODO: validate unsaved changes in the UI element
 		if (getTopElement() != null) {
 			return getTopElement().isValid();
@@ -208,7 +192,7 @@ abstract public class RootUIElement implements ILinkListener, IChangeListener {
 		getControl().layout();
 	}
 
-	private String getCurrentElementId() {
+	protected String getCurrentElementId() {
 		return (String)fBreadcrumbs.getCurrent();
 	}
 
@@ -224,7 +208,7 @@ abstract public class RootUIElement implements ILinkListener, IChangeListener {
 		}
 	}
 	
-	protected IUIElementFactory createUIElementFactory(ILaunchConfiguration configuration) {
+	protected IUIElementFactory createUIElementFactory(Map<String, Object> attributes) {
 		return null;
 	}
 
@@ -275,37 +259,9 @@ abstract public class RootUIElement implements ILinkListener, IChangeListener {
 		return fInitializing;
 	}
 
-	public void storeState(ILaunchConfigurationWorkingCopy config) {
-		if (config == null)
-			return;
-		String currentId = getCurrentElementId();
-		if (currentId == null)
-			return;
-		try {
-			String typeId = config.getType().getIdentifier();
-			Map<String, String> map = fElementIds.get(typeId);
-			if (map == null) {
-				map = new HashMap<String, String>();
-				fElementIds.put(typeId, map);
-			}
-			map.put(config.getName(), currentId);
-		}
-		catch(CoreException e) {
-			CDebugCorePlugin.log(e.getStatus());
-		}
-	}
-	
-	private String getStoredElementId(ILaunchConfiguration config) {
-		try {
-			String typeId = config.getType().getIdentifier();
-			Map<String, String> map = fElementIds.get(typeId);
-			return (map != null) ? map.get(config.getName()) : null;
-		}
-		catch(CoreException e) {
-			CDebugCorePlugin.log(e.getStatus());
-		}
-		return null;
+	protected void setInitializing(boolean initializing) {
+		fInitializing = initializing;
 	}
 
-	abstract protected ILaunchElement createTopElement(ILaunchConfiguration config);
+	abstract protected ILaunchElement createTopElement(Map<String, Object> attributes);
 }

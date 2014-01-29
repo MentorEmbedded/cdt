@@ -178,14 +178,14 @@ public class BuildSettingsUIElement extends AbstractUIElement {
 			else {
 				String progName = getLaunchElement().getProgramName();
 				String projName = getLaunchElement().getProjectName();
-				if (projName != null && progName != null) {
+				if (projName != null && !projName.isEmpty() && progName != null && !progName.isEmpty()) {
 					ICProject project = ExecutableElement.getProject(projName);
 					if (project != null) {
 						ICProjectDescription projDes = CDTPropertyManager.getProjectDescription(project.getProject());
 						if (projDes != null) {
 							ICConfigurationDescription selectedConfig = 
 								projDes.getConfigurationById(getLaunchElement().getConfigId());
-							sb.append(selectedConfig.getName());
+							sb.append((selectedConfig != null) ? selectedConfig.getName() : "Use Active");
 						}
 					}
 				}
