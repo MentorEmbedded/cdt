@@ -160,8 +160,7 @@ public class NewFinalLaunchSequence extends FinalLaunchSequence {
 
 	@Override
 	protected boolean autoLoadSolibSymbols() {
-		// TODO Auto-generated method stub
-		return super.autoLoadSolibSymbols();
+		return getLaunchModel().autoLoadSharedLibrarySymbols();
 	}
 
 	@Override

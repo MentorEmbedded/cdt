@@ -11,6 +11,9 @@
 
 package org.eclipse.cdt.dsf.gdb.newlaunch;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.cdt.debug.core.launch.ILaunchElement;
@@ -182,5 +185,16 @@ public class LaunchModel {
 			coreFile = element.findChild(CoreFileElement.class);
 		}
 		return (coreFile != null) ? coreFile.getCoreFile() : null;
+	}
+
+	public List<String> getSharedLibraryPaths() {
+		SharedLibrariesElement element = fRootElement.findChild(SharedLibrariesElement.class);
+		List<String> s = Collections.emptyList();
+		return (element != null) ? Arrays.asList(element.getSharedLibraryPaths()) : s;
+	}
+
+	public boolean autoLoadSharedLibrarySymbols() {
+		SharedLibrariesElement element = fRootElement.findChild(SharedLibrariesElement.class);
+		return (element != null) ? element.isAutoLoadSymbols() : SharedLibrariesElement.getDefaultAutoLoadSymbols();
 	}
 }

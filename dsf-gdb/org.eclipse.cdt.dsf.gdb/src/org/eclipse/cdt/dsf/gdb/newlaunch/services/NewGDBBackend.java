@@ -94,8 +94,7 @@ public class NewGDBBackend extends GDBBackend {
 
 	@Override
 	public List<String> getSharedLibraryPaths() throws CoreException {
-		// TODO Auto-generated method stub
-		return super.getSharedLibraryPaths();
+		return fLaunchModel.getSharedLibraryPaths();
 	}
 
 	@Override
