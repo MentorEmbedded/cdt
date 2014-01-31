@@ -58,7 +58,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.dialogs.CheckedTreeSelectionDialog;
@@ -196,11 +195,10 @@ public class SharedLibrariesUIElement extends AbstractUIElement {
 		null, // separator
 	};
 
-	// Summary widgets
-	private Label fSummaryLabel;
+	// Common widgets
+	private Button fAutoSolibButton;
 
 	// Detail widgets
-	private Button fAutoSolibButton;
 	private SolibSearchPathListDialogField fDirList;
 	private File[] fAutoSolibs = new File[0];
 	
@@ -251,7 +249,15 @@ public class SharedLibrariesUIElement extends AbstractUIElement {
 
 	@Override
 	protected void doCreateSummaryContent(Composite parent) {
-		fSummaryLabel = new Label(parent, SWT.NONE);
+		fAutoSolibButton = new Button(parent, SWT.CHECK);
+		GridUtils.fillIntoGrid(fAutoSolibButton, parent);
+		fAutoSolibButton.setText(LaunchUIMessages.getString("GDBSolibBlock.0")); //$NON-NLS-1$
+		fAutoSolibButton.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				autoSolibButtonChecked();
+			}
+		});
 	}
 
 	@Override
@@ -282,11 +288,8 @@ public class SharedLibrariesUIElement extends AbstractUIElement {
 
 	@Override
 	protected void initializeSummaryContent() {
-		if (fSummaryLabel != null) {
-			boolean autoSolib = getLaunchElement().isAutoLoadSymbols();
-			fSummaryLabel.setText((autoSolib) ? 
-				"Load shared library symbols automatically" : 
-				"Do not load shared library symbols automatically");
+		if (fAutoSolibButton != null) {
+			fAutoSolibButton.setSelection(getLaunchElement().isAutoLoadSymbols());
 		}
 	}
 
