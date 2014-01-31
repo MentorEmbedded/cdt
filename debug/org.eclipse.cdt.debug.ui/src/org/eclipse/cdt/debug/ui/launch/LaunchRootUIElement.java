@@ -11,7 +11,9 @@
 
 package org.eclipse.cdt.debug.ui.launch;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.cdt.debug.core.CDebugCorePlugin;
@@ -49,7 +51,7 @@ abstract public class LaunchRootUIElement extends RootUIElement {
 			current = topElement;
 		}
 		if (current != null) {
-			activateElement(current);
+			restoreAndActivateElement(current);
 		}
 		setInitializing(false);
 	}
@@ -96,5 +98,17 @@ abstract public class LaunchRootUIElement extends RootUIElement {
 			CDebugCorePlugin.log(e.getStatus());
 		}
 		return null;
+	}
+	
+	private void restoreAndActivateElement(ILaunchElement element) {
+		List<ILaunchElement> list = new ArrayList<ILaunchElement>();
+		ILaunchElement current = element;
+		while(current != null) {
+			list.add(0, current);
+			current = current.getParent();
+		}
+		for (ILaunchElement el : list) {
+			activateElement(el);
+		}
 	}
 }
