@@ -13,7 +13,7 @@ public class BarGroupElement implements IGridElement {
 		
 		
 		
-		for (IPresentationModel cm: model.getChildren()) {
+		for (ISomePresentationModel cm: model.getChildren()) {
 			
 			IGridElement e = factory.createElement(cm);
 			e.fillIntoGrid(parent);

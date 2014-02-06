@@ -10,7 +10,7 @@ public class CompositePresentationModel implements ICompositePresentationModel {
 		this.name = name;
 	}
 	
-	public void add(IPresentationModel child)
+	public void add(ISomePresentationModel child)
 	{
 		children.add(child);
 	}
@@ -21,11 +21,11 @@ public class CompositePresentationModel implements ICompositePresentationModel {
 	}
 
 	@Override
-	public List<IPresentationModel> getChildren() {
+	public List<ISomePresentationModel> getChildren() {
 		return children;
 	}
 	
 	public String name;
-	public List<IPresentationModel> children = new ArrayList<IPresentationModel>();
+	public List<ISomePresentationModel> children = new ArrayList<ISomePresentationModel>();
 
 }

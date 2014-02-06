@@ -8,6 +8,6 @@ package org.eclipse.cdt.ui.grid;
  */
 public interface IViewElementFactory {
 	
-	public IGridElement createElement(IPresentationModel model);
+	public IGridElement createElement(ISomePresentationModel model);
 
 }

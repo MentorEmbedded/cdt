@@ -37,7 +37,7 @@ public class HeaderGroupElement implements IGridElement {
 		gd.horizontalSpan = layout.numColumns;
 		l.setLayoutData(gd);
 						
-		for (IPresentationModel cm: model.getChildren()) {
+		for (ISomePresentationModel cm: model.getChildren()) {
 			
 			IGridElement element = factory.createElement(cm);
 			

@@ -37,7 +37,8 @@ public class H2Element implements IGridElement {
 		CDTUITools.getGridLayoutData(spacer).heightHint = 12/2;		
 		
 		Label l = new Label(parent, SWT.NONE);
-		l.setFont(demandFontRegistry().get("h2"));
+		//l.setFont(demandFontRegistry().get("h2"));
+		l.setFont(JFaceResources.getFontRegistry().getBold(JFaceResources.DIALOG_FONT));
 		
 		l.setText(text);
 		CDTUITools.grabAllWidth(l);

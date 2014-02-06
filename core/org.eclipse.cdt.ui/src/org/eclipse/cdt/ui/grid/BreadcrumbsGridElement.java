@@ -4,7 +4,7 @@ import org.eclipse.swt.widgets.Composite;
 
 public class BreadcrumbsGridElement implements IGridElement {
 	
-	public BreadcrumbsGridElement(Composite parent, IPresentationModel model, IViewElementFactory factory) 
+	public BreadcrumbsGridElement(Composite parent, ISomePresentationModel model, IViewElementFactory factory) 
 	{
 		this.parent = parent;
 		
@@ -45,8 +45,8 @@ public class BreadcrumbsGridElement implements IGridElement {
 	
 	
 	private Composite parent;
-	private IPresentationModel topModel;
-	private IPresentationModel selectedModel;
+	private ISomePresentationModel topModel;
+	private ISomePresentationModel selectedModel;
 	private IViewElementFactory factory;
 	
 }

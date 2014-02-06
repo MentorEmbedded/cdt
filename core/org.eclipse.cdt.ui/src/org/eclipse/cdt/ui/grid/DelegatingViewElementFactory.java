@@ -8,7 +8,7 @@ public abstract class DelegatingViewElementFactory implements IViewElementFactor
 	}
 	
 	@Override
-	public IGridElement createElement(IPresentationModel model) {
+	public IGridElement createElement(ISomePresentationModel model) {
 		
 		IGridElement element = createCustom(model);
 		if (element != null)
@@ -17,7 +17,7 @@ public abstract class DelegatingViewElementFactory implements IViewElementFactor
 		return inner.createElement(model);
 	}
 	
-	public abstract IGridElement createCustom(IPresentationModel model);
+	public abstract IGridElement createCustom(ISomePresentationModel model);
 	
 	private IViewElementFactory inner;
 }
