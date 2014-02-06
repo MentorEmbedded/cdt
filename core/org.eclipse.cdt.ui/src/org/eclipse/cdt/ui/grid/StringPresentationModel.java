@@ -1,32 +1,23 @@
 package org.eclipse.cdt.ui.grid;
 
-public class StringPresentationModel implements IPresentationModelString {
+public class StringPresentationModel extends PresentationModel implements IStringPresentationModel {
 
 	public StringPresentationModel(String name)
 	{
-		this.name = name;
+		super(name);
 		this.value = "Test";
-	}
-		
-	@Override
-	public String getName() {
-		return name;
 	}
 	
 	@Override
-	public void setValueListener(ValueListener listener) {
-		this.listener = listener;
-		listener.value(value);
+	public String getValue() {
+		return value;
 	}
 	
 	@Override
 	public void setValue(String value) {
 		this.value = value;
-		listener.value(value);
+		notifyListeners(PresentationModel.CHANGED, this);
 	}
 	
-	private String name;
 	private String value;
-	private ValueListener listener;
-
 }

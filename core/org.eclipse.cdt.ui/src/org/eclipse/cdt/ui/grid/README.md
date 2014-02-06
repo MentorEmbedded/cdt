@@ -2,6 +2,24 @@
 # Concepts
 ============
 
+- Grid Elements - just things on specific grid.
+
+- View Elements - grid elements with bidirectional link to the presentation model
+
+- Presentation Elements - abstract data model elements.
+
+	 
+
+# View Elements
+
+We mostly use 5-column grid - name, grouper, main content 1, main content 2, buttons.
+
+
+
+
+
+
+
 There is model, which is just Java code. There is presentation model, which is
 hierarchical structure using predefined types, that translates from model
 to UI. Finally, there's UI. There's a bunch of default UI elements, but it's

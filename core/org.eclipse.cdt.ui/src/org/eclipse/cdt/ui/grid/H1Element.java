@@ -37,7 +37,8 @@ public class H1Element implements IGridElement {
 		CDTUITools.getGridLayoutData(spacer).heightHint = 14/2;
 		
 		Label l = new Label(parent, SWT.NONE);
-		l.setFont(demandFontRegistry().get("h1"));
+		//l.setFont(demandFontRegistry().get("h1"));
+		l.setFont(JFaceResources.getHeaderFont());
 		
 		
 

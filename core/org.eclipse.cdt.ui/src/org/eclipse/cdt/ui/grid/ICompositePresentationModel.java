@@ -2,8 +2,8 @@ package org.eclipse.cdt.ui.grid;
 
 import java.util.List;
 
-public interface ICompositePresentationModel extends IPresentationModel {
+public interface ICompositePresentationModel extends ISomePresentationModel {
 	
-	public List<IPresentationModel> getChildren(); 
+	public List<ISomePresentationModel> getChildren(); 
 
 }

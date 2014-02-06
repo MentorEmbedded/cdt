@@ -3,6 +3,7 @@ package org.eclipse.cdt.ui.grid;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Label;
 
 import org.eclipse.cdt.ui.CDTUITools;
 import org.eclipse.cdt.ui.dialogs.PillsControl;
@@ -22,6 +23,9 @@ public class PillElement implements IGridElement {
 	@Override
 	public void fillIntoGrid(Composite parent) {
 		
+		//Label l = new Label(parent, SWT.NONE);
+		//CDTUITools.getGridLayoutData(l).horizontalSpan = 2;
+		
 		PillsControl control = new PillsControl(parent, SWT.NONE);
 		control.setItems(items);
 		control.setSelection(0);
@@ -30,7 +34,7 @@ public class PillElement implements IGridElement {
 		CDTUITools.grabAllWidth(control);
 		CDTUITools.getGridLayoutData(control).horizontalSpan = IGridElement.DEFAULT_WIDTH;
 		
-		
+			
 		
 		// TODO Auto-generated method stub
 
