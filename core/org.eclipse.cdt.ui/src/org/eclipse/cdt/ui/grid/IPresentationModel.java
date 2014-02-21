@@ -1,6 +1,6 @@
 package org.eclipse.cdt.ui.grid;
 
-/* Base class for elements of a hierarchical presentation model.
+/** Base class for elements of a hierarchical presentation model.
  * 
  * One goal of this class is to support notifications. We could have used
  * Observable, but this class adds a few improvements:
@@ -10,13 +10,16 @@ package org.eclipse.cdt.ui.grid;
  * - Calling listener automatically when it's installed, so as to simplify usage.
  * 
  * This class also provides a name, which happens to be common trait of everything.
+ * 
+ * @since 5.7
  */
 public interface IPresentationModel {
 	
 	public static int CHANGED = 1;
 	public static int CHILD_ADDED = 2;
 	public static int CHILD_REMOVED = 4;
-	public static int CHILD_CHANGED = 8;	
+	public static int CHILD_CHANGED = 8;
+	public static int ACTIVATED = 16;
 	
 	public interface Listener {
 		// Informs the client that something has changed in the model.
@@ -32,4 +35,7 @@ public interface IPresentationModel {
 	public abstract void addAndCallListener(Listener listener);
 
 	public abstract void removeListener(Listener listener);
+	
+	// FIXME: experimental interface.
+	public abstract void activate();
 }

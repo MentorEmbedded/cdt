@@ -14,6 +14,16 @@
 
 We mostly use 5-column grid - name, grouper, main content 1, main content 2, buttons.
 
+Each view element takes a presentation model element, and is supposed to do two-way sync
+with it.
+
+
+
+
+
+
+
+
 
 
 

@@ -7,7 +7,10 @@ import org.eclipse.swt.widgets.Link;
 
 import org.eclipse.cdt.ui.CDTUITools;
 
-public class LinksElement implements IGridElement {
+/**
+ * @since 5.7
+ */
+public class LinksElement extends GridElement {
 	
 	public LinksElement(String[] names)
 	{
@@ -15,7 +18,7 @@ public class LinksElement implements IGridElement {
 	}
 
 	@Override
-	public void fillIntoGrid(Composite parent) {
+	public void createImmediateContent(Composite parent) {
 		
 		// Place links in columns, leaving last column unoccupied, since
 		// it's normally used to store buttons, and putting a link
@@ -27,13 +30,13 @@ public class LinksElement implements IGridElement {
 			link.setText("<a>" + names[i] + "</a>");
 			
 			// FIXME: actually should skip first two columns on wrap.
-			int column = (i % (IGridElement.DEFAULT_WIDTH - 1));
+			int column = (i % (GridElement.DEFAULT_WIDTH - 1));
 			if (column == 0) {
 				CDTUITools.getGridLayoutData(link).horizontalIndent = 12;
 			}
 				
 			
-			if (column == IGridElement.DEFAULT_WIDTH - 2) {
+			if (column == GridElement.DEFAULT_WIDTH - 2) {
 				new Label(parent, SWT.NONE);
 			}
 		}

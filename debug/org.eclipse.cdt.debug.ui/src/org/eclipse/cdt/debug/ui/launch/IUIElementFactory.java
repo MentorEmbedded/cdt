@@ -12,6 +12,7 @@
 package org.eclipse.cdt.debug.ui.launch;
 
 import org.eclipse.cdt.debug.core.launch.ILaunchElement;
+import org.eclipse.cdt.ui.grid.GridElement;
 
 /**
  * @since 7.4
@@ -19,4 +20,6 @@ import org.eclipse.cdt.debug.core.launch.ILaunchElement;
 public interface IUIElementFactory {
 	
 	AbstractUIElement createUIElement(ILaunchElement element, boolean showDetails);
+
+	GridElement createUIElement2(ILaunchElement l, boolean b);
 }

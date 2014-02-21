@@ -39,13 +39,13 @@ public class DebuggerElement extends AbstractLaunchElement {
 	@Override
 	protected void doCreateChildren(Map<String, Object> attributes) {
 		addChildren(new ILaunchElement[] {
+			new ConnectionElement(this),
 			new StopModeElement(this),
 			new DebuggerSettingsElement(this),
-			new SharedLibrariesElement(this),
-			new ConnectionElement(this)
+			new SharedLibrariesElement(this)
 		});
 	}
-
+	
 	@Override
 	protected void doInitializeFrom(Map<String, Object> attributes) {
 		fGDBPath = getAttribute(attributes, getId() + ATTR_GDB_PATH, getDefaultGDBPath());

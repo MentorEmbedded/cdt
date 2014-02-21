@@ -11,31 +11,90 @@
 
 package org.eclipse.cdt.dsf.gdb.internal.ui.newlaunch;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import org.eclipse.cdt.core.model.ICProject;
 import org.eclipse.cdt.core.settings.model.ICConfigurationDescription;
 import org.eclipse.cdt.core.settings.model.ICProjectDescription;
-import org.eclipse.cdt.debug.ui.dialogs.GridUtils;
 import org.eclipse.cdt.debug.ui.launch.AbstractUIElement;
 import org.eclipse.cdt.dsf.gdb.newlaunch.BuildSettingsElement;
 import org.eclipse.cdt.dsf.gdb.newlaunch.BuildSettingsElement.BuildBeforeLaunch;
 import org.eclipse.cdt.dsf.gdb.newlaunch.ExecutableElement;
 import org.eclipse.cdt.launch.LaunchUtils;
+import org.eclipse.cdt.ui.grid.GridElement;
+import org.eclipse.cdt.ui.grid.PillSelectionViewElement;
+import org.eclipse.cdt.ui.grid.SelectionPresentationModel;
 import org.eclipse.cdt.ui.newui.CDTPropertyManager;
-import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Link;
-import org.eclipse.ui.dialogs.PreferencesUtil;
 
 public class BuildSettingsUIElement extends AbstractUIElement {
+
+	/* Model for build configuration selection. */
+	private final class ConfigurationModel extends SelectionPresentationModel {
+		
+		private int selection;
+		private List<String> configurationName = new ArrayList<String>();
+		
+		public ConfigurationModel(String name) {
+			super(name);
+			possibleValues = new ArrayList<String>();
+			
+			//fConfigCombo.setEnabled(!getLaunchElement().isConfigAuto());			
+			possibleValues.add("Use Active");
+			configurationName.add("");
+			selection = 0;
+			
+			String progName = getLaunchElement().getProgramName();
+			String projName = getLaunchElement().getProjectName();
+			if (projName != null && progName != null) {
+				ICProject project = ExecutableElement.getProject(projName);
+				if (project != null) {
+					ICProjectDescription projDes = CDTPropertyManager.getProjectDescription(project.getProject());
+					if (projDes != null) {
+						String selectedConfigId = getLaunchElement().getConfigId();
+						// Find the configuration that should be automatically selected
+						String autoConfigId = null;
+						if (getLaunchElement().isConfigAuto()) {
+							ICConfigurationDescription autoConfig = LaunchUtils.getBuildConfigByProgramPath(project.getProject(), progName);
+							if (autoConfig != null)
+								autoConfigId = autoConfig.getId();
+						}
+
+						ICConfigurationDescription[] configurations = projDes.getConfigurations();
+						ICConfigurationDescription selectedConfig = projDes.getConfigurationById(selectedConfigId);
+						for (int i = 0; i < configurations.length; i++) {
+							String configName = configurations[i].getName();
+							possibleValues.add(configName);
+							configurationName.add(configurations[i].getId());
+							//fConfigCombo.setData(Integer.toString(i + 1), configurations[i].getId());
+							if (selectedConfig != null && selectedConfigId.equals(configurations[i].getId()) ||
+								getLaunchElement().isConfigAuto() && configurations[i].getId().equals(autoConfigId)) {
+								selection = i + 1;
+							}
+						}
+					}
+				}
+			}						
+		}	
+		
+		@Override
+		protected String doGetValue() {
+			return possibleValues.get(selection);
+		};
+		
+		@Override
+		protected void doSetValue(String value) {
+			int index = possibleValues.indexOf(value);
+			getLaunchElement().setConfigId(configurationName.get(index));
+		}
+		
+	}
 
 	private static final String LAUNCHING_PREFERENCE_PAGE_ID = "org.eclipse.debug.ui.LaunchingPreferencePage"; //$NON-NLS-1$
 
@@ -45,7 +104,10 @@ public class BuildSettingsUIElement extends AbstractUIElement {
 
 	// Detail widgets
 	private Group fBuildGroup;
-	private Combo fConfigCombo;
+	
+	//private Combo fConfigCombo;
+	
+	
 	private Button fConfigAutoButton;
 	private Button fEnableBuildButton;
 	private Button fDisableBuildButton;
@@ -72,13 +134,69 @@ public class BuildSettingsUIElement extends AbstractUIElement {
 	}
 
 	@Override
-	protected void doCreateSummaryContent(Composite parent) {
+	protected int doCreateSummaryContent(Composite parent) {
 		fConfigLabel = new Label(parent, SWT.NONE);
 		fBuildOptionLabel = new Label(parent, SWT.NONE);
+		return 1;
 	}
 
 	@Override
 	protected void doCreateDetailsContent(final Composite parent) {
+		
+		final SelectionPresentationModel buildModel = new SelectionPresentationModel("Build on launch") {
+			
+			@Override
+			public List<String> getPossibleValues() {
+				return Arrays.asList("On", "Off", "Workspace");
+			}
+			
+			@Override
+			protected String doGetValue() {
+				
+				BuildBeforeLaunch v = getLaunchElement().getBuildBeforeLaunchOption();
+				if (v == BuildBeforeLaunch.ENABLED)
+					return "On";
+				else if (v == BuildBeforeLaunch.DISABLED)
+					return "Off";
+				else
+					return "Workspace";							
+			}
+			
+			@Override
+			protected void doSetValue(String value) {				
+				if (value.equals("On"))
+					getLaunchElement().setBuildBeforeLaunchOption(BuildBeforeLaunch.ENABLED);
+				else if (value.equals("Off"))
+					getLaunchElement().setBuildBeforeLaunchOption(BuildBeforeLaunch.DISABLED);
+				else
+					getLaunchElement().setBuildBeforeLaunchOption(BuildBeforeLaunch.USE_WORKSPACE_SETTING);			
+			}					
+		};
+		
+		final SelectionPresentationModel configuration = new ConfigurationModel("Configuration");
+		
+		GridElement top = new GridElement() {
+			
+			@Override
+			protected void populateChildren() {
+				addChild(new PillSelectionViewElement(buildModel));
+				addChild(new PillSelectionViewElement(configuration));
+				// FIXME: Add a link to configure workspace settings
+				// FIXME: add checkbox to use executable.
+			}
+			
+			@Override
+			protected void createImmediateContent(Composite parent) {
+				// TODO Auto-generated method stub
+				
+			}
+		};
+		
+		top.fillIntoGrid(parent);
+		
+		/*
+		
+		
 		fBuildGroup = new Group(parent, SWT.NONE);
 		fBuildGroup.setLayout(new GridLayout(2, false));
 		fBuildGroup.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
@@ -165,7 +283,7 @@ public class BuildSettingsUIElement extends AbstractUIElement {
 					null, 
 					null).open();
 			}
-		});
+		}); */
 	}
 
 	@Override
@@ -206,56 +324,13 @@ public class BuildSettingsUIElement extends AbstractUIElement {
 			}
 			fBuildOptionLabel.setText(sb.toString());
 		}
+		
 	}
 
 	@Override
 	protected void initializeDetailsContent() {
 		if (fConfigAutoButton != null) {
 			fConfigAutoButton.setSelection(getLaunchElement().isConfigAuto());
-		}
-		if (fConfigCombo != null) {
-			fConfigCombo.setEnabled(!getLaunchElement().isConfigAuto());
-			fConfigCombo.removeAll();
-			fConfigCombo.add("Use Active");
-			fConfigCombo.setData(Integer.toString(0), ""); //$NON-NLS-1$
-			int selIndex = 0;
-			String progName = getLaunchElement().getProgramName();
-			String projName = getLaunchElement().getProjectName();
-			if (projName != null && progName != null) {
-				ICProject project = ExecutableElement.getProject(projName);
-				if (project != null) {
-					ICProjectDescription projDes = CDTPropertyManager.getProjectDescription(project.getProject());
-					if (projDes != null) {
-						String selectedConfigId = getLaunchElement().getConfigId();
-						// Find the configuration that should be automatically selected
-						String autoConfigId = null;
-						if (getLaunchElement().isConfigAuto()) {
-							ICConfigurationDescription autoConfig = LaunchUtils.getBuildConfigByProgramPath(project.getProject(), progName);
-							if (autoConfig != null)
-								autoConfigId = autoConfig.getId();
-						}
-
-						ICConfigurationDescription[] configurations = projDes.getConfigurations();
-						ICConfigurationDescription selectedConfig = projDes.getConfigurationById(selectedConfigId);
-						for (int i = 0; i < configurations.length; i++) {
-							String configName = configurations[i].getName();
-							fConfigCombo.add(configName);
-							fConfigCombo.setData(Integer.toString(i + 1), configurations[i].getId());
-							if (selectedConfig != null && selectedConfigId.equals(configurations[i].getId()) ||
-								getLaunchElement().isConfigAuto() && configurations[i].getId().equals(autoConfigId)) {
-								selIndex = i + 1;
-							}
-						}
-					}
-				}
-			}
-			fConfigCombo.select(selIndex);
-		}
-		if (fEnableBuildButton != null && fDisableBuildButton != null && fWorkspaceSettingsButton != null) {
-			BuildBeforeLaunch buildOption = getLaunchElement().getBuildBeforeLaunchOption();
-			fEnableBuildButton.setSelection(BuildBeforeLaunch.ENABLED == buildOption);
-			fDisableBuildButton.setSelection(BuildBeforeLaunch.DISABLED == buildOption);
-			fWorkspaceSettingsButton.setSelection(BuildBeforeLaunch.USE_WORKSPACE_SETTING == buildOption);
 		}
 	}
 	

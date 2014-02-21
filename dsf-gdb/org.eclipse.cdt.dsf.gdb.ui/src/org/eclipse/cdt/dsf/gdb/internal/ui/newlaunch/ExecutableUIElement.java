@@ -88,6 +88,8 @@ public class ExecutableUIElement extends AbstractUIElement {
 		comp.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		GridUtils.fillIntoGrid(comp, parent);
 
+		// Not sure what's going on here. Can't we just iterate over children
+		// putting them into grid?
 		createExecFileGroup(comp);
 		createProjectGroup(comp);
 		createRemoteBinaryGroup(comp);

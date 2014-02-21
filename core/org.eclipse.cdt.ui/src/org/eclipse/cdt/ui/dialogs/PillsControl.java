@@ -85,6 +85,8 @@ public class PillsControl extends Canvas {
 	private Color selectionForeground;
 	/** Selection background color */
 	private Color selectionBackground;
+	/** Background of a pill that is not selected or otherwise explicitly highlighed. */
+	private Color pillBackground; 
 
 	/**
 	 * Constructor
@@ -205,6 +207,8 @@ public class PillsControl extends Canvas {
 		setSelectionForeground(getDisplay().getSystemColor(SWT.COLOR_LIST_SELECTION_TEXT));
 		// Initialize selection background
 		setSelectionBackground(getDisplay().getSystemColor(SWT.COLOR_LIST_SELECTION));
+		// Initiaize default background
+		setPillBackground(getDisplay().getSystemColor(SWT.COLOR_WIDGET_NORMAL_SHADOW));
 	}
 	
 	/**
@@ -271,6 +275,17 @@ public class PillsControl extends Canvas {
 	public Color getSelectionBackground() {
 		return selectionBackground;
 	}
+	
+	public void setPillBackground(Color pillBackground) {
+		this.pillBackground = pillBackground;
+		if (!isDisposed()) {
+			redraw();
+		}
+	}
+	
+	public Color getPillBackground() {
+		return pillBackground;
+	}
 
 	/**
 	 * Sets the selected item.
@@ -336,7 +351,7 @@ public class PillsControl extends Canvas {
 		if (selectionListeners != null) {
 			Event event = new Event();
 			event.widget = this;
-			event.index = getSelection();
+			event.index = event.detail = getSelection();
 			SelectionEvent selectionEvent = new SelectionEvent(event);
 			Object[] listeners = selectionListeners.getListeners();
 			for (Object listener : listeners) {
@@ -531,6 +546,8 @@ public class PillsControl extends Canvas {
 				}
 				else {
 					gc.setForeground(getForeground());
+					gc.setBackground(getPillBackground());
+					gc.fillRoundRectangle(offset, 0, sizes[index].x, sizes[index].y, 10, 10);
 				}
 				// Draw item text
 				gc.drawText(text, offset + DEFAULT_ITEM_HORIZ_MARGIN, DEFAULT_ITEM_VERT_MARGIN, true);

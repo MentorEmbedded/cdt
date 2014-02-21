@@ -8,7 +8,10 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
-public class HeaderGroupElement implements IGridElement {
+/**
+ * @since 5.7
+ */
+public class HeaderGroupElement extends GridElement {
 	
 	public HeaderGroupElement(ICompositePresentationModel model, IViewElementFactory factory)
 	{
@@ -18,7 +21,7 @@ public class HeaderGroupElement implements IGridElement {
 	
 	
 	@Override
-	public void fillIntoGrid(Composite parent) {
+	public void createImmediateContent(Composite parent) {
 		
 		GridLayout layout = (GridLayout)parent.getLayout();
 		
@@ -39,7 +42,7 @@ public class HeaderGroupElement implements IGridElement {
 						
 		for (ISomePresentationModel cm: model.getChildren()) {
 			
-			IGridElement element = factory.createElement(cm);
+			GridElement element = factory.createElement(cm);
 			
 			element.fillIntoGrid(parent);			
 		}

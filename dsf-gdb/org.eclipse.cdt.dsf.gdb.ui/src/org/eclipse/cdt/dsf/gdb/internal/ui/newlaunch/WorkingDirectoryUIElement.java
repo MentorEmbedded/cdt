@@ -63,8 +63,9 @@ public class WorkingDirectoryUIElement extends AbstractUIElement {
 	}
 
 	@Override
-	protected void doCreateSummaryContent(Composite parent) {
+	protected int doCreateSummaryContent(Composite parent) {
 		fSummaryLabel = new Label(parent, SWT.NONE);
+		return 1;
 	}
 
 	@Override

@@ -26,9 +26,16 @@ import org.eclipse.cdt.debug.internal.ui.dialogfields.IListAdapter;
 import org.eclipse.cdt.debug.internal.ui.dialogfields.LayoutUtil;
 import org.eclipse.cdt.debug.internal.ui.dialogfields.ListDialogField;
 import org.eclipse.cdt.debug.ui.dialogs.GridUtils;
-import org.eclipse.cdt.debug.ui.launch.AbstractUIElement;
 import org.eclipse.cdt.dsf.gdb.internal.ui.launching.LaunchUIMessages;
 import org.eclipse.cdt.dsf.gdb.newlaunch.SharedLibrariesElement;
+import org.eclipse.cdt.ui.CDTUITools;
+import org.eclipse.cdt.ui.grid.BooleanPresentationModel;
+import org.eclipse.cdt.ui.grid.CheckboxViewElement;
+import org.eclipse.cdt.ui.grid.CompositePresentationModel;
+import org.eclipse.cdt.ui.grid.IPresentationModel;
+import org.eclipse.cdt.ui.grid.LinkViewElement;
+import org.eclipse.cdt.ui.grid.StringPresentationModel;
+import org.eclipse.cdt.ui.grid.ViewElement;
 import org.eclipse.cdt.utils.ui.controls.ControlFactory;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -62,7 +69,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.dialogs.CheckedTreeSelectionDialog;
 
-public class SharedLibrariesUIElement extends AbstractUIElement {
+public class SharedLibrariesUIElement extends ViewElement {
 
 	private class AddDirectoryDialog extends Dialog {
 
@@ -202,8 +209,23 @@ public class SharedLibrariesUIElement extends AbstractUIElement {
 	private SolibSearchPathListDialogField fDirList;
 	private File[] fAutoSolibs = new File[0];
 	
+	private SharedLibrariesElement launchElement;
+	private boolean showDetails;
+
+	private StringPresentationModel link;
+	
+	private SharedLibrariesElement getLaunchElement()  { return launchElement; }
+	
 	public SharedLibrariesUIElement(SharedLibrariesElement launchElement, boolean showDetails) {
-		super(launchElement, showDetails);
+		super(new CompositePresentationModel("Shared libraries"));
+		
+		CompositePresentationModel model2 = (CompositePresentationModel)getModel();
+		model2.add(link);
+		
+		this.launchElement = launchElement;
+		this.showDetails = showDetails;
+		
+		
 		IListAdapter listAdapter = new IListAdapter() {
 			@Override
 			public void customButtonPressed(DialogField field, int index) {
@@ -235,65 +257,58 @@ public class SharedLibrariesUIElement extends AbstractUIElement {
 		};
 		fDirList.setDialogFieldListener(fieldListener);
 	}
-
+	
 	@Override
-	public SharedLibrariesElement getLaunchElement() {
-		return (SharedLibrariesElement)super.getLaunchElement();
-	}
-
-	@Override
-	public void disposeContent() {
-		super.disposeContent();
-		fAutoSolibButton = null;
-	}
-
-	@Override
-	protected void doCreateSummaryContent(Composite parent) {
-		fAutoSolibButton = new Button(parent, SWT.CHECK);
-		GridUtils.fillIntoGrid(fAutoSolibButton, parent);
-		fAutoSolibButton.setText(LaunchUIMessages.getString("GDBSolibBlock.0")); //$NON-NLS-1$
-		fAutoSolibButton.addSelectionListener(new SelectionAdapter() {
+	protected void populateChildren() {
+		String name = LaunchUIMessages.getString("GDBSolibBlock.0");
+		BooleanPresentationModel model = new BooleanPresentationModel(name) {
 			@Override
-			public void widgetSelected(SelectionEvent e) {
-				autoSolibButtonChecked();
-			}
-		});
-	}
+			protected boolean doGetValue() { return launchElement.isAutoLoadSymbols(); }
 
-	@Override
-	protected void doCreateDetailsContent(Composite parent) {
-		Composite comp = new Composite(parent, SWT.NONE);
-		GridLayout layout = new GridLayout(2, false);
-		layout.marginHeight = layout.marginWidth = 0;
-		comp.setLayout(layout);
-		comp.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));		
-		GridUtils.fillIntoGrid(comp, parent);
-		
-		PixelConverter converter = new PixelConverter(comp);
-		fDirList.doFillIntoGrid(comp, 3);
-		LayoutUtil.setHorizontalSpan(fDirList.getLabelControl(null), 2);
-		LayoutUtil.setWidthHint(fDirList.getLabelControl(null), converter.convertWidthInCharsToPixels(30));
-		LayoutUtil.setHorizontalGrabbing(fDirList.getListControl(null));
-		
-		fAutoSolibButton = new Button(parent, SWT.CHECK);
-		GridUtils.fillIntoGrid(fAutoSolibButton, parent);
-		fAutoSolibButton.setText(LaunchUIMessages.getString("GDBSolibBlock.0")); //$NON-NLS-1$
-		fAutoSolibButton.addSelectionListener(new SelectionAdapter() {
 			@Override
-			public void widgetSelected(SelectionEvent e) {
-				autoSolibButtonChecked();
+			protected void doSetValue(boolean value) { launchElement.setAutoLoadSymbols(value); }
+		};
+		addChild(new CheckboxViewElement(model));
+		
+		link = new StringPresentationModel("") {
+			protected String doGetValue() { return "Shared libraries"; };
+			
+			@Override
+			public void activate() {
+				notifyListeners(IPresentationModel.ACTIVATED, launchElement);
 			}
-		});
+			
+		};
+		addChild(new LinkViewElement(link));
+		
+		
 	}
 
 	@Override
-	protected void initializeSummaryContent() {
-		if (fAutoSolibButton != null) {
-			fAutoSolibButton.setSelection(getLaunchElement().isAutoLoadSymbols());
+	protected void createImmediateContent(Composite parent) {
+		
+		if (showDetails)
+		{
+			Composite comp = new Composite(parent, SWT.NONE);
+			CDTUITools.getGridLayoutData(comp).horizontalSpan = 5;
+			
+			GridLayout layout = new GridLayout(2, false);
+			layout.marginHeight = layout.marginWidth = 0;
+			comp.setLayout(layout);
+			comp.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));		
+			GridUtils.fillIntoGrid(comp, parent);
+
+			PixelConverter converter = new PixelConverter(comp);
+			fDirList.doFillIntoGrid(comp, 3);
+			LayoutUtil.setHorizontalSpan(fDirList.getLabelControl(null), 2);
+			LayoutUtil.setWidthHint(fDirList.getLabelControl(null), converter.convertWidthInCharsToPixels(30));
+			LayoutUtil.setHorizontalGrabbing(fDirList.getListControl(null));
+			
+			initializeDetailsContent();
 		}
 	}
 
-	@Override
+
 	protected void initializeDetailsContent() {
 		if (fAutoSolibButton != null) {
 			fAutoSolibButton.setSelection(getLaunchElement().isAutoLoadSymbols());
@@ -312,15 +327,6 @@ public class SharedLibrariesUIElement extends AbstractUIElement {
 				fAutoSolibs[i] = new File(autoSolibNames[i]);
 			}
 		}
-	}
-
-	private void autoSolibButtonChecked() {
-		getLaunchElement().setAutoLoadSymbols(fAutoSolibButton.getSelection());
-	}
-
-	@Override
-	protected boolean hasMultipleRows() {
-		return getLaunchElement().getSharedLibraryPaths().length > 0;
 	}
 
 	protected void buttonPressed(int index) {

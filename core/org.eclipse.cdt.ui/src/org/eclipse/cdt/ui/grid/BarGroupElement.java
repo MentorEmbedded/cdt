@@ -2,20 +2,23 @@ package org.eclipse.cdt.ui.grid;
 
 import org.eclipse.swt.widgets.Composite;
 
-public class BarGroupElement implements IGridElement {
+/**
+ * @since 5.7
+ */
+public class BarGroupElement extends GridElement {
 	
 	public BarGroupElement(Composite parent, ICompositePresentationModel model, IViewElementFactory factory) {
 		this.model = model;
 	}
 
 	@Override
-	public void fillIntoGrid(Composite parent) {
+	public void createImmediateContent(Composite parent) {
 		
 		
 		
 		for (ISomePresentationModel cm: model.getChildren()) {
 			
-			IGridElement e = factory.createElement(cm);
+			GridElement e = factory.createElement(cm);
 			e.fillIntoGrid(parent);
 			
 			

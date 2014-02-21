@@ -32,6 +32,7 @@ import org.eclipse.cdt.dsf.gdb.newlaunch.StopModeElement;
 import org.eclipse.cdt.dsf.gdb.newlaunch.StopOnStartupElement;
 import org.eclipse.cdt.dsf.gdb.newlaunch.TCPConnectionElement;
 import org.eclipse.cdt.dsf.gdb.newlaunch.WorkingDirectoryElement;
+import org.eclipse.cdt.ui.grid.GridElement;
 
 /* VP: maybe we should use IAdaptable instead? */
 public class UIElementFactory implements IUIElementFactory {
@@ -53,15 +54,6 @@ public class UIElementFactory implements IUIElementFactory {
 		if (element instanceof DebuggerElement) {
 			return new DebuggerUIElement((DebuggerElement)element, showDetails);
 		}
-		if (element instanceof DebuggerSettingsElement) {
-			return new DebuggerSettingsUIElement((DebuggerSettingsElement)element, showDetails);
-		}
-		if (element instanceof StopModeElement) {
-			return new StopModeUIElement((StopModeElement)element);
-		}
-		if (element instanceof ConnectionElement) {
-			return new ConnectionUIElement((ConnectionElement)element, showDetails);
-		}
 		if (element instanceof TCPConnectionElement) {
 			return new TCPConnectionUIElement((TCPConnectionElement)element, showDetails);
 		}
@@ -73,9 +65,6 @@ public class UIElementFactory implements IUIElementFactory {
 		}
 		if (element instanceof RemoteBinaryElement) {
 			return new RemoteBinaryUIElement((RemoteBinaryElement)element, showDetails);
-		}
-		if (element instanceof SharedLibrariesElement) {
-			return new SharedLibrariesUIElement((SharedLibrariesElement)element, showDetails);
 		}
 		if (element instanceof StopOnStartupElement) {
 			return new StopOnStartupUIElement((StopOnStartupElement)element, showDetails);
@@ -92,6 +81,24 @@ public class UIElementFactory implements IUIElementFactory {
 		if (element instanceof DebugOptionsElement) {
 			return new DebugOptionsUIElement((DebugOptionsElement)element, showDetails);
 		}
+		return null;
+	}
+	
+	@Override
+	public GridElement createUIElement2(ILaunchElement element, boolean showDetails) {
+		if (element instanceof StopModeElement) {
+			return new StopModeUIElement((StopModeElement)element);
+		}
+		if (element instanceof DebuggerSettingsElement) {
+			return new DebuggerSettingsUIElement((DebuggerSettingsElement)element, showDetails);
+		}
+		if (element instanceof SharedLibrariesElement) {
+			return new SharedLibrariesUIElement((SharedLibrariesElement)element, showDetails);
+		}
+		if (element instanceof ConnectionElement) {
+			return new ConnectionUIElement((ConnectionElement)element);
+		}
+		// TODO Auto-generated method stub
 		return null;
 	}
 
