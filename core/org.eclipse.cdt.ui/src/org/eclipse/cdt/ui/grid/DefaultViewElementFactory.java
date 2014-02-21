@@ -3,7 +3,7 @@ package org.eclipse.cdt.ui.grid;
 public class DefaultViewElementFactory implements IViewElementFactory {
 
 	@Override
-	public IGridElement createElement(ISomePresentationModel model) {
+	public GridElement createElement(ISomePresentationModel model) {
 		
 		if (model instanceof IStringPresentationModel)
 		{

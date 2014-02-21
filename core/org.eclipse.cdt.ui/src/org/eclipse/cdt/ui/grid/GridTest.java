@@ -20,9 +20,12 @@ import org.junit.Test;
 import org.eclipse.cdt.ui.CDTUITools;
 import org.eclipse.cdt.ui.dialogs.PillsControl;
 
+/**
+ * @since 5.7
+ */
 public class GridTest {
 
-	class BreadcrumbsGroupElement implements IGridElement {
+	class BreadcrumbsGroupElement extends GridElement {
 		
 		public BreadcrumbsGroupElement(ICompositePresentationModel model, IViewElementFactory f) {
 			this.model = model;
@@ -30,7 +33,7 @@ public class GridTest {
 		}
 		
 		@Override
-		public void fillIntoGrid(Composite parent) {
+		public void createImmediateContent(Composite parent) {
 			
 			// Uhm, this kinda sucks really.
 			BreadcrumbsContainer container = new BreadcrumbsContainer(parent, SWT.NONE);
@@ -86,9 +89,9 @@ public class GridTest {
 		DefaultViewElementFactory factory = new DefaultViewElementFactory() {
 		
 			@Override
-			public IGridElement createElement(ISomePresentationModel model) {
+			public GridElement createElement(ISomePresentationModel model) {
 				if (model instanceof CompositePresentationModel) {
-					return new HeaderGroupElement((CompositePresentationModel)model, this);
+					//return new HeaderGroupElement((CompositePresentationModel)model, this);
 				}
 				return super.createElement(model);
 			}
@@ -177,7 +180,7 @@ public class GridTest {
 		
 		
 		Label spacer = new Label(shell, SWT.NONE);
-		CDTUITools.getGridLayoutData(spacer).horizontalSpan = IGridElement.DEFAULT_WIDTH;
+		CDTUITools.getGridLayoutData(spacer).horizontalSpan = GridElement.DEFAULT_WIDTH;
 		CDTUITools.getGridLayoutData(spacer).heightHint = 12/2;	
 		
 		/*
@@ -224,7 +227,7 @@ public class GridTest {
 		
 		{
 		Label spacer2 = new Label(shell, SWT.NONE);
-		CDTUITools.getGridLayoutData(spacer2).horizontalSpan = IGridElement.DEFAULT_WIDTH;
+		CDTUITools.getGridLayoutData(spacer2).horizontalSpan = GridElement.DEFAULT_WIDTH;
 		CDTUITools.getGridLayoutData(spacer2).heightHint = 12/2;	
 		}
 		{
@@ -272,7 +275,7 @@ public class GridTest {
 		
 		{
 		Label spacer2 = new Label(shell, SWT.NONE);
-		CDTUITools.getGridLayoutData(spacer2).horizontalSpan = IGridElement.DEFAULT_WIDTH;
+		CDTUITools.getGridLayoutData(spacer2).horizontalSpan = GridElement.DEFAULT_WIDTH;
 		CDTUITools.getGridLayoutData(spacer2).heightHint = 12/2;	
 		}
 		

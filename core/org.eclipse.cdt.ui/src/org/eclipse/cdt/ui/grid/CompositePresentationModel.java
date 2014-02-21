@@ -3,29 +3,35 @@ package org.eclipse.cdt.ui.grid;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CompositePresentationModel implements ICompositePresentationModel {
+/**
+ * @since 5.7
+ */
+public class CompositePresentationModel extends PresentationModel {
 	
 	public CompositePresentationModel(String name)
 	{
-		this.name = name;
+		super(name);
 	}
 	
-	public void add(ISomePresentationModel child)
+	public void add(IPresentationModel child)
 	{
 		children.add(child);
+		child.addAndCallListener(new IPresentationModel.Listener() {
+			
+			@Override
+			public void changed(int what, Object object) {
+				if (what == IPresentationModel.ACTIVATED)
+					notifyListeners(what, object);
+				// TODO: maybe, need to do something sensible for other whats				
+			}
+		});
 	}
 
-	@Override
-	public String getName() {
-		return name;
-	}
-
-	@Override
-	public List<ISomePresentationModel> getChildren() {
+	public List<IPresentationModel> getChildren() {
 		return children;
 	}
 	
 	public String name;
-	public List<ISomePresentationModel> children = new ArrayList<ISomePresentationModel>();
+	public List<IPresentationModel> children = new ArrayList<IPresentationModel>();
 
 }

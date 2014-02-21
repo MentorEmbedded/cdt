@@ -11,49 +11,54 @@
 
 package org.eclipse.cdt.dsf.gdb.internal.ui.newlaunch;
 
-import org.eclipse.cdt.debug.ui.dialogs.GridUtils;
-import org.eclipse.cdt.debug.ui.dialogs.PillsControl;
-import org.eclipse.cdt.debug.ui.launch.AbstractUIElement;
+import java.util.Arrays;
+
 import org.eclipse.cdt.dsf.gdb.newlaunch.ConnectionElement;
-import org.eclipse.cdt.dsf.gdb.newlaunch.ConnectionElement.ConnectionType;
-import org.eclipse.cdt.dsf.gdb.newlaunch.SerialConnectionElement;
-import org.eclipse.cdt.dsf.gdb.newlaunch.TCPConnectionElement;
-import org.eclipse.jface.resource.JFaceResources;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.layout.GridData;
+import org.eclipse.cdt.ui.grid.BasicGroupGridElement;
+import org.eclipse.cdt.ui.grid.PillSelectionViewElement;
+import org.eclipse.cdt.ui.grid.SelectionPresentationModel;
+import org.eclipse.cdt.ui.grid.StringPresentationModel;
+import org.eclipse.cdt.ui.grid.StringViewElement;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Label;
 
-public class ConnectionUIElement extends AbstractUIElement {
+// FIXME: need to revive all the advanced functionlity we had.
+public class ConnectionUIElement extends BasicGroupGridElement {
 
-	// Summary widgets
-	private Label fSummaryText;
+	private ConnectionElement launchElement;
+
+	public ConnectionUIElement(ConnectionElement launchElement) {
+		super("Connection");
+		this.launchElement = launchElement;
+	}
+
+	@Override
+	protected void createImmediateContent(Composite parent) {	
+	}
 	
-	// Details widgets
-	private PillsControl fTypeSelector;
-
-	public ConnectionUIElement(ConnectionElement launchElement, boolean showDetails ) {
-		super(launchElement, showDetails);
-	}
-
+	// FIXME: link everything with the model.
 	@Override
-	public ConnectionElement getLaunchElement() {
-		return (ConnectionElement)super.getLaunchElement();
+	protected void populateChildren() {
+		
+		
+		SelectionPresentationModel type = new SelectionPresentationModel("Type", Arrays.asList("TCP", "Serial")) {
+		};
+		PillSelectionViewElement typeView = new PillSelectionViewElement(type);
+		addChild(typeView);
+		
+		// FIXME: make it actually useful. 
+		StringPresentationModel address = new StringPresentationModel("Address") {
+			
+		};
+		StringViewElement addressView = new StringViewElement(address);
+		addChild(addressView);
 	}
-
+	
+	/*
 	@Override
-	public void disposeContent() {
-		super.disposeContent();
-		fSummaryText = null;
-		fTypeSelector = null;
-	}
-
-	@Override
-	protected void doCreateSummaryContent(Composite parent) {
+	protected int doCreateSummaryContent(Composite parent) {
 		fSummaryText = new Label(parent, SWT.NONE);
 		fSummaryText.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
+		return 1;
 	}
 
 	@Override
@@ -126,4 +131,5 @@ public class ConnectionUIElement extends AbstractUIElement {
 	private void connectionTypeChanged() {
 		save();
 	}
+	*/
 }

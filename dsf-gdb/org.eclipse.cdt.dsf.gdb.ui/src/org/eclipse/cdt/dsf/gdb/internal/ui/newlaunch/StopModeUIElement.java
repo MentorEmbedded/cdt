@@ -11,53 +11,27 @@
 
 package org.eclipse.cdt.dsf.gdb.internal.ui.newlaunch;
 
-import org.eclipse.cdt.debug.ui.dialogs.GridUtils;
-import org.eclipse.cdt.debug.ui.launch.AbstractUIElement;
 import org.eclipse.cdt.dsf.gdb.internal.ui.launching.LaunchUIMessages;
 import org.eclipse.cdt.dsf.gdb.newlaunch.StopModeElement;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.widgets.Button;
+import org.eclipse.cdt.ui.grid.BooleanPresentationModel;
+import org.eclipse.cdt.ui.grid.CheckboxViewElement;
+import org.eclipse.cdt.ui.grid.GridElement;
 import org.eclipse.swt.widgets.Composite;
 
-public class StopModeUIElement extends AbstractUIElement {
+public class StopModeUIElement extends GridElement {
 
-	private Button fNonStopButton;
-
-	public StopModeUIElement(StopModeElement launchElement) {
-		super(launchElement, true);
-	}
-
-	@Override
-	public StopModeElement getLaunchElement() {
-		return (StopModeElement)super.getLaunchElement();
-	}
-
-	@Override
-	public void disposeContent() {
-		super.disposeContent();
-		fNonStopButton = null;
-	}
-
-	@Override
-	protected void doCreateDetailsContent(Composite parent) {
-		fNonStopButton = new Button(parent, SWT.CHECK);
-		GridUtils.fillIntoGrid(fNonStopButton, parent);
-		fNonStopButton.setText(LaunchUIMessages.getString("GDBDebuggerPage.nonstop_mode")); //$NON-NLS-1$
-		fNonStopButton.addSelectionListener(new SelectionAdapter() {
-
+	public StopModeUIElement(final StopModeElement launchElement) {
+		String n = LaunchUIMessages.getString("GDBDebuggerPage.nonstop_mode");
+		BooleanPresentationModel model = new BooleanPresentationModel(n) {
 			@Override
-			public void widgetSelected(SelectionEvent e) {
-				getLaunchElement().setNonStop(fNonStopButton.getSelection());
-			}
-		});
+			protected boolean doGetValue() { return launchElement.isNonStop(); }
+			
+			@Override
+			protected void doSetValue(boolean value) { launchElement.setNonStop(value); }
+		};
+		addChild(new CheckboxViewElement(model));
 	}
 
 	@Override
-	protected void initializeDetailsContent() {
-		if (fNonStopButton != null) {
-			fNonStopButton.setSelection(getLaunchElement().isNonStop());
-		}
-	}
+	protected void createImmediateContent(Composite parent) { }
 }

@@ -12,23 +12,20 @@
 package org.eclipse.cdt.debug.ui.launch;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import org.eclipse.cdt.debug.core.launch.ILaunchElement;
 import org.eclipse.cdt.debug.core.launch.ILaunchElement.IChangeListener;
-import org.eclipse.cdt.debug.internal.ui.CDebugImages;
-import org.eclipse.cdt.debug.ui.dialogs.GridUtils;
 import org.eclipse.cdt.debug.ui.dialogs.Breadcrumbs.ILinkListener;
+import org.eclipse.cdt.debug.ui.dialogs.GridUtils;
+import org.eclipse.cdt.ui.CDTUITools;
 import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Link;
 import org.eclipse.swt.widgets.Widget;
@@ -40,7 +37,7 @@ abstract public class AbstractUIElement implements IChangeListener {
 
 	private ILaunchElement fLaunchElement;
 	final private boolean fShowDetails;
-	private List<AbstractUIElement> fChildren = new ArrayList<AbstractUIElement>();
+	protected List<AbstractUIElement> fChildren = new ArrayList<AbstractUIElement>();
 	private ListenerList fLinkListeners = new ListenerList();
 
 	private Composite fParent;
@@ -52,7 +49,21 @@ abstract public class AbstractUIElement implements IChangeListener {
 		fShowDetails = showDetails;
 		fLaunchElement.addChangeListener(this);
 	}
-
+	
+	// Create the UI elements. 
+	// @design: it's part of AbstractUI element so that given element can completely customize
+	// how it looks, including children.
+	// FIXME: should make it private, call from constructor
+	public void createUIChildren(IUIElementFactory factory) {
+		fChildren = new ArrayList<AbstractUIElement>(fLaunchElement.getChildren().length);
+		for (ILaunchElement child : fLaunchElement.getChildren()) {
+			if (!child.isEnabled())
+				continue;
+			AbstractUIElement uiChild = factory.createUIElement(child, false);
+			fChildren.add(uiChild);
+		}
+	}
+	
 	public void dispose() {
 		fLaunchElement.removeChangeListener(this);
 		fLinkListeners.clear();
@@ -109,7 +120,7 @@ abstract public class AbstractUIElement implements IChangeListener {
 
 	protected void createSummaryContent(Composite parent) {		
 		Link link = new Link(parent, SWT.BORDER);
-		link.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, false, false, hasContent() ? 1 : 4, 1));
+		link.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER	, false, false, hasContent() ? 1 : 4, 1));
 		link.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -121,9 +132,12 @@ abstract public class AbstractUIElement implements IChangeListener {
 		fSummaryWidgets.add(link);
 
 		if (hasContent()) {
+			Composite bar = null;
 			if (hasMultipleRows()) {
-				fSummaryWidgets.add(GridUtils.createBar(parent, 1));
+				bar = GridUtils.createBar(parent, 1);
+				fSummaryWidgets.add(bar);
 			}
+			/*
 			Composite content = new Composite(parent, SWT.NONE);
 			GridLayout layout = new GridLayout();
 			layout.marginHeight = layout.marginWidth = 0;
@@ -149,9 +163,12 @@ abstract public class AbstractUIElement implements IChangeListener {
 					}
 				});
 				fSummaryWidgets.add(removeButton);
-			}
+			}*/
 			
-			doCreateSummaryContent(content);
+			int rows = doCreateSummaryContent(parent);
+			
+			if (bar != null)
+				CDTUITools.getGridLayoutData(bar).verticalSpan = rows;
 		}
 		
 		fSummaryWidgets.add(GridUtils.createVerticalSpacer(parent, 1));
@@ -188,23 +205,14 @@ abstract public class AbstractUIElement implements IChangeListener {
 			fParent.layout();
 		}
 	}
-
-	// VP: I'd rather not allow outside world to add children to existing UI elements.
-	// my mental model is that we have a mechanism to create UI element from debug element
-	// and then the UI element can be put into grid, or disposed, but not manipulated in
-	// any way.		
-	public void setChildren(AbstractUIElement[] children) {
-		for (AbstractUIElement child : fChildren) {
-			child.dispose();
-		}
-		fChildren.clear();
-		fChildren.addAll(Arrays.asList(children));
-	}
 	
 	// VP: why do we need to do this, as opposed to having each element do whatever
 	// it wants with the link?
 	public void addLinkListener(ILinkListener listener) {
 		fLinkListeners.add(listener);
+		for (AbstractUIElement child: fChildren) {
+			child.addLinkListener(listener);
+		}
 	}
 	
 	public void removeLinkListener(ILinkListener listener) {
@@ -237,7 +245,10 @@ abstract public class AbstractUIElement implements IChangeListener {
 		return false;
 	}
 	
-	protected void doCreateSummaryContent(Composite parent) {
+	// Create elements for summary display, and return the number
+	// of created rows
+	protected int doCreateSummaryContent(Composite parent) {
+		return 1;
 	}
 	
 	protected void doCreateDetailsContent(Composite parent) {

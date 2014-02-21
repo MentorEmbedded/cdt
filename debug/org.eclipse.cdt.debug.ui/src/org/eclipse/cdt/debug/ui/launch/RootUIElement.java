@@ -11,9 +11,7 @@
 
 package org.eclipse.cdt.debug.ui.launch;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.eclipse.cdt.debug.core.launch.ILaunchElement;
@@ -22,6 +20,7 @@ import org.eclipse.cdt.debug.core.launch.IListLaunchElement;
 import org.eclipse.cdt.debug.ui.dialogs.Breadcrumbs;
 import org.eclipse.cdt.debug.ui.dialogs.Breadcrumbs.ILinkListener;
 import org.eclipse.cdt.debug.ui.dialogs.GridUtils;
+import org.eclipse.cdt.ui.grid.GridElement;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
@@ -112,7 +111,7 @@ abstract public class RootUIElement implements ILinkListener, IChangeListener {
 		GridUtils.addHorizontalSeparatorToGrid(base, 1);
 		
 		fContent = new Composite(base, SWT.NONE);
-		fContent.setLayout(new GridLayout(4, false));
+		fContent.setLayout(new GridLayout(5, false));
 		fContent.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 	}
 
@@ -175,6 +174,10 @@ abstract public class RootUIElement implements ILinkListener, IChangeListener {
 			uiElement.removeLinkListener(this);
 			uiElement.dispose();
 		}
+		
+		if (fCurrentGridElement != null) {
+			fCurrentGridElement.dispose();
+		}
 
 		disposeContent();
 		
@@ -185,8 +188,18 @@ abstract public class RootUIElement implements ILinkListener, IChangeListener {
 		if (element != null) {
 			fBreadcrumbs.setCurrent(element.getId(), element.getName());
 			AbstractUIElement uiElement = createUIElement(element, true);
-			setCurrentUIElement(uiElement);
-			uiElement.createContent(getControl());
+			if (uiElement == null) {
+				IUIElementFactory factory = getUIElementFactory();
+				GridElement gridElement = factory.createUIElement2(element, true);
+				// FIXME: revive;
+				fCurrentGridElement = gridElement;
+				gridElement.fillIntoGrid(getControl());
+			}
+			else
+			{
+				setCurrentUIElement(uiElement);
+				uiElement.createContent(getControl());
+			}
 		}
 		else {
 			fBreadcrumbs.setCurrent(null, ""); //$NON-NLS-1$
@@ -226,27 +239,16 @@ abstract public class RootUIElement implements ILinkListener, IChangeListener {
 		fCurrentUIElement = uiElement;
 	}
 	
+	private GridElement fCurrentGridElement;
+	
 	private AbstractUIElement createUIElement(ILaunchElement element, boolean showDetails) {
 		IUIElementFactory factory = getUIElementFactory();
 		AbstractUIElement uiElement = factory.createUIElement(element, showDetails);
-		uiElement.setChildren(createUIChildren(element));
+		if (uiElement == null)
+			return null;
+		uiElement.createUIChildren(factory);
 		uiElement.addLinkListener(this);
 		return uiElement;
-	}
-
-	private AbstractUIElement[] createUIChildren(ILaunchElement element) {
-		IUIElementFactory factory = getUIElementFactory();
-		List<AbstractUIElement> list = new ArrayList<AbstractUIElement>(element.getChildren().length);
-		for (ILaunchElement child : element.getChildren()) {
-			if (!child.isEnabled())
-				continue;
-			// VP: shall the recursion here use 'createElement'? It is not quite obvious to me
-			// how deep hierarchy of ILaunchElement will be handled by the current code.
-			AbstractUIElement uiChild = factory.createUIElement(child, false);
-			uiChild.addLinkListener(this);
-			list.add(uiChild);
-		}
-		return list.toArray(new AbstractUIElement[list.size()]);
 	}
 
 	@Override

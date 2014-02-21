@@ -13,26 +13,25 @@ package org.eclipse.cdt.dsf.gdb.internal.ui.newlaunch;
 
 import java.io.File;
 
-import org.eclipse.cdt.debug.ui.dialogs.GridUtils;
+import org.eclipse.cdt.debug.core.launch.ILaunchElement;
 import org.eclipse.cdt.debug.ui.launch.AbstractUIElement;
-import org.eclipse.cdt.dsf.gdb.internal.ui.GdbUIPlugin;
-import org.eclipse.cdt.dsf.gdb.internal.ui.IGdbUIConstants;
+import org.eclipse.cdt.debug.ui.launch.IUIElementFactory;
 import org.eclipse.cdt.dsf.gdb.internal.ui.launching.LaunchUIMessages;
 import org.eclipse.cdt.dsf.gdb.newlaunch.DebuggerElement;
 import org.eclipse.cdt.dsf.gdb.newlaunch.StopModeElement;
-import org.eclipse.cdt.utils.ui.controls.ControlFactory;
-import org.eclipse.jface.resource.JFaceResources;
+import org.eclipse.cdt.ui.grid.BasicGroupGridElement;
+import org.eclipse.cdt.ui.grid.BooleanPresentationModel;
+import org.eclipse.cdt.ui.grid.CheckboxViewElement;
+import org.eclipse.cdt.ui.grid.GridElement;
+import org.eclipse.cdt.ui.grid.IPresentationModel;
+import org.eclipse.cdt.ui.grid.IStringPresentationModel;
+import org.eclipse.cdt.ui.grid.PathViewElement;
+import org.eclipse.cdt.ui.grid.StringPresentationModel;
+import org.eclipse.cdt.ui.grid.ViewElement;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.FileDialog;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
@@ -41,6 +40,9 @@ public class DebuggerUIElement extends AbstractUIElement {
 	private Text fGDBCommandText;
 	private Text fGDBInitText;
 	private Button fNonStopButton;
+	
+	private GridElement details;
+	private IUIElementFactory factory;
 
 	public DebuggerUIElement(DebuggerElement launchElement, boolean showDetails ) {
 		super(launchElement, showDetails);
@@ -54,13 +56,117 @@ public class DebuggerUIElement extends AbstractUIElement {
 	@Override
 	public void disposeContent() {
 		super.disposeContent();
+		if (details != null)
+			details.dispose();
 		fGDBCommandText = null;
 		fGDBInitText = null;
 		fNonStopButton = null;
 	}
-
+	
 	@Override
-	protected void doCreateDetailsContent(final Composite parent) {
+	public void createUIChildren(IUIElementFactory factory) {
+		this.factory = factory;
+	}
+	
+	@Override
+	protected void createDetailsContent(Composite parent) {
+		
+		details = new GridElement() {
+			@Override
+			protected void createImmediateContent(Composite parent) {
+				createImmediateDetailContent(parent);	
+			}
+			
+			@Override
+			protected void populateChildren() {
+				for (ILaunchElement l: getLaunchElement().getChildren()) {
+					GridElement uiElement = factory.createUIElement2(l, false);
+					
+					// FIXME: convert this into assert for production.
+					if (uiElement != null) {
+						addChild(uiElement);
+					
+						// HACK, HACK.
+						if (uiElement instanceof ViewElement) {
+							IPresentationModel model = ((ViewElement)uiElement).getModel();
+							model.addAndCallListener(new IPresentationModel.Listener() {
+								
+								@Override
+								public void changed(int what, Object object) {
+									if (what == IPresentationModel.ACTIVATED) {
+										linkActivated((ILaunchElement)object);
+									}
+								}
+							});
+						}
+					}
+				}
+			}
+		};
+		
+		details.fillIntoGrid(parent);
+	}
+
+	protected void createImmediateDetailContent(final Composite parent) {
+		
+		IStringPresentationModel gdbModel = new StringPresentationModel("GDB") {
+			@Override
+			public String doGetValue() { 	return getLaunchElement().getGDBPath(); };
+			
+			@Override
+			public void doSetValue(String value) { getLaunchElement().setGDBPath(value); }
+		};
+		
+		final PathViewElement gdb = new PathViewElement(gdbModel);
+		
+		IStringPresentationModel gdbInitModel = new StringPresentationModel("Script") {
+			
+			@Override
+			protected String doGetValue() { return getLaunchElement().getGDBInitFile(); }
+			
+			@Override
+			protected void doSetValue(String value) { getLaunchElement().setGDBInitFile(value); }
+		};
+		final PathViewElement gdbInit = new PathViewElement(gdbInitModel);
+	
+		BasicGroupGridElement gdbPaths = new BasicGroupGridElement("Paths") {
+			
+			{
+				indentFirst();
+				addChild(gdb);
+				addChild(gdbInit);
+			}
+		};	
+		gdbPaths.fillIntoGrid(parent);
+			
+		/*
+		Label label = ControlFactory.createLabel(parent, LaunchUIMessages.getString("GDBDebuggerPage.gdb_debugger")); //$NON-NLS-1$
+		label.setLayoutData(new GridData());
+		label.setFont(JFaceResources.getFontRegistry().getBold(JFaceResources.DIALOG_FONT));
+		
+		new Label(parent, SWT.NONE);
+		
+		fGDBCommandText = ControlFactory.createTextField(parent, SWT.SINGLE | SWT.BORDER);
+		fGDBCommandText.addModifyListener(new ModifyListener() {
+            @Override
+			public void modifyText(ModifyEvent evt) {
+            	getLaunchElement().setGDBPath(fGDBCommandText.getText().trim());
+			}
+		});
+		Button button = new Button(parent, SWT.PUSH);
+		button.setImage(GdbUIPlugin.getImage(IGdbUIConstants.IMG_OBJ_BROWSE));
+		button.setToolTipText(LaunchUIMessages.getString("GDBDebuggerPage.gdb_browse")); //$NON-NLS-1$
+		button.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent evt) {
+				handleGDBButtonSelected(parent.getShell());
+			}
+		});
+		
+		*/
+		
+		
+		/*
 		Composite comp = new Composite(parent, SWT.NONE);
 		GridLayout layout = new GridLayout(2, false);
 		layout.marginHeight = layout.marginWidth = 0;
@@ -125,7 +231,7 @@ public class DebuggerUIElement extends AbstractUIElement {
 		gd.widthHint = 200;
 		label.setLayoutData(gd);
 		
-		GridUtils.createVerticalSpacer(comp, 1);
+		GridUtils.createVerticalSpacer(comp, 1);*/
 	}
 
 	private void handleGDBButtonSelected(Shell shell) {
@@ -160,31 +266,37 @@ public class DebuggerUIElement extends AbstractUIElement {
 
 	@Override
 	protected void initializeDetailsContent() {
-		if (fGDBCommandText != null) {
-			fGDBCommandText.setText(getLaunchElement().getGDBPath());
-		}
-		if (fGDBInitText != null) {
-			fGDBInitText.setText(getLaunchElement().getGDBInitFile());
-		}
+
 	}
 
 	@Override
-	protected void doCreateSummaryContent(final Composite parent) {
-		Composite comp = new Composite(parent, SWT.NONE);
-		GridLayout layout = new GridLayout(2, false);
-		layout.marginHeight = layout.marginWidth = 0;
-		comp.setLayout(layout);
-		comp.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
-		GridUtils.fillIntoGrid(comp, parent);
+	protected void createSummaryContent(final Composite parent) {
+				
+		IStringPresentationModel gdbModel = new StringPresentationModel(LaunchUIMessages.getString("GDBDebuggerPage.gdb_debugger")) {
+			@Override
+			public String getValue() {
+				return getLaunchElement().getGDBPath();
+			};
+			
+			@Override
+			public void setValue(String value) {
+				getLaunchElement().setGDBPath(value);
+			}
+		};
 		
-		fGDBCommandText = ControlFactory.createTextField(comp, SWT.SINGLE | SWT.BORDER);
+		PathViewElement gdb = new PathViewElement(gdbModel);
+		gdb.fillIntoGrid(parent);		
+		
+		/*
+		fGDBCommandText = ControlFactory.createTextField(parent, SWT.SINGLE | SWT.BORDER);
 		fGDBCommandText.addModifyListener(new ModifyListener() {
             @Override
 			public void modifyText(ModifyEvent evt) {
             	getLaunchElement().setGDBPath(fGDBCommandText.getText().trim());
 			}
 		});
-		Button button = new Button(comp, SWT.PUSH);
+		
+		Button button = new Button(parent, SWT.PUSH);
 		button.setImage(GdbUIPlugin.getImage(IGdbUIConstants.IMG_OBJ_BROWSE));
 		button.setToolTipText(LaunchUIMessages.getString("GDBDebuggerPage.gdb_browse")); //$NON-NLS-1$
 		button.addSelectionListener(new SelectionAdapter() {
@@ -194,19 +306,30 @@ public class DebuggerUIElement extends AbstractUIElement {
 			}
 		});
 		
+		*/
+		
 		final StopModeElement stopMode = getLaunchElement().findChild(StopModeElement.class);
-		if (stopMode != null && stopMode.isEnabled()) {
-			fNonStopButton = new Button(parent, SWT.CHECK);
-			GridUtils.fillIntoGrid(fNonStopButton, parent);
-			fNonStopButton.setText(LaunchUIMessages.getString("GDBDebuggerPage.nonstop_mode")); //$NON-NLS-1$
-			fNonStopButton.addSelectionListener(new SelectionAdapter() {
-	
-				@Override
-				public void widgetSelected(SelectionEvent e) {
-					stopMode.setNonStop(fNonStopButton.getSelection());
-				}
-			});
-		}
+		
+		CheckboxViewElement nonStop = new CheckboxViewElement(
+				new BooleanPresentationModel(LaunchUIMessages.getString("GDBDebuggerPage.nonstop_mode")) 
+		{
+			@Override
+			protected boolean doGetValue() {
+				return stopMode.isNonStop();
+			}
+			
+			@Override
+			protected void doSetValue(boolean value) {
+				stopMode.setNonStop(value);
+			}
+		});
+		
+		nonStop.fillIntoGrid(parent);		
+		/*
+		Link link = new Link(parent, SWT.NONE);
+		link.setText("<a>Details</a>");
+		
+		new Label(parent, SWT.NONE); */
 	}
 
 	@Override
@@ -222,6 +345,7 @@ public class DebuggerUIElement extends AbstractUIElement {
 
 	@Override
 	protected boolean hasMultipleRows() {
-		return true;
+		// HACK HACK.
+		return false;
 	}
 }

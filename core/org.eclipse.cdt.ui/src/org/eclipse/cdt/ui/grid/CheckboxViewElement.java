@@ -1,11 +1,10 @@
 package org.eclipse.cdt.ui.grid;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Text;
 
 import org.eclipse.cdt.ui.CDTUITools;
 import org.eclipse.cdt.ui.grid.IPresentationModel.Listener;
@@ -13,41 +12,38 @@ import org.eclipse.cdt.ui.grid.IPresentationModel.Listener;
 /**
  * @since 5.7
  */
-public class StringViewElement extends GridElement {
+public class CheckboxViewElement extends GridElement {
 
-	public StringViewElement(IStringPresentationModel model) {
+	public CheckboxViewElement(IBooleanPresentationModel model) {
 		this.model = model;
 	}
 	
-	public void indentLabel()
+	public CheckboxViewElement labelInContentArea()
 	{
-		this.indentLabel = true;
+		this.labelInContentArea = true;
+		return this;
 	}
 
 	@Override
 	public void createImmediateContent(Composite parent) {
 		
 		Label l = new Label(parent, SWT.NONE);
-		if (!indentLabel)
+		if (!labelInContentArea)
 			l.setText(model.getName());
 		
 		new Label(parent, SWT.NONE);
 		
-		if (indentLabel)
-		{
-			Label l2 = new Label(parent, SWT.NONE);
-			l2.setText(model.getName());
-		}
-		
-		text = new Text(parent, SWT.BORDER);
-		text.addModifyListener(new ModifyListener() {
+		checkbox = new Button(parent, SWT.CHECK);
+		if (labelInContentArea)
+			checkbox.setText(model.getName());
+		checkbox.addSelectionListener(new SelectionAdapter() {
 			
 			@Override
-			public void modifyText(ModifyEvent e) {
+			public void widgetSelected(org.eclipse.swt.events.SelectionEvent e) {
 				if (!blockSignals) { 
 					try {
 						blockSignals = true;
-						model.setValue(text.getText());
+						model.setValue(checkbox.getSelection());
 					} finally {
 						blockSignals = false;
 					}
@@ -61,7 +57,7 @@ public class StringViewElement extends GridElement {
 				if (!blockSignals && (what | IPresentationModel.CHANGED) != 0) {
 					try {
 						blockSignals = true;
-						text.setText(model.getValue());	
+						checkbox.setSelection(model.getValue());	
 					} finally {
 						blockSignals = false;
 					}
@@ -69,9 +65,8 @@ public class StringViewElement extends GridElement {
 			}
 		});
 		
-		if (!indentLabel)
-			CDTUITools.getGridLayoutData(text).horizontalSpan = 2;
-		CDTUITools.grabAllWidth(text);
+		CDTUITools.getGridLayoutData(checkbox).horizontalSpan = 2;
+		CDTUITools.grabAllWidth(checkbox);
 		
 		createButton(parent);
 	}
@@ -80,8 +75,8 @@ public class StringViewElement extends GridElement {
 		new Label(parent, SWT.NONE);
 	}
 	
-	private IStringPresentationModel model;
+	private IBooleanPresentationModel model;
 	private boolean blockSignals;
-	protected Text text; 
-	protected boolean indentLabel;
+	protected Button checkbox;
+	protected boolean labelInContentArea;
 }

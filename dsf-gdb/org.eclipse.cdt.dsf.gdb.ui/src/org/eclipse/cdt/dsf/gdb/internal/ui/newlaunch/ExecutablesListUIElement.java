@@ -25,6 +25,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Layout;
 
 public class ExecutablesListUIElement extends ListUIElement {
@@ -58,6 +59,10 @@ public class ExecutablesListUIElement extends ListUIElement {
 
 	@Override
 	protected void createButtonBar(Composite parent) {
+		
+		new Label(parent, SWT.NONE);
+		new Label(parent, SWT.NONE);
+		
 		int horSpan = 1;
 		Layout parentLayout = parent.getLayout();
 		if (parentLayout instanceof GridLayout) {
@@ -65,9 +70,13 @@ public class ExecutablesListUIElement extends ListUIElement {
 		}
 		Composite comp = new Composite(parent, SWT.NONE);
 		GridLayout layout = new GridLayout(2, false);
+		
 		layout.marginWidth = layout.marginHeight = 0;
 		comp.setLayout(layout);
-		comp.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, horSpan, 1));
+		comp.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		
+		
+		
 		
 		Button button = createButton(comp, GdbUIPlugin.getImage(IGdbUIConstants.IMG_OBJ_NEW_EXECUTABLE), "Add executable", 1, 1);
 		button.addSelectionListener(new SelectionAdapter() {

@@ -14,6 +14,8 @@ package org.eclipse.cdt.debug.ui.launch;
 import org.eclipse.cdt.debug.core.launch.ILaunchElement;
 import org.eclipse.cdt.debug.core.launch.IListLaunchElement;
 import org.eclipse.cdt.debug.internal.ui.CDebugImages;
+import org.eclipse.cdt.ui.CDTUITools;
+import org.eclipse.cdt.ui.grid.GridElement;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -23,7 +25,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Link;
 
 /**
@@ -43,38 +45,55 @@ public abstract class ListUIElement extends AbstractUIElement {
 
 	@Override
 	protected void createDetailsContent(Composite parent) {
-//		fContent = new Composite(parent, SWT.BORDER);
-//		GridLayout layout = new GridLayout(2, false);
-//		layout.marginHeight = layout.marginWidth = 0;
-//		fContent.setLayout(layout);
-//		int horSpan = (parent.getLayout() instanceof GridLayout) ? ((GridLayout)parent.getLayout()).numColumns : 1;
-//		fContent.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, horSpan, 1));
-		fContent = new Group(parent, SWT.NONE);
-		fContent.setFont(JFaceResources.getFontRegistry().getBold(JFaceResources.DIALOG_FONT));
-		GridLayout layout = new GridLayout(2, false);
-//		layout.marginHeight = layout.marginWidth = 0;
-		fContent.setLayout(layout);
-		int horSpan = (parent.getLayout() instanceof GridLayout) ? ((GridLayout)parent.getLayout()).numColumns : 1;
-		fContent.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, horSpan, 1));
-		((Group)fContent).setText(getLaunchElement().getName());
+		
+		final IListLaunchElement listElement = getLaunchElement();
+		final int length = listElement.getChildren().length;	
 
-		IListLaunchElement listElement = getLaunchElement();
-		int length = listElement.getChildren().length;
-		for (int i = 0; i < length; ++i) {
-			ILaunchElement child = listElement.getChildren()[i];
-			int showButtons = 0;
-			if (i+1 < length) {
-				showButtons |= SHOW_DOWN_BUTTON;
+		GridElement top = new GridElement() {
+			
+			@Override
+			protected void populateChildren() 
+			{
+				for (int i = 0; i < length; ++i) {
+										
+					ILaunchElement child = listElement.getChildren()[i];
+					int showButtons = 0;
+					if (i+1 < length) {
+						showButtons |= SHOW_DOWN_BUTTON;
+					}
+					if (i > 0) {
+						showButtons |= SHOW_UP_BUTTON;
+					}
+					if (child.canRemove() && listElement.getLowerLimit() < length) {
+						showButtons |= SHOW_REMOVE_BUTTON;
+					}
+					addChild(createListElementContent(child, showButtons));
+				}
 			}
-			if (i > 0) {
-				showButtons |= SHOW_UP_BUTTON;
+			
+			@Override
+			public void createImmediateContent(Composite parent) {
+				// TODO Auto-generated method stub
+		
+				Label title = new Label(parent, SWT.NONE);
+				title.setFont(JFaceResources.getFontRegistry().getBold(JFaceResources.DIALOG_FONT));
+				title.setText(getLaunchElement().getName());
 			}
-			if (child.canRemove() && listElement.getLowerLimit() < length) {
-				showButtons |= SHOW_REMOVE_BUTTON;
+		
+			@Override
+			public void adjustChildren(Composite parent) {
+				getChildElements().get(0).getChildControls().get(0).dispose();
 			}
-			createListElementContent(child, fContent, showButtons);
-		}
-		createButtonBar(fContent);
+		};
+		
+		top.fillIntoGrid(parent);
+		
+		
+		
+		//GridUtils.createBar(parent, length + 1);
+		
+			
+		//createButtonBar(parent);
 	}
 
 	@Override
@@ -91,63 +110,74 @@ public abstract class ListUIElement extends AbstractUIElement {
 		}
 	}
 
-	protected void createListElementContent(final ILaunchElement element, Composite parent, int flags) {
-		Link link = new Link(parent, SWT.NONE);
-		link.setText(String.format("<a>%s</a>", getLinkLabel(element))); //$NON-NLS-1$
-		link.setToolTipText(getLinkDescription(element));
-		link.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-		link.addSelectionListener(new SelectionAdapter() {
+	protected GridElement createListElementContent(final ILaunchElement element, final int flags) {
+		
+		return new GridElement() {
 			@Override
-			public void widgetSelected(SelectionEvent e) {
-				linkActivated(element);
+			public void createImmediateContent(Composite parent) {
+				new Label(parent, SWT.NONE);
+				new Label(parent, SWT.NONE);
+				
+				Link link = new Link(parent, SWT.NONE);
+				link.setText(String.format("<a>%s</a>", getLinkLabel(element))); //$NON-NLS-1$
+				link.setToolTipText(getLinkDescription(element));
+				link.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+				CDTUITools.getGridLayoutData(link).horizontalSpan = 2;
+				link.addSelectionListener(new SelectionAdapter() {
+					@Override
+					public void widgetSelected(SelectionEvent e) {
+						linkActivated(element);
+					}
+				});
+			
+				Composite buttonsComp = new Composite(parent, SWT.NONE);
+				boolean showUpButton = (flags & SHOW_UP_BUTTON) != 0;
+				boolean showDownButton = (flags & SHOW_DOWN_BUTTON) != 0;
+				boolean showRemoveButton = (flags & SHOW_REMOVE_BUTTON) != 0;
+				int columns = 0;
+				if (showUpButton) {
+					++columns;
+				}
+				if (showDownButton) {
+					++columns;
+				}
+				if (showRemoveButton) {
+					++columns;
+				}
+				GridLayout layout = new GridLayout(columns, true);
+				layout.marginHeight = layout.marginWidth = 0;
+				buttonsComp.setLayout(layout);
+				buttonsComp.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false));
+				if (showUpButton) {
+					Button button = createButton(buttonsComp, CDebugImages.get(CDebugImages.IMG_LCL_UP_UIELEMENT), "Up", 1, 1);
+					button.addSelectionListener(new SelectionAdapter() {
+						@Override
+						public void widgetSelected(SelectionEvent e) {
+							upButtonPressed(element);
+						}
+					});
+				}
+				if (showDownButton) {
+					Button button = createButton(buttonsComp, CDebugImages.get(CDebugImages.IMG_LCL_DOWN_UIELEMENT), "Down", 1, 1);
+					button.addSelectionListener(new SelectionAdapter() {
+						@Override
+						public void widgetSelected(SelectionEvent e) {
+							downButtonPressed(element);
+						}
+					});
+				}
+				if (showRemoveButton) {
+					Button button = createButton(buttonsComp, CDebugImages.get(CDebugImages.IMG_LCL_REMOVE_UIELEMENT), "Delete", 1, 1);
+					button.addSelectionListener(new SelectionAdapter() {
+						@Override
+						public void widgetSelected(SelectionEvent e) {
+							removeButtonPressed(element);
+						}
+					});
+				}				
+				
 			}
-		});
-
-		Composite buttonsComp = new Composite(parent, SWT.NONE);
-		boolean showUpButton = (flags & SHOW_UP_BUTTON) != 0;
-		boolean showDownButton = (flags & SHOW_DOWN_BUTTON) != 0;
-		boolean showRemoveButton = (flags & SHOW_REMOVE_BUTTON) != 0;
-		int columns = 0;
-		if (showUpButton) {
-			++columns;
-		}
-		if (showDownButton) {
-			++columns;
-		}
-		if (showRemoveButton) {
-			++columns;
-		}
-		GridLayout layout = new GridLayout(columns, true);
-		layout.marginHeight = layout.marginWidth = 0;
-		buttonsComp.setLayout(layout);
-		buttonsComp.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false));
-		if (showUpButton) {
-			Button button = createButton(buttonsComp, CDebugImages.get(CDebugImages.IMG_LCL_UP_UIELEMENT), "Up", 1, 1);
-			button.addSelectionListener(new SelectionAdapter() {
-				@Override
-				public void widgetSelected(SelectionEvent e) {
-					upButtonPressed(element);
-				}
-			});
-		}
-		if (showDownButton) {
-			Button button = createButton(buttonsComp, CDebugImages.get(CDebugImages.IMG_LCL_DOWN_UIELEMENT), "Down", 1, 1);
-			button.addSelectionListener(new SelectionAdapter() {
-				@Override
-				public void widgetSelected(SelectionEvent e) {
-					downButtonPressed(element);
-				}
-			});
-		}
-		if (showRemoveButton) {
-			Button button = createButton(buttonsComp, CDebugImages.get(CDebugImages.IMG_LCL_REMOVE_UIELEMENT), "Delete", 1, 1);
-			button.addSelectionListener(new SelectionAdapter() {
-				@Override
-				public void widgetSelected(SelectionEvent e) {
-					removeButtonPressed(element);
-				}
-			});
-		}
+		};
 	}
 	
 	protected String getLinkLabel(ILaunchElement element) {

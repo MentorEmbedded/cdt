@@ -6,8 +6,11 @@ package org.eclipse.cdt.ui.grid;
  * this class allows to customize visual rendering of these elements
  * according to specific situation.
  */
+/**
+ * @since 5.7
+ */
 public interface IViewElementFactory {
 	
-	public IGridElement createElement(ISomePresentationModel model);
+	public GridElement createElement(ISomePresentationModel model);
 
 }

@@ -1,5 +1,8 @@
 package org.eclipse.cdt.ui.grid;
 
+/**
+ * @since 5.7
+ */
 public abstract class DelegatingViewElementFactory implements IViewElementFactory {
 
 	public DelegatingViewElementFactory(IViewElementFactory inner)
@@ -8,16 +11,16 @@ public abstract class DelegatingViewElementFactory implements IViewElementFactor
 	}
 	
 	@Override
-	public IGridElement createElement(ISomePresentationModel model) {
+	public GridElement createElement(ISomePresentationModel model) {
 		
-		IGridElement element = createCustom(model);
+		GridElement element = createCustom(model);
 		if (element != null)
 			return element;
 		
 		return inner.createElement(model);
 	}
 	
-	public abstract IGridElement createCustom(ISomePresentationModel model);
+	public abstract GridElement createCustom(ISomePresentationModel model);
 	
 	private IViewElementFactory inner;
 }

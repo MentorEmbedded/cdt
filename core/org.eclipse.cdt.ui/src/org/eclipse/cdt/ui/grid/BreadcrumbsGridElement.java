@@ -2,7 +2,10 @@ package org.eclipse.cdt.ui.grid;
 
 import org.eclipse.swt.widgets.Composite;
 
-public class BreadcrumbsGridElement implements IGridElement {
+/**
+ * @since 5.7
+ */
+public class BreadcrumbsGridElement extends GridElement {
 	
 	public BreadcrumbsGridElement(Composite parent, ISomePresentationModel model, IViewElementFactory factory) 
 	{
@@ -35,7 +38,7 @@ public class BreadcrumbsGridElement implements IGridElement {
 	 */
 	
 	@Override
-	public void fillIntoGrid(Composite parent) {
+	public void createImmediateContent(Composite parent) {
 		
 		
 		

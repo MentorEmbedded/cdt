@@ -4,6 +4,9 @@ import org.eclipse.core.runtime.IAdapterManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 
+/**
+ * @since 5.7
+ */
 public class GridView extends Composite {
 	
 	IAdapterManager adaptor = null; // FIXME:

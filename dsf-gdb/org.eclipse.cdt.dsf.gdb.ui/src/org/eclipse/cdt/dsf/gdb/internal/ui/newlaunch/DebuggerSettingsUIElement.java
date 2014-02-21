@@ -11,23 +11,18 @@
 
 package org.eclipse.cdt.dsf.gdb.internal.ui.newlaunch;
 
-import org.eclipse.cdt.debug.ui.dialogs.GridUtils;
-import org.eclipse.cdt.debug.ui.launch.AbstractUIElement;
-import org.eclipse.cdt.dsf.gdb.internal.ui.GdbUIPlugin;
+import java.util.Arrays;
+
 import org.eclipse.cdt.dsf.gdb.internal.ui.launching.LaunchUIMessages;
 import org.eclipse.cdt.dsf.gdb.newlaunch.DebuggerSettingsElement;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Combo;
+import org.eclipse.cdt.ui.grid.BooleanPresentationModel;
+import org.eclipse.cdt.ui.grid.CheckboxViewElement;
+import org.eclipse.cdt.ui.grid.GridElement;
+import org.eclipse.cdt.ui.grid.PillSelectionViewElement;
+import org.eclipse.cdt.ui.grid.SelectionPresentationModel;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.ui.PlatformUI;
 
-public class DebuggerSettingsUIElement extends AbstractUIElement {
+public class DebuggerSettingsUIElement extends GridElement {
 
 	private static String[] fgTraceModeLabels = new String[] {
 		LaunchUIMessages.getString("GDBDebuggerPage.tracepoint_mode_fast"), //$NON-NLS-1$
@@ -35,95 +30,59 @@ public class DebuggerSettingsUIElement extends AbstractUIElement {
 		LaunchUIMessages.getString("GDBDebuggerPage.tracepoint_mode_auto"), //$NON-NLS-1$
 	};
 
-	// Detail widgets
-	private Button fReverseButton;
-	private Button fUpdateThreadsButton;
-	private Button fDebugOnFork;
-	private Combo fTracepointModeCombo;
+	private DebuggerSettingsElement launchElement;
+	private boolean showDetails;
 	
 	public DebuggerSettingsUIElement(DebuggerSettingsElement launchElement, boolean showDetails) {
-		super(launchElement, showDetails);
+		this.launchElement = launchElement;
+		this.showDetails = showDetails;
 	}
-
+	
 	@Override
-	public DebuggerSettingsElement getLaunchElement() {
-		return (DebuggerSettingsElement)super.getLaunchElement();
+	protected void createImmediateContent(Composite parent) {	
 	}
-
+	
 	@Override
-	public void disposeContent() {
-		super.disposeContent();
-	}
-
-	@Override
-	protected void doCreateDetailsContent(final Composite parent) {
-		Composite comp = new Composite(parent, SWT.NONE);
-		GridLayout layout = new GridLayout(2, false);
-		layout.marginHeight = layout.marginWidth = 0;
-		comp.setLayout(layout);
-		comp.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));		
-		GridUtils.fillIntoGrid(comp, parent);
-		
-		fReverseButton = new Button(comp, SWT.CHECK);
-		GridUtils.fillIntoGrid(fReverseButton, comp);
-		fReverseButton.setText(LaunchUIMessages.getString("GDBDebuggerPage.reverse_Debugging")); //$NON-NLS-1$
-		fReverseButton.addSelectionListener(new SelectionAdapter() {
+	protected void populateChildren() {
+		BooleanPresentationModel reverseModel;
+		reverseModel = new BooleanPresentationModel(LaunchUIMessages.getString("GDBDebuggerPage.reverse_Debugging")) {
+			
 			@Override
-			public void widgetSelected(SelectionEvent e) {
-				getLaunchElement().enableReverse(fReverseButton.getSelection());
+			protected void doSetValue(boolean value) {
+				launchElement.enableReverse(value);
 			}
-		});
-		
-		fUpdateThreadsButton = new Button(comp, SWT.CHECK);
-		GridUtils.fillIntoGrid(fUpdateThreadsButton, comp);
-		fUpdateThreadsButton.setText(LaunchUIMessages.getString("GDBDebuggerPage.update_thread_list_on_suspend")); //$NON-NLS-1$
-		fUpdateThreadsButton.addSelectionListener(new SelectionAdapter() {
+			
 			@Override
-			public void widgetSelected(SelectionEvent e) {
-				getLaunchElement().setUpdateThreadListOnSuspend(fUpdateThreadsButton.getSelection());;
+			protected boolean doGetValue() {
+				return launchElement.isReverseEnabled();
 			}
-		});
-		PlatformUI.getWorkbench().getHelpSystem().setHelp(fUpdateThreadsButton, GdbUIPlugin.PLUGIN_ID + ".update_threadlist_button_context"); //$NON-NLS-1$
+		};
+		addChild((new CheckboxViewElement(reverseModel)));
 		
-		fDebugOnFork = new Button(comp, SWT.CHECK);
-		GridUtils.fillIntoGrid(fDebugOnFork, comp);
-		fDebugOnFork.setText(LaunchUIMessages.getString("GDBDebuggerPage.Automatically_debug_forked_processes")); //$NON-NLS-1$
-		fDebugOnFork.addSelectionListener(new SelectionAdapter() {
+		BooleanPresentationModel debugOnFork;
+		debugOnFork = new BooleanPresentationModel(LaunchUIMessages.getString("GDBDebuggerPage.Automatically_debug_forked_processes")) {
+			
 			@Override
-			public void widgetSelected(SelectionEvent e) {
-				getLaunchElement().setDebugOnFork(fDebugOnFork.getSelection());;
+			protected void doSetValue(boolean value) { launchElement.setDebugOnFork(value); }
+			
+			@Override
+			protected boolean doGetValue() { return launchElement.isDebugOnFork(); }
+		};
+		
+		addChild((new CheckboxViewElement(debugOnFork)));
+		
+		SelectionPresentationModel tracepointModel;
+		tracepointModel = new SelectionPresentationModel(LaunchUIMessages.getString("GDBDebuggerPage.tracepoint_mode_label"), Arrays.asList(fgTraceModeLabels)) {
+			
+			@Override
+			protected String doGetValue() { return fgTraceModeLabels[launchElement.getTracepointMode().ordinal()]; }
+			
+			@Override
+			protected void doSetValue(String value) {
+				int index = Arrays.asList(fgTraceModeLabels).indexOf(value);
+				launchElement.setTracepointMode(DebuggerSettingsElement.TracepointMode.values()[index]);				
 			}
-		});
-		
-		Label label = new Label(comp, SWT.NONE);
-		label.setText(LaunchUIMessages.getString("GDBDebuggerPage.tracepoint_mode_label")); //$NON-NLS-1$
-		
-		fTracepointModeCombo = new Combo(comp, SWT.READ_ONLY | SWT.DROP_DOWN);
-		fTracepointModeCombo.setItems(fgTraceModeLabels);
-	}
-
-	@Override
-	protected void initializeDetailsContent() {
-		if (fReverseButton != null) {
-			fReverseButton.setSelection(getLaunchElement().isReverseEnabled());
-		}
-		if (fUpdateThreadsButton != null) {
-			fUpdateThreadsButton.setSelection(getLaunchElement().updateThreadListOnSuspend());
-		}
-		if (fDebugOnFork != null) {
-			fDebugOnFork.setSelection(getLaunchElement().isDebugOnFork());
-		}
-		if (fTracepointModeCombo != null) {
-			fTracepointModeCombo.select(getLaunchElement().getTracepointMode().ordinal());
-		}
-	}
-
-	@Override
-	protected void doCreateSummaryContent(Composite parent) {
-	}
-
-	@Override
-	protected boolean hasMultipleRows() {
-		return false;
-	}
+		};
+		addChild(new PillSelectionViewElement(tracepointModel));
+	};	
 }

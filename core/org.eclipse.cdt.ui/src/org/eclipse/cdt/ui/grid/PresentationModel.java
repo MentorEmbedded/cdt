@@ -7,6 +7,7 @@ import java.util.List;
 /** Implementation of the IPresentationModel interface. 
  * 
  *  Adds protected methods to invoke listeners.
+ * @since 5.7
  */
 public class PresentationModel implements IPresentationModel {
 		
@@ -36,6 +37,11 @@ public class PresentationModel implements IPresentationModel {
 	public void removeListener(Listener listener)
 	{
 		this.listeners.remove(listener);
+	}
+	
+	@Override
+	public void activate() {
+		notifyListeners(ACTIVATED, this);
 	}
 	
 	protected void notifyListeners(int what, Object object)

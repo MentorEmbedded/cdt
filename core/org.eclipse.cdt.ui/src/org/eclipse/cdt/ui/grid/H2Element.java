@@ -10,7 +10,10 @@ import org.eclipse.swt.widgets.Label;
 
 import org.eclipse.cdt.ui.CDTUITools;
 
-public class H2Element implements IGridElement {
+/**
+ * @since 5.7
+ */
+public class H2Element extends GridElement {
 
 	private static boolean fontRegistryInitialized = false;
 	private static FontRegistry demandFontRegistry()
@@ -30,10 +33,10 @@ public class H2Element implements IGridElement {
 	}
 	
 	@Override
-	public void fillIntoGrid(Composite parent) {
+	public void createImmediateContent(Composite parent) {
 		
 		Label spacer = new Label(parent, SWT.NONE);
-		CDTUITools.getGridLayoutData(spacer).horizontalSpan = IGridElement.DEFAULT_WIDTH;
+		CDTUITools.getGridLayoutData(spacer).horizontalSpan = GridElement.DEFAULT_WIDTH;
 		CDTUITools.getGridLayoutData(spacer).heightHint = 12/2;		
 		
 		Label l = new Label(parent, SWT.NONE);
@@ -42,7 +45,7 @@ public class H2Element implements IGridElement {
 		
 		l.setText(text);
 		CDTUITools.grabAllWidth(l);
-		CDTUITools.getGridLayoutData(l).horizontalSpan = IGridElement.DEFAULT_WIDTH;
+		CDTUITools.getGridLayoutData(l).horizontalSpan = GridElement.DEFAULT_WIDTH;
 		
 		// TODO Auto-generated method stub
 

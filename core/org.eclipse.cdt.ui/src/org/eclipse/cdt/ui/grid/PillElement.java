@@ -8,7 +8,10 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.cdt.ui.CDTUITools;
 import org.eclipse.cdt.ui.dialogs.PillsControl;
 
-public class PillElement implements IGridElement {
+/**
+ * @since 5.7
+ */
+public class PillElement extends GridElement {
 	
 	public PillElement(String[] items)
 	{
@@ -21,7 +24,7 @@ public class PillElement implements IGridElement {
 	}
 
 	@Override
-	public void fillIntoGrid(Composite parent) {
+	public void createImmediateContent(Composite parent) {
 		
 		//Label l = new Label(parent, SWT.NONE);
 		//CDTUITools.getGridLayoutData(l).horizontalSpan = 2;
@@ -32,7 +35,7 @@ public class PillElement implements IGridElement {
 		if (background != null)
 			control.setBackground(background);
 		CDTUITools.grabAllWidth(control);
-		CDTUITools.getGridLayoutData(control).horizontalSpan = IGridElement.DEFAULT_WIDTH;
+		CDTUITools.getGridLayoutData(control).horizontalSpan = GridElement.DEFAULT_WIDTH;
 		
 			
 		
