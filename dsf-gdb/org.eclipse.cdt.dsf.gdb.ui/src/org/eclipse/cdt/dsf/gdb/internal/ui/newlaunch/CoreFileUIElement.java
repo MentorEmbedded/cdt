@@ -11,31 +11,21 @@
 
 package org.eclipse.cdt.dsf.gdb.internal.ui.newlaunch;
 
-import org.eclipse.cdt.debug.ui.dialogs.GridUtils;
+import java.util.Arrays;
+import java.util.List;
+
 import org.eclipse.cdt.debug.ui.dialogs.PillsControl;
-import org.eclipse.cdt.debug.ui.launch.AbstractUIElement;
-import org.eclipse.cdt.dsf.gdb.internal.ui.GdbUIPlugin;
-import org.eclipse.cdt.dsf.gdb.internal.ui.IGdbUIConstants;
 import org.eclipse.cdt.dsf.gdb.launching.LaunchMessages;
-import org.eclipse.cdt.dsf.gdb.newlaunch.CoreExecutableElement;
 import org.eclipse.cdt.dsf.gdb.newlaunch.CoreFileElement;
 import org.eclipse.cdt.dsf.gdb.newlaunch.CoreFileElement.CoreFileType;
-import org.eclipse.jface.resource.JFaceResources;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Button;
+import org.eclipse.cdt.ui.grid.GridElement;
+import org.eclipse.cdt.ui.grid.PillSelectionViewElement;
+import org.eclipse.cdt.ui.grid.SelectionPresentationModel;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-public class CoreFileUIElement extends AbstractUIElement {
+public class CoreFileUIElement extends GridElement {
 
 	private static String[] fgTypes = new String[CoreFileType.values().length]; 
 
@@ -54,26 +44,30 @@ public class CoreFileUIElement extends AbstractUIElement {
 	private Label fCoreLabel;
 	private Text fCoreText;
 	
-	public CoreFileUIElement(CoreFileElement launchElement, boolean showDetails) {
-		// always in "show details" mode
-		super(launchElement, true);
-	}
-
-	@Override
-	public CoreFileElement getLaunchElement() {
-		return (CoreFileElement)super.getLaunchElement();
-	}
-
-	@Override
-	public void disposeContent() {
-		super.disposeContent();
-		fCoreTypeSelector = null;
-		fCoreLabel = null;
-		fCoreText = null;
-	}
-
-	@Override
-	protected void doCreateDetailsContent(final Composite parent) {
+	public CoreFileUIElement(final CoreFileElement launchElement, boolean showDetails) {
+		
+		SelectionPresentationModel coreType;
+		coreType = new SelectionPresentationModel(LaunchMessages.getString("CMainTab.Post_mortem_file_type")) { //$NON-NLS-1$
+			
+			@Override
+			public List<String> getPossibleValues() { return Arrays.asList(fgTypes); }
+			
+			@Override
+			protected String doGetValue() {
+				return fgTypes[launchElement.getCoreFileType().ordinal()];
+			}
+			
+			@Override
+			protected void doSetValue(String value) {
+				int index = Arrays.asList(fgTypes).indexOf(value);
+				CoreFileType t = CoreFileType.values()[index];
+				launchElement.setType(t);
+			}
+		};
+		
+		addChild(new PillSelectionViewElement(coreType));
+		
+		/*
 		Composite coreComp = new Composite(parent, SWT.NONE);
 		GridLayout coreLayout = new GridLayout(2, false);
 		coreLayout.marginHeight = 0;
@@ -92,7 +86,17 @@ public class CoreFileUIElement extends AbstractUIElement {
 		fCoreTypeSelector.setBackground(coreComp.getBackground());		
 		fCoreTypeSelector.setAlignment(SWT.LEFT);
 		fCoreTypeSelector.setItems(fgTypes);
+		
+		fCoreTypeSelector.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				getLaunchElement().setType(CoreFileType.values()[fCoreTypeSelector.getSelection()]);
+				updateCoreFileLabel();
+			}
+		});
+		fCoreTypeSelector.setSelection(0); */
 
+		/*
 		fCoreLabel = new Label(parent, SWT.NONE);
 		fCoreLabel.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		fCoreLabel.setFont(JFaceResources.getFontRegistry().getBold(JFaceResources.DIALOG_FONT));
@@ -127,17 +131,15 @@ public class CoreFileUIElement extends AbstractUIElement {
 				}
 			}
 		});
+		*/
 		
-		fCoreTypeSelector.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				getLaunchElement().setType(CoreFileType.values()[fCoreTypeSelector.getSelection()]);
-				updateCoreFileLabel();
-			}
-		});
-		fCoreTypeSelector.setSelection(0);
+	}
+	
+	@Override
+	protected void createImmediateContent(Composite parent) {
 	}
 
+	/*
 	@Override
 	protected void initializeDetailsContent() {
 		super.initializeDetailsContent();
@@ -159,8 +161,9 @@ public class CoreFileUIElement extends AbstractUIElement {
 			return "Trace File";
 		}
 		return super.getLabel();
-	}
+	}*/
 
+	/*
 	protected void updateCoreFileLabel() {
 		CoreFileType type = CoreFileType.values()[fCoreTypeSelector.getSelection()];
 		if (type.equals(CoreFileType.CORE_FILE)) {
@@ -180,8 +183,9 @@ public class CoreFileUIElement extends AbstractUIElement {
 		return fileDialog.open();
 	}
 
+	
 	private String getProgramName() {
 		CoreExecutableElement exec = getLaunchElement().findAncestor(CoreExecutableElement.class);
 		return (exec != null) ? exec.getFullProgramPath() : ""; //$NON-NLS-1$
-	}
+	}*/
 }

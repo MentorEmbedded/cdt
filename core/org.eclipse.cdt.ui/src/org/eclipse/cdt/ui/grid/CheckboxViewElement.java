@@ -12,10 +12,15 @@ import org.eclipse.cdt.ui.grid.IPresentationModel.Listener;
 /**
  * @since 5.7
  */
-public class CheckboxViewElement extends GridElement {
+public class CheckboxViewElement extends ViewElement {
 
 	public CheckboxViewElement(IBooleanPresentationModel model) {
-		this.model = model;
+		super(model);
+	}
+	
+	@Override
+	public IBooleanPresentationModel getModel() {
+		return (IBooleanPresentationModel)super.getModel();
 	}
 	
 	public CheckboxViewElement labelInContentArea()
@@ -27,15 +32,15 @@ public class CheckboxViewElement extends GridElement {
 	@Override
 	public void createImmediateContent(Composite parent) {
 		
-		Label l = new Label(parent, SWT.NONE);
+		label = new Label(parent, SWT.NONE);
 		if (!labelInContentArea)
-			l.setText(model.getName());
+			label.setText(getModel().getName());
 		
 		new Label(parent, SWT.NONE);
 		
 		checkbox = new Button(parent, SWT.CHECK);
 		if (labelInContentArea)
-			checkbox.setText(model.getName());
+			checkbox.setText(getModel().getName());
 		checkbox.addSelectionListener(new SelectionAdapter() {
 			
 			@Override
@@ -43,7 +48,7 @@ public class CheckboxViewElement extends GridElement {
 				if (!blockSignals) { 
 					try {
 						blockSignals = true;
-						model.setValue(checkbox.getSelection());
+						getModel().setValue(checkbox.getSelection());
 					} finally {
 						blockSignals = false;
 					}
@@ -51,13 +56,13 @@ public class CheckboxViewElement extends GridElement {
 			}
 		});
 		
-		model.addAndCallListener(new Listener() {
+		getModel().addAndCallListener(new Listener() {
 			@Override
 			public void changed(int what, Object object) {
-				if (!blockSignals && (what | IPresentationModel.CHANGED) != 0) {
+				if (!blockSignals && (what | IPresentationModel.VALUE_CHANGED) != 0) {
 					try {
 						blockSignals = true;
-						checkbox.setSelection(model.getValue());	
+						checkbox.setSelection(getModel().getValue());	
 					} finally {
 						blockSignals = false;
 					}
@@ -70,13 +75,22 @@ public class CheckboxViewElement extends GridElement {
 		
 		createButton(parent);
 	}
+	
+	@Override
+	public Label indent() {
+		Label result = new Label(label.getParent(), SWT.NONE);
+		result.moveAbove(label);
+		label.dispose();
+		checkbox.setText(getModel().getName());
+		return result;
+	}
 
 	protected void createButton(Composite parent) {
 		new Label(parent, SWT.NONE);
 	}
 	
-	private IBooleanPresentationModel model;
 	private boolean blockSignals;
 	protected Button checkbox;
 	protected boolean labelInContentArea;
+	private Label label;
 }

@@ -11,9 +11,14 @@
 package org.eclipse.cdt.managedbuilder.language.settings.providers;
 
 
+import java.util.List;
+
 import org.eclipse.cdt.core.errorparsers.RegexErrorPattern;
 import org.eclipse.cdt.core.language.settings.providers.ILanguageSettingsEditableProvider;
+import org.eclipse.cdt.core.settings.model.ICConfigurationDescription;
+import org.eclipse.cdt.core.settings.model.ICLanguageSettingEntry;
 import org.eclipse.cdt.core.settings.model.ICSettingEntry;
+import org.eclipse.core.resources.IResource;
 
 /**
  * Build command parser capable to parse gcc command in build output and generate
@@ -53,6 +58,13 @@ public class GCCBuildCommandParser extends AbstractBuildCommandParser implements
 	@Override
 	protected AbstractOptionParser[] getOptionParsers() {
 		return optionParsers;
+	}
+	
+	@Override
+	public List<ICLanguageSettingEntry> getSettingEntries(ICConfigurationDescription cfgDescription,
+			IResource rc, String languageId) {
+		// TODO Auto-generated method stub
+		return super.getSettingEntries(cfgDescription, rc, languageId);
 	}
 
 	@Override

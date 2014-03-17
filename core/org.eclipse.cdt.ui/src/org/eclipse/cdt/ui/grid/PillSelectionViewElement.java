@@ -13,44 +13,35 @@ import org.eclipse.cdt.ui.grid.IPresentationModel.Listener;
 /**
  * @since 5.7
  */
-public class PillSelectionViewElement extends GridElement {
+public class PillSelectionViewElement extends ViewElement {
 
 	public PillSelectionViewElement(ISelectionPresentationModel model) {
-		this.model = model;
+		super(model);
+	}
+	
+	@Override
+	public ISelectionPresentationModel getModel() {
+		return (ISelectionPresentationModel) super.getModel();
 	}
 	
 	@Override
 	public void createImmediateContent(Composite parent) {
 		
 		Label l = new Label(parent, SWT.NONE);
-		l.setText(model.getName());
+		l.setText(getModel().getName());
 		
 		Label spacer = new Label(parent, SWT.NONE);
 		
 		final PillsControl pills = new PillsControl(parent, SWT.NONE);
 		pills.setBackground(parent.getDisplay().getSystemColor(SWT.COLOR_WIDGET_BACKGROUND));
-		String[] items = model.getPossibleValues().toArray(new String[0]);
+		String[] items = getModel().getPossibleValues().toArray(new String[0]);
 		pills.setItems(items);
 				
 		pills.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				if (!blockSignals)
-					model.setValue(model.getPossibleValues().get(e.detail));
-			}
-		});
-		
-		model.addAndCallListener(new Listener() {
-			@Override
-			public void changed(int what, Object object) {
-				if ((what | IPresentationModel.CHANGED)!= 0) {
-					try {
-						blockSignals = true;
-						pills.setSelection(model.getPossibleValues().indexOf(model.getValue()));
-					} finally {
-						blockSignals = false;
-					}
-				}
+					getModel().setValue(getModel().getPossibleValues().get(e.detail));
 			}
 		});
 		
@@ -58,8 +49,24 @@ public class PillSelectionViewElement extends GridElement {
 		CDTUITools.grabAllWidth(pills);
 		
 		Label spacer2 = new Label(parent, SWT.NONE);
+		
+		getModel().addAndCallListener(new Listener() {
+			@Override
+			public void changed(int what, Object object) {
+				if ((what & IPresentationModel.VALUE_CHANGED)!= 0) {
+					try {
+						blockSignals = true;
+						pills.setSelection(getModel().getPossibleValues().indexOf(getModel().getValue()));
+					} finally {
+						blockSignals = false;
+					}
+				}
+				
+				if ((what & IPresentationModel.VISIBILITY_CHANGED) != 0) 
+					setVisible(getModel().isVisible());
+			}
+		});		
 	}
 	
-	private ISelectionPresentationModel model;
 	private boolean blockSignals; 
 }

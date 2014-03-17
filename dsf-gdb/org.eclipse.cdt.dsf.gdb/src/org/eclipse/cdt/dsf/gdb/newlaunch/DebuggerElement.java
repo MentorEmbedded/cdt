@@ -40,7 +40,6 @@ public class DebuggerElement extends AbstractLaunchElement {
 	protected void doCreateChildren(Map<String, Object> attributes) {
 		addChildren(new ILaunchElement[] {
 			new ConnectionElement(this),
-			new StopModeElement(this),
 			new DebuggerSettingsElement(this),
 			new SharedLibrariesElement(this)
 		});

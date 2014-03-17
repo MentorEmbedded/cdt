@@ -29,6 +29,7 @@ import org.eclipse.cdt.debug.ui.dialogs.GridUtils;
 import org.eclipse.cdt.dsf.gdb.internal.ui.launching.LaunchUIMessages;
 import org.eclipse.cdt.dsf.gdb.newlaunch.SharedLibrariesElement;
 import org.eclipse.cdt.ui.CDTUITools;
+import org.eclipse.cdt.ui.grid.BasicGroupGridElement;
 import org.eclipse.cdt.ui.grid.BooleanPresentationModel;
 import org.eclipse.cdt.ui.grid.CheckboxViewElement;
 import org.eclipse.cdt.ui.grid.CompositePresentationModel;
@@ -212,15 +213,17 @@ public class SharedLibrariesUIElement extends ViewElement {
 	private SharedLibrariesElement launchElement;
 	private boolean showDetails;
 
-	private StringPresentationModel link;
+	private StringPresentationModel linkModel;
 	
 	private SharedLibrariesElement getLaunchElement()  { return launchElement; }
 	
 	public SharedLibrariesUIElement(SharedLibrariesElement launchElement, boolean showDetails) {
 		super(new CompositePresentationModel("Shared libraries"));
 		
+		populateChildren();
+		
 		CompositePresentationModel model2 = (CompositePresentationModel)getModel();
-		model2.add(link);
+		model2.add(linkModel);
 		
 		this.launchElement = launchElement;
 		this.showDetails = showDetails;
@@ -256,10 +259,14 @@ public class SharedLibrariesUIElement extends ViewElement {
 			}
 		};
 		fDirList.setDialogFieldListener(fieldListener);
+		
+
 	}
 	
-	@Override
 	protected void populateChildren() {
+		
+		
+		
 		String name = LaunchUIMessages.getString("GDBSolibBlock.0");
 		BooleanPresentationModel model = new BooleanPresentationModel(name) {
 			@Override
@@ -268,19 +275,32 @@ public class SharedLibrariesUIElement extends ViewElement {
 			@Override
 			protected void doSetValue(boolean value) { launchElement.setAutoLoadSymbols(value); }
 		};
-		addChild(new CheckboxViewElement(model));
 		
-		link = new StringPresentationModel("") {
-			protected String doGetValue() { return "Shared libraries"; };
-			
-			@Override
-			public void activate() {
-				notifyListeners(IPresentationModel.ACTIVATED, launchElement);
-			}
-			
-		};
-		addChild(new LinkViewElement(link));
+		final CheckboxViewElement checkbox = new CheckboxViewElement(model);
 		
+				
+		if (showDetails) {
+			addChild(checkbox);
+		} else {
+			linkModel = new StringPresentationModel("") {
+				protected String doGetValue() { return "Shared libraries"; };
+				
+				@Override
+				public void activate() {
+					notifyListeners(IPresentationModel.ACTIVATED, launchElement);
+				}
+				
+			};
+			final LinkViewElement link = new LinkViewElement(linkModel);
+			
+			BasicGroupGridElement group = new BasicGroupGridElement("Shared Libraries") {
+				{
+					addChild(checkbox);
+					addChild(link);
+				}
+			};
+			addChild(group);
+		}
 		
 	}
 

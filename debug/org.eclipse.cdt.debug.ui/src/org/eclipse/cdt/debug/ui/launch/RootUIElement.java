@@ -21,6 +21,8 @@ import org.eclipse.cdt.debug.ui.dialogs.Breadcrumbs;
 import org.eclipse.cdt.debug.ui.dialogs.Breadcrumbs.ILinkListener;
 import org.eclipse.cdt.debug.ui.dialogs.GridUtils;
 import org.eclipse.cdt.ui.grid.GridElement;
+import org.eclipse.cdt.ui.grid.IPresentationModel;
+import org.eclipse.cdt.ui.grid.ViewElement;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
@@ -71,8 +73,6 @@ abstract public class RootUIElement implements ILinkListener, IChangeListener {
 	
 	private ILaunchElement fTopElement;
 	
-	private AbstractUIElement fCurrentUIElement;
-
 	private Map<String, Map<String, String>> fElementIds = new HashMap<String, Map<String,String>>();
 
 	private boolean fInitializing = false;
@@ -129,11 +129,6 @@ abstract public class RootUIElement implements ILinkListener, IChangeListener {
 	public void performApply(Map<String, Object> attributes) {
 		if (isInitializing())
 			return;
-		// VP: I would rather this block did not exist. We should have
-		// up-to-date model at all times.
-		if (getCurrentUIElement() != null) {
-			getCurrentUIElement().save();
-		}
 		if (getTopElement() != null) {
 			getTopElement().performApply(attributes);
 		}
@@ -169,11 +164,6 @@ abstract public class RootUIElement implements ILinkListener, IChangeListener {
 	}
 
 	protected void activateElement(ILaunchElement element) {
-		AbstractUIElement uiElement = getCurrentUIElement();
-		if (uiElement != null) {
-			uiElement.removeLinkListener(this);
-			uiElement.dispose();
-		}
 		
 		if (fCurrentGridElement != null) {
 			fCurrentGridElement.dispose();
@@ -187,19 +177,31 @@ abstract public class RootUIElement implements ILinkListener, IChangeListener {
 	private void doActivateElement(ILaunchElement element) {
 		if (element != null) {
 			fBreadcrumbs.setCurrent(element.getId(), element.getName());
-			AbstractUIElement uiElement = createUIElement(element, true);
-			if (uiElement == null) {
-				IUIElementFactory factory = getUIElementFactory();
-				GridElement gridElement = factory.createUIElement2(element, true);
-				// FIXME: revive;
-				fCurrentGridElement = gridElement;
-				gridElement.fillIntoGrid(getControl());
-			}
-			else
+
+			IUIElementFactory factory = getUIElementFactory();
+			GridElement gridElement = factory.createUIElement2(element, true);
+			// FIXME: revive;
+			fCurrentGridElement = gridElement;
+			gridElement.fillIntoGrid(getControl());
+
+			if (gridElement instanceof ViewElement)
 			{
-				setCurrentUIElement(uiElement);
-				uiElement.createContent(getControl());
-			}
+				IPresentationModel model = ((ViewElement)gridElement).getModel();
+
+				model.addAndCallListener(new IPresentationModel.Listener() {
+
+					@Override
+					public void changed(int what, Object object) {
+						if (what == IPresentationModel.ACTIVATED) {
+							if (object instanceof String)
+								linkActivated(object);
+							else if (object instanceof ILaunchElement) {
+								linkActivated(((ILaunchElement)object).getId());
+							}
+						}
+					}
+				});					
+			}				
 		}
 		else {
 			fBreadcrumbs.setCurrent(null, ""); //$NON-NLS-1$
@@ -230,27 +232,9 @@ abstract public class RootUIElement implements ILinkListener, IChangeListener {
 	protected IUIElementFactory getUIElementFactory() {
 		return fUIElementFactory;
 	}
-	
-	private AbstractUIElement getCurrentUIElement() {
-		return fCurrentUIElement;
-	}
-	
-	private void setCurrentUIElement(AbstractUIElement uiElement) {
-		fCurrentUIElement = uiElement;
-	}
-	
+		
 	private GridElement fCurrentGridElement;
 	
-	private AbstractUIElement createUIElement(ILaunchElement element, boolean showDetails) {
-		IUIElementFactory factory = getUIElementFactory();
-		AbstractUIElement uiElement = factory.createUIElement(element, showDetails);
-		if (uiElement == null)
-			return null;
-		uiElement.createUIChildren(factory);
-		uiElement.addLinkListener(this);
-		return uiElement;
-	}
-
 	@Override
 	public void linkActivated(Object obj) {
 		if (obj instanceof String) {

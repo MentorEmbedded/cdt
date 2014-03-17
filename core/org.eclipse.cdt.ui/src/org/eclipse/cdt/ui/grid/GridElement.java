@@ -1,13 +1,18 @@
 package org.eclipse.cdt.ui.grid;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Label;
+
+import org.eclipse.cdt.ui.CDTUITools;
 
 /**
  * @since 5.7
@@ -18,7 +23,6 @@ public abstract class GridElement {
 	
 	public GridElement()
 	{
-		populateChildren();
 		disposeListener = new DisposeListener() {
 			@Override
 			public void widgetDisposed(DisposeEvent e) {
@@ -38,13 +42,15 @@ public abstract class GridElement {
 		// Create immediate content, and remember all created
 		// controls. Since control can be moved around in the
 		// parent, we can't just store indices.
-		int begin = parent.getChildren().length;
+		begin = parent.getChildren().length;
 		createImmediateContent(parent);
 		int end = parent.getChildren().length;
 		
 		childControls = new ArrayList<Control>(end - begin);
 		for (int i = begin; i < end; ++i)
 			childControls.add(parent.getChildren()[i]);
+		
+		begin = -1;
 		
 		for (final Control c: childControls) {
 			c.addDisposeListener(disposeListener);
@@ -56,7 +62,12 @@ public abstract class GridElement {
 	
 	public List<Control> getChildControls()
 	{
-		return Collections.unmodifiableList(childControls);
+		if (begin == -1)		
+			return Collections.unmodifiableList(childControls);
+		
+		// We're indirectly called from createImmediateContent,
+		// so obtain the list from parent.
+		return Arrays.asList(Arrays.copyOfRange(parent.getChildren(), begin, parent.getChildren().length));		
 	}
 	
 	public List<GridElement> getChildElements()
@@ -64,9 +75,104 @@ public abstract class GridElement {
 		return Collections.unmodifiableList(childElements);
 	}
 	
+	// Get the controls that consitute the first row - either
+	// created by createImmediateContent or by a child element.
+	public List<Control> getFirstRow()
+	{
+		if (!childControls.isEmpty()) {
+			return Collections.unmodifiableList(childControls);
+		} else {
+			for (GridElement child: childElements) {
+				List<Control> maybeThese = child.getFirstRow();
+				if (!maybeThese.isEmpty())
+					return maybeThese;
+			}
+			return Collections.emptyList();
+		}			
+	}
+	
+	public void setVisible(boolean v)
+	{
+		for (Control c: getChildControls()) {
+			c.setVisible(v);
+			CDTUITools.getGridLayoutData(c).exclude = !v;
+		}
+		for (GridElement c: childElements) {
+			c.setVisible(v);
+		}
+		this.parent.layout();
+	}
+	
+	private int getGridWidth()
+	{
+		return DEFAULT_WIDTH;
+	}
+	
+	// Makes the content be indented, by creating empty
+	// label in the column 0, moving previous content of
+	// column 0 to column 2 and reducing span of the column
+	// 3.
+	// Repeats same for child elements.
+	public Label indent()
+	{
+		assert !childControls.isEmpty() || !childElements.isEmpty();
+		
+		Label result = indentChildControls();
+		
+		for (GridElement c: childElements) {
+			Label result2 = c.indent();
+			if (result == null)
+				result = result2;
+		}
+		
+		return result;
+	}
+
+	private Label indentChildControls() {
+		
+		if (childControls.isEmpty())
+			return null;
+		
+		// If setVisible was previously called on this GridElement, we want
+		// any extra labels we add below to have the same visible.
+		// That way, after a grid element is created and maybe was set
+		// to invisible, higher level UI can just request that it be indented.
+		boolean visible = childControls.get(0).isVisible();
+		
+		Label result = null;
+		
+		List<Control> children = getChildControls();
+		for (int labelIndex = 0, contentIndex = 2, buttonsIndex = 3; buttonsIndex < children.size();)
+		{
+			Control label = children.get(labelIndex);
+			Control content = children.get(contentIndex);
+			Control buttons = children.get(buttonsIndex);
+			
+			Label newLabel = new Label(parent, SWT.NONE);
+			newLabel.setVisible(visible);
+			CDTUITools.getGridLayoutData(newLabel).exclude = !visible;
+			childControls.add(newLabel);
+			newLabel.moveAbove(label);
+			label.moveAbove(content);
+			
+			if (labelIndex == 0)
+				result = newLabel;
+			
+			assert CDTUITools.getGridLayoutData(content).horizontalSpan == 2;
+			CDTUITools.getGridLayoutData(content).horizontalSpan = 1;
+			
+			assert CDTUITools.getGridLayoutData(buttons).horizontalSpan == 1;
+			
+			labelIndex += 5;
+			contentIndex = labelIndex + 2;
+			buttonsIndex = contentIndex + 1;
+		}
+		return result;
+	}
+	
 	public void dispose()
 	{
-		for(Control c: childControls) {
+		for(Control c: getChildControls()) {
 			// FIXME: how can this ever happen?
 			if (c.isDisposed())
 				continue;
@@ -83,20 +189,16 @@ public abstract class GridElement {
 	 */
 	protected void addChild(GridElement child)
 	{
+		assert child != null;
 		childElements.add(child);
 	}
 	
-	/** Called by the constructor. Can create child element
-	 *  via addChild.
-	 */
-	protected void populateChildren()
-	{
-	}
-
 	/** Called by fillIntoGrid and must create controls that
 	 * constitute this element.
 	 */
-	protected abstract void createImmediateContent(Composite parent);
+	protected void createImmediateContent(Composite parent)
+	{		
+	}
 	
 	/** Called by fillIntoGrid and creates control for children
 	 *  GridElement instances. There should be normally no need
@@ -119,8 +221,19 @@ public abstract class GridElement {
 		
 	}
 	
+	/** Makes 'c' be part of this GridElement. 
+	 * 
+	 * @param c
+	 */
+	public void addChildControlFromOutside(Control c) {
+		childControls.add(c);
+	}
+	
 	private Composite parent;
 	private List<Control> childControls = new ArrayList<Control>();
 	private List<GridElement> childElements = new ArrayList<GridElement>();
 	private DisposeListener disposeListener;
+	// While createImmediateContent is executing, index of the first control
+	// we'd create in our parent. -1 otherwise.
+	private int begin = -1;
 }

@@ -55,10 +55,19 @@ public class StringViewElement extends GridElement {
 			}
 		});
 		
-		model.addAndCallListener(new Listener() {
+		if (!indentLabel)
+			CDTUITools.getGridLayoutData(text).horizontalSpan = 2;
+		CDTUITools.grabAllWidth(text);
+		
+		createButton(parent);
+					
+		modelListener = new Listener() {
 			@Override
 			public void changed(int what, Object object) {
-				if (!blockSignals && (what | IPresentationModel.CHANGED) != 0) {
+				if (blockSignals)
+					return;
+				
+				if ((what & IPresentationModel.VALUE_CHANGED) != 0) {
 					try {
 						blockSignals = true;
 						text.setText(model.getValue());	
@@ -66,15 +75,20 @@ public class StringViewElement extends GridElement {
 						blockSignals = false;
 					}
 				}
+				
+				if ((what & IPresentationModel.VISIBILITY_CHANGED) != 0) 
+					setVisible(model.isVisible());
 			}
-		});
-		
-		if (!indentLabel)
-			CDTUITools.getGridLayoutData(text).horizontalSpan = 2;
-		CDTUITools.grabAllWidth(text);
-		
-		createButton(parent);
+		};
+		model.addAndCallListener(modelListener);			
 	}
+	
+	
+	@Override
+	public void dispose() {
+		model.removeListener(modelListener);
+		super.dispose();
+	}	
 
 	protected void createButton(Composite parent) {
 		new Label(parent, SWT.NONE);
@@ -84,4 +98,5 @@ public class StringViewElement extends GridElement {
 	private boolean blockSignals;
 	protected Text text; 
 	protected boolean indentLabel;
+	private Listener modelListener;
 }

@@ -130,7 +130,7 @@ public class ConnectionElement extends AbstractLaunchElement {
 		ConnectionType oldType = fType;
 		fType = type;
 		update(new ConnectionTypeChangeEvent(this, getConnectionType(), oldType));
-		elementChanged(CHANGE_DETAIL_CONTENT | CHANGE_DETAIL_STATE);
+		//elementChanged(CHANGE_DETAIL_CONTENT | CHANGE_DETAIL_STATE);
 	}
 
 	@Override

@@ -15,11 +15,13 @@ package org.eclipse.cdt.ui.grid;
  */
 public interface IPresentationModel {
 	
-	public static int CHANGED = 1;
-	public static int CHILD_ADDED = 2;
-	public static int CHILD_REMOVED = 4;
-	public static int CHILD_CHANGED = 8;
-	public static int ACTIVATED = 16;
+	public static int VALUE_CHANGED = 1;
+	public static int VISIBILITY_CHANGED = 2;
+	public static int ENABLENESS_CHANGED = 4;
+	public static int CHILD_ADDED = 8;
+	public static int CHILD_REMOVED = 16;
+	public static int CHILD_CHANGED = 32;
+	public static int ACTIVATED = 64;
 	
 	public interface Listener {
 		// Informs the client that something has changed in the model.
@@ -32,10 +34,17 @@ public interface IPresentationModel {
 	
 	public abstract String getName();
 	
+	public abstract boolean isVisible();
+	
+	public abstract boolean isEnabled();
+	
 	public abstract void addAndCallListener(Listener listener);
 
 	public abstract void removeListener(Listener listener);
 	
 	// FIXME: experimental interface.
 	public abstract void activate();
+	
+	@SuppressWarnings("rawtypes")
+	public abstract Class suggestedViewClass();
 }

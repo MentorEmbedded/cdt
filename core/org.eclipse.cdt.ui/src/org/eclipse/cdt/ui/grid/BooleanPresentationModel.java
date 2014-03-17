@@ -20,7 +20,7 @@ public abstract class BooleanPresentationModel extends PresentationModel impleme
 	@Override
 	public void setValue(boolean value) {
 		doSetValue(value);
-		notifyListeners(PresentationModel.CHANGED, this);
+		notifyListeners(PresentationModel.VALUE_CHANGED, this);
 	}
 	
 	protected abstract void doSetValue(boolean value);

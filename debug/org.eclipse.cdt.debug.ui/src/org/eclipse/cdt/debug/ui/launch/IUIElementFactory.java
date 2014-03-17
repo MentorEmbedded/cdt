@@ -13,13 +13,15 @@ package org.eclipse.cdt.debug.ui.launch;
 
 import org.eclipse.cdt.debug.core.launch.ILaunchElement;
 import org.eclipse.cdt.ui.grid.GridElement;
+import org.eclipse.cdt.ui.grid.IPresentationModel;
 
 /**
  * @since 7.4
  */
 public interface IUIElementFactory {
-	
-	AbstractUIElement createUIElement(ILaunchElement element, boolean showDetails);
 
 	GridElement createUIElement2(ILaunchElement l, boolean b);
+	
+	// FIXME: temporary hack, remove.
+	IPresentationModel createPresentationModel(ILaunchElement element);
 }

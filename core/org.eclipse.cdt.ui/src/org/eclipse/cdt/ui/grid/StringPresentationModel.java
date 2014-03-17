@@ -23,7 +23,7 @@ public class StringPresentationModel extends PresentationModel implements IStrin
 	@Override
 	public void setValue(String value) {
 		doSetValue(value);
-		notifyListeners(PresentationModel.CHANGED, this);
+		notifyListeners(PresentationModel.VALUE_CHANGED, this);
 	}
 	
 	protected void doSetValue(String value) {

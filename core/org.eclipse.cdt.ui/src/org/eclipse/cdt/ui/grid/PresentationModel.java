@@ -13,11 +13,39 @@ public class PresentationModel implements IPresentationModel {
 		
 	private List<Listener> listeners = new ArrayList<Listener>();
 	private String name;
+	private boolean visible = true;
+	private boolean enabled = true;
+	private Class klass = null;
 
 	@Override
 	public String getName()
 	{
 		return name;
+	}
+	
+	@Override
+	public boolean isVisible() {
+		return visible;
+	}
+	
+	public void setVisible(boolean v)
+	{
+		if (v != visible) {
+			visible = v;
+			notifyListeners(VISIBILITY_CHANGED, this);
+		}
+	}
+	
+	@Override
+	public boolean isEnabled() {
+		return enabled;
+	}
+	
+	public void setEnabled(boolean e) {
+		if (e != enabled) {
+			enabled = e;
+			notifyListeners(ENABLENESS_CHANGED, this);
+		}
 	}
 	
 	/* (non-Javadoc)
@@ -27,7 +55,8 @@ public class PresentationModel implements IPresentationModel {
 	public void addAndCallListener(Listener listener)
 	{
 		this.listeners.add(listener);
-		listener.changed(IPresentationModel.CHANGED, this);
+		// FIXME: just OR every flag.	
+		listener.changed(IPresentationModel.VALUE_CHANGED | IPresentationModel.VISIBILITY_CHANGED, this);
 	}
 	
 	/* (non-Javadoc)
@@ -57,5 +86,14 @@ public class PresentationModel implements IPresentationModel {
 
 	public PresentationModel(String name) {
 		this.name = name;
+	}
+	
+	@Override
+	public Class suggestedViewClass() {
+		return klass;
+	}
+	
+	public void setSuggestedViewClass(Class klass) {
+		this.klass = klass;
 	}
 }

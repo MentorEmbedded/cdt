@@ -11,19 +11,18 @@
 
 package org.eclipse.cdt.dsf.gdb.internal.ui.newlaunch;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 
 import org.eclipse.cdt.debug.core.launch.ILaunchElement;
-import org.eclipse.cdt.debug.ui.dialogs.PillsControl;
-import org.eclipse.cdt.debug.ui.launch.AbstractUIElement;
 import org.eclipse.cdt.debug.ui.launch.IUIElementFactory;
 import org.eclipse.cdt.dsf.gdb.newlaunch.DebuggerElement;
+import org.eclipse.cdt.dsf.gdb.newlaunch.DebuggerSettingsElement;
 import org.eclipse.cdt.dsf.gdb.newlaunch.OverviewElement;
-import org.eclipse.cdt.dsf.gdb.newlaunch.StopModeElement;
 import org.eclipse.cdt.dsf.gdb.service.SessionType;
 import org.eclipse.cdt.ui.grid.BooleanPresentationModel;
+import org.eclipse.cdt.ui.grid.BooleanReflectionPresentationModel;
 import org.eclipse.cdt.ui.grid.CheckboxViewElement;
+import org.eclipse.cdt.ui.grid.CompositePresentationModel;
 import org.eclipse.cdt.ui.grid.GridElement;
 import org.eclipse.cdt.ui.grid.IPresentationModel;
 import org.eclipse.cdt.ui.grid.LinkViewElement;
@@ -31,12 +30,13 @@ import org.eclipse.cdt.ui.grid.PillSelectionViewElement;
 import org.eclipse.cdt.ui.grid.SelectionPresentationModel;
 import org.eclipse.cdt.ui.grid.StringPresentationModel;
 import org.eclipse.cdt.ui.grid.StringViewElement;
+import org.eclipse.cdt.ui.grid.ViewElement;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 
-public class OverviewUIElement extends AbstractUIElement {
+public class OverviewUIElement extends ViewElement {
 
 	private static String[] fgTypes = new String[SessionType.values().length]; 
 
@@ -54,44 +54,20 @@ public class OverviewUIElement extends AbstractUIElement {
 		}
 	}
 
-	private PillsControl fTypeSelector;
-	private Composite bar;
-
-	public OverviewUIElement(OverviewElement launchElement) {
-		super(launchElement, true);
-	}
-
-	@Override
-	public OverviewElement getLaunchElement() {
-		return (OverviewElement)super.getLaunchElement();
-	}
-	
+	private OverviewElement launchElement;
 	
 	@Override
-	public void createUIChildren(IUIElementFactory factory) {
-		
-		DebuggerElement debugger = getLaunchElement().findChild(DebuggerElement.class);
-		
-		fChildren = new ArrayList<AbstractUIElement>(getLaunchElement().getChildren().length);
-		for (ILaunchElement child : getLaunchElement().getChildren()) {
-			if (!child.isEnabled())
-				continue;
-			if (child == debugger)
-				continue;
-			AbstractUIElement uiChild = factory.createUIElement(child, false);
-			fChildren.add(uiChild);
-		}
-		// TODO Auto-generated method stub
-		//super.createUIChildren(factory);
+	public CompositePresentationModel getModel() {
+		return (CompositePresentationModel)super.getModel();
 	}
-	
-	@Override
-	protected void createDetailsContent(Composite parent) {
-		// TODO Auto-generated method stub
 		
-		//doCreateDetailsContent(parent);
+	public OverviewUIElement(OverviewElement launchElement, UIElementFactory factory) {
+		super(new CompositePresentationModel("Overview"));
+		this.launchElement = launchElement;
+		
+			
 		final DebuggerElement debugger = getLaunchElement().findChild(DebuggerElement.class);
-		final StopModeElement stopMode = debugger.findChild(StopModeElement.class);
+		final DebuggerSettingsElement debuggerSettings = debugger.findChild(DebuggerSettingsElement.class);
 		
 		SelectionPresentationModel types = new SelectionPresentationModel("Debug", Arrays.asList(fgTypes)) {
 			
@@ -113,6 +89,10 @@ public class OverviewUIElement extends AbstractUIElement {
 		};
 		final PillSelectionViewElement typeSelector = new PillSelectionViewElement(types);
 		
+		BooleanPresentationModel stopModeModel = 
+				new BooleanReflectionPresentationModel("Non Stop", debuggerSettings, "isNonStop", "setNonStop");
+		
+		/*
 		BooleanPresentationModel stopModeModel = new BooleanPresentationModel("Non Stop") {
 			
 			@Override
@@ -124,7 +104,7 @@ public class OverviewUIElement extends AbstractUIElement {
 			protected boolean doGetValue() {
 				return stopMode.isNonStop();
 			}
-		};
+		};*/
 		
 		final CheckboxViewElement stopModeView = new CheckboxViewElement(stopModeModel);
 		stopModeView.labelInContentArea();
@@ -144,19 +124,17 @@ public class OverviewUIElement extends AbstractUIElement {
 			protected String doGetValue() {
 				return "Advanced details";
 			}
-		};
-		summaryModel.addAndCallListener(new IPresentationModel.Listener() {
+			
 			@Override
-			public void changed(int what, Object object) {
-				if (what == IPresentationModel.ACTIVATED)
-					linkActivated(debugger);
+			public void activate() {
+				notifyListeners(IPresentationModel.ACTIVATED, debugger.getId());
 			}
-		});
+		};
+		getModel().add(summaryModel);
 		final LinkViewElement summary = new LinkViewElement(summaryModel);
 				
 		GridElement boldFirstLabel = new GridElement() {
-			@Override
-			protected void populateChildren() {
+			{
 				addChild(typeSelector);
 				addChild(connectionView);
 				addChild(stopModeView);
@@ -182,90 +160,32 @@ public class OverviewUIElement extends AbstractUIElement {
 			}
 		};
 		
-		boldFirstLabel.fillIntoGrid(parent);
+		addChild(boldFirstLabel);
 		
-		/*
-		//DebuggerUIElement debugger = findChild(DebuggerUIElement.class);
+		createUIChildren(factory);
+		
+	}
+	
+	public OverviewElement getLaunchElement() {
+		return launchElement;
+	}
+		
+	public void createUIChildren(IUIElementFactory factory) {
+		
 		DebuggerElement debugger = getLaunchElement().findChild(DebuggerElement.class);
 		
-		// At this point, we need combine ui created by these children together.
-		// One option is to make createContent return GridElement.
-		// Another option is to make 
-	
-		for (AbstractUIElement child : getFiteredChildren()) {
-			if (child != debugger)
-				child.createContent(parent);
-		}*/
-		
-		createChildrenContent(parent);
-		initializeDetailsContent();
-		
-		//super.createDetailsContent(parent);
-		
-		
-		int num_rows = 2;
-		
-		//CDTUITools.getGridLayoutData(bar).verticalSpan = 1 + num_rows;
-	}
-	
-	protected void createChildrenContent(Composite parent) {
-		for (AbstractUIElement child : getFiteredChildren()) {
-			child.createContent(parent);
-		}
-	}
-
-	@Override
-	protected void doCreateDetailsContent(Composite parent) {
-		
-		/*
-		
-		Label label = new Label(parent, SWT.NONE);
-		label.setFont(JFaceResources.getFontRegistry().getBold(JFaceResources.DIALOG_FONT));
-		label.setText("Debug: ");
-		
-		bar = GridUtils.createBar(parent, 1);
-
-		fTypeSelector = new PillsControl(parent, SWT.NONE);
-		fTypeSelector.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-		fTypeSelector.setBackground(parent.getBackground());		
-		fTypeSelector.setAlignment(SWT.LEFT);
-		fTypeSelector.setItems(fgTypes);
-		fTypeSelector.setSelection(0);
-		fTypeSelector.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				SessionType type = SessionType.values()[fTypeSelector.getSelection()];
-				if (getLaunchElement().getSessionType() == type) {
-					return;
-				}
-				sessionTypeChanged();
+		for (ILaunchElement child : getLaunchElement().getChildren()) {
+			if (child == debugger)
+				continue;
+			GridElement uiChild = factory.createUIElement2(child, false);
+			addChild(uiChild);
+			if (uiChild instanceof ViewElement) {
+				getModel().add(((ViewElement)uiChild).getModel());
 			}
-		});
-		
-		new Label(parent, SWT.NONE); */
-	}
-
-	private void sessionTypeChanged() {
-		save();
-	}
-
-	@Override
-	public void save() {
-		if (fTypeSelector != null) {
-			getLaunchElement().setSessionType(SessionType.values()[fTypeSelector.getSelection()]);
 		}
 	}
 
 	@Override
-	protected void initializeDetailsContent() {
-		if (fTypeSelector != null) {
-			fTypeSelector.setSelection(getLaunchElement().getSessionType().ordinal());
-		}
-	}
-
-	@Override
-	public void disposeContent() {
-		super.disposeContent();
-		fTypeSelector = null;
+	protected void createImmediateContent(Composite parent) {	
 	}
 }
