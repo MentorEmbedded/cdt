@@ -18,22 +18,22 @@ import java.util.List;
 import org.eclipse.cdt.core.model.ICProject;
 import org.eclipse.cdt.core.settings.model.ICConfigurationDescription;
 import org.eclipse.cdt.core.settings.model.ICProjectDescription;
-import org.eclipse.cdt.debug.ui.launch.AbstractUIElement;
 import org.eclipse.cdt.dsf.gdb.newlaunch.BuildSettingsElement;
 import org.eclipse.cdt.dsf.gdb.newlaunch.BuildSettingsElement.BuildBeforeLaunch;
 import org.eclipse.cdt.dsf.gdb.newlaunch.ExecutableElement;
 import org.eclipse.cdt.launch.LaunchUtils;
 import org.eclipse.cdt.ui.grid.GridElement;
+import org.eclipse.cdt.ui.grid.LinkViewElement;
 import org.eclipse.cdt.ui.grid.PillSelectionViewElement;
 import org.eclipse.cdt.ui.grid.SelectionPresentationModel;
+import org.eclipse.cdt.ui.grid.StringPresentationModel;
 import org.eclipse.cdt.ui.newui.CDTPropertyManager;
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 
-public class BuildSettingsUIElement extends AbstractUIElement {
+public class BuildSettingsUIElement extends GridElement {
 
 	/* Model for build configuration selection. */
 	private final class ConfigurationModel extends SelectionPresentationModel {
@@ -113,35 +113,73 @@ public class BuildSettingsUIElement extends AbstractUIElement {
 	private Button fDisableBuildButton;
 	private Button fWorkspaceSettingsButton;
 	
+	private BuildSettingsElement launchElement;
+	
 	public BuildSettingsUIElement(BuildSettingsElement launchElement, boolean showDetails) {
-		super(launchElement, showDetails);
+		this.launchElement = launchElement;
+		
+		if (showDetails) {
+			doCreateDetailsContent();
+		} else {
+			doCreateSummaryContent();
+		}		
 	}
 
-	@Override
 	public BuildSettingsElement getLaunchElement() {
-		return (BuildSettingsElement)super.getLaunchElement();
+		return launchElement;
 	}
 
-	@Override
-	public void disposeContent() {
-		super.disposeContent();
-		if (fBuildGroup != null) {
-			fBuildGroup.dispose();
-			fBuildGroup = null;
-		}
-		fConfigLabel = null;
-		fBuildOptionLabel = null;
+	protected void doCreateSummaryContent() {
+		
+		final StringPresentationModel m = new StringPresentationModel(getLaunchElement().getName()) {
+			@Override
+			protected String doGetValue() {
+				StringBuilder sb = new StringBuilder("Build configuration: ");
+				if (getLaunchElement().isConfigAuto()) {
+					sb.append("using active configuration from project");
+				}
+				else {
+					String progName = getLaunchElement().getProgramName();
+					String projName = getLaunchElement().getProjectName();
+					if (projName != null && !projName.isEmpty() && progName != null && !progName.isEmpty()) {
+						ICProject project = ExecutableElement.getProject(projName);
+						if (project != null) {
+							ICProjectDescription projDes = CDTPropertyManager.getProjectDescription(project.getProject());
+							if (projDes != null) {
+								ICConfigurationDescription selectedConfig = 
+									projDes.getConfigurationById(getLaunchElement().getConfigId());
+								sb.append((selectedConfig != null) ? selectedConfig.getName() : "Use Active");
+							}
+						}
+					}
+				}
+				return sb.toString();
+			}
+		};
+		
+		addChild(new LinkViewElement(m));
+		
+		final StringPresentationModel m2 = new StringPresentationModel(getLaunchElement().getName()) {
+			@Override
+			protected String doGetValue() {
+				StringBuilder sb = new StringBuilder("Auto build: ");
+				BuildBeforeLaunch buildOption = getLaunchElement().getBuildBeforeLaunchOption();
+				if (BuildBeforeLaunch.ENABLED == buildOption) {
+					sb.append("enabled");
+				}
+				else if (BuildBeforeLaunch.DISABLED == buildOption) {
+					sb.append("disabled");
+				}
+				else if (BuildBeforeLaunch.USE_WORKSPACE_SETTING == buildOption) {
+					sb.append("using workspace settings");
+				}
+				return sb.toString();
+			}
+		};
+		addChild(new LinkViewElement(m2));
 	}
 
-	@Override
-	protected int doCreateSummaryContent(Composite parent) {
-		fConfigLabel = new Label(parent, SWT.NONE);
-		fBuildOptionLabel = new Label(parent, SWT.NONE);
-		return 1;
-	}
-
-	@Override
-	protected void doCreateDetailsContent(final Composite parent) {
+	protected void doCreateDetailsContent() {
 		
 		final SelectionPresentationModel buildModel = new SelectionPresentationModel("Build on launch") {
 			
@@ -173,30 +211,16 @@ public class BuildSettingsUIElement extends AbstractUIElement {
 			}					
 		};
 		
+		addChild(new PillSelectionViewElement(buildModel));
+		
 		final SelectionPresentationModel configuration = new ConfigurationModel("Configuration");
-		
-		GridElement top = new GridElement() {
-			
-			@Override
-			protected void populateChildren() {
-				addChild(new PillSelectionViewElement(buildModel));
-				addChild(new PillSelectionViewElement(configuration));
-				// FIXME: Add a link to configure workspace settings
-				// FIXME: add checkbox to use executable.
-			}
-			
-			@Override
-			protected void createImmediateContent(Composite parent) {
-				// TODO Auto-generated method stub
+		addChild(new PillSelectionViewElement(configuration));
 				
-			}
-		};
+		// FIXME: Add a link to configure workspace settings
+		// FIXME: add checkbox to use executable.
 		
-		top.fillIntoGrid(parent);
-		
+
 		/*
-		
-		
 		fBuildGroup = new Group(parent, SWT.NONE);
 		fBuildGroup.setLayout(new GridLayout(2, false));
 		fBuildGroup.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
@@ -286,6 +310,7 @@ public class BuildSettingsUIElement extends AbstractUIElement {
 		}); */
 	}
 
+	/*
 	@Override
 	protected void initializeSummaryContent() {
 		if (fConfigLabel != null) {
@@ -337,10 +362,16 @@ public class BuildSettingsUIElement extends AbstractUIElement {
 	@Override
 	protected boolean hasMultipleRows() {
 		return true;
-	}
+	}*/
 
 	protected ICProject getCProject() {
 		String projName = getLaunchElement().getProjectName();
 		return (projName != null) ? ExecutableElement.getProject(projName) : null;
+	}
+
+	@Override
+	protected void createImmediateContent(Composite parent) {
+		// TODO Auto-generated method stub
+		
 	}
 }

@@ -92,6 +92,7 @@ public class ExecutableElement extends AbstractLaunchElement {
 				new StopOnStartupElement(this),
 				new WorkingDirectoryElement(this),
 				new BuildSettingsElement(this),
+				new EnvironmentElement(this),
 			});
 	}
 

@@ -11,92 +11,56 @@
 
 package org.eclipse.cdt.dsf.gdb.internal.ui.newlaunch;
 
-import org.eclipse.cdt.debug.ui.dialogs.GridUtils;
-import org.eclipse.cdt.debug.ui.launch.AbstractUIElement;
 import org.eclipse.cdt.dsf.gdb.newlaunch.StopOnStartupElement;
+import org.eclipse.cdt.ui.grid.GridElement;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
-public class StopOnStartupUIElement extends AbstractUIElement {
+public class StopOnStartupUIElement extends GridElement {
 
-	private Button fStopButton;
-	private Text fSymbolText;
+	StopOnStartupElement launchElement;
 
 	public StopOnStartupUIElement(StopOnStartupElement launchElement, boolean showDetails) {
-		super(launchElement, true);
+		this.launchElement = launchElement;
 	}
 
 	@Override
-	public void disposeContent() {
-		super.disposeContent();
-		fStopButton = null;
-		fSymbolText = null;
-	}
+	protected void createImmediateContent(Composite parent) {
 
-	@Override
-	public StopOnStartupElement getLaunchElement() {
-		return (StopOnStartupElement)super.getLaunchElement();
-	}
-
-	@Override
-	protected void doCreateDetailsContent(Composite parent) {
-		Composite comp = new Composite(parent, SWT.NONE);
-		GridLayout layout = new GridLayout(2, false);
-		layout.marginHeight = layout.marginWidth = 0;
-		comp.setLayout(layout);
-		comp.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-		GridUtils.fillIntoGrid(comp, parent);
-
-		fStopButton = new Button(comp, SWT.CHECK);
-		fStopButton.setText("Stop on startup at ");
-		fStopButton.addSelectionListener(new SelectionAdapter() {
+		Label l = new Label(parent, SWT.NONE);
+		l.setText("Stop on");
+		
+		Label spacer = new Label(parent, SWT.NONE);
+			
+		final Button stopButton = new Button(parent, SWT.CHECK);
+		stopButton.setText("Function called");
+		stopButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				stopButtonPressed();
+				launchElement.setStop(stopButton.getSelection());
 			}
 		});
+		stopButton.setSelection(launchElement.isStop());
 		
-		fSymbolText = new Text(comp, SWT.BORDER | SWT.SINGLE);
-		fSymbolText.addModifyListener(new ModifyListener() {
+		final Text symbolText = new Text(parent, SWT.BORDER | SWT.SINGLE);
+		GridData gd = new GridData(SWT.LEFT, SWT.CENTER, true, false);
+		symbolText.setLayoutData(gd);
+		symbolText.addModifyListener(new ModifyListener() {
 			@Override
 			public void modifyText(ModifyEvent e) {
-				symbolChanged();
+				launchElement.setStopSymbol(symbolText.getText());
 			}
 		});
+		symbolText.setText(launchElement.getStopSymbol());
 		
-		GridUtils.createHorizontalSpacer(parent, 2);
-	}
-
-	@Override
-	protected void initializeDetailsContent() {
-		fStopButton.setSelection(getLaunchElement().isStop());
-		fSymbolText.setEnabled(getLaunchElement().isStop());
-		fSymbolText.setText(getLaunchElement().getStopSymbol());
-	}
-
-	@Override
-	public void save() {
-		if (fStopButton != null) {
-			getLaunchElement().setStop(fStopButton.getSelection());
-		}
-		if (fSymbolText != null) {
-			getLaunchElement().setStopSymbol(fSymbolText.getText().trim());
-		}
-	}
-
-	private void stopButtonPressed() {
-		save();
-	}
-	
-	private void symbolChanged() {
-		save();
+		new Label(parent, SWT.NONE);
 	}
 }

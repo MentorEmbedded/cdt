@@ -1,5 +1,8 @@
 package org.eclipse.cdt.ui.grid;
 
+/**
+ * @since 5.7
+ */
 public class DefaultViewElementFactory implements IViewElementFactory {
 
 	@Override

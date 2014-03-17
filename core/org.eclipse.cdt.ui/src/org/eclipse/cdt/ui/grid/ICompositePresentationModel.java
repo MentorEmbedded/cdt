@@ -5,8 +5,8 @@ import java.util.List;
 /**
  * @since 5.7
  */
-public interface ICompositePresentationModel extends ISomePresentationModel {
+public interface ICompositePresentationModel extends IPresentationModel {
 	
-	public List<ISomePresentationModel> getChildren(); 
+	public List<IPresentationModel> getChildren(); 
 
 }

@@ -15,7 +15,11 @@ import org.eclipse.cdt.debug.core.launch.ILaunchElement;
 import org.eclipse.cdt.debug.core.launch.IListLaunchElement;
 import org.eclipse.cdt.debug.internal.ui.CDebugImages;
 import org.eclipse.cdt.ui.CDTUITools;
+import org.eclipse.cdt.ui.grid.CompositePresentationModel;
 import org.eclipse.cdt.ui.grid.GridElement;
+import org.eclipse.cdt.ui.grid.IPresentationModel;
+import org.eclipse.cdt.ui.grid.StringPresentationModel;
+import org.eclipse.cdt.ui.grid.ViewElement;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -31,86 +35,63 @@ import org.eclipse.swt.widgets.Link;
 /**
  * @since 7.4
  */
-public abstract class ListUIElement extends AbstractUIElement {
+public abstract class ListUIElement extends ViewElement {
 
 	final static public int SHOW_REMOVE_BUTTON = 0x1;
 	final static public int SHOW_UP_BUTTON = 0x2;
 	final static public int SHOW_DOWN_BUTTON = 0x4;
-
-	private Composite fContent;
-	
-	public ListUIElement(IListLaunchElement launchElement) {
-		super(launchElement, true);
+	private IListLaunchElement launchElement;
+		
+	public IListLaunchElement getLaunchElement() {
+		return launchElement;
 	}
 
-	@Override
-	protected void createDetailsContent(Composite parent) {
+	public ListUIElement(IListLaunchElement listElement) {
+		super(new CompositePresentationModel("Executables"));
+		this.launchElement = listElement;
 		
-		final IListLaunchElement listElement = getLaunchElement();
 		final int length = listElement.getChildren().length;	
 
-		GridElement top = new GridElement() {
-			
-			@Override
-			protected void populateChildren() 
-			{
-				for (int i = 0; i < length; ++i) {
+		for (int i = 0; i < length; ++i) {
 										
-					ILaunchElement child = listElement.getChildren()[i];
-					int showButtons = 0;
-					if (i+1 < length) {
-						showButtons |= SHOW_DOWN_BUTTON;
-					}
-					if (i > 0) {
-						showButtons |= SHOW_UP_BUTTON;
-					}
-					if (child.canRemove() && listElement.getLowerLimit() < length) {
-						showButtons |= SHOW_REMOVE_BUTTON;
-					}
-					addChild(createListElementContent(child, showButtons));
-				}
+			ILaunchElement child = listElement.getChildren()[i];
+			int showButtons = 0;
+			if (i+1 < length) {
+				showButtons |= SHOW_DOWN_BUTTON;
 			}
-			
-			@Override
-			public void createImmediateContent(Composite parent) {
-				// TODO Auto-generated method stub
-		
-				Label title = new Label(parent, SWT.NONE);
-				title.setFont(JFaceResources.getFontRegistry().getBold(JFaceResources.DIALOG_FONT));
-				title.setText(getLaunchElement().getName());
+			if (i > 0) {
+				showButtons |= SHOW_UP_BUTTON;
 			}
-		
-			@Override
-			public void adjustChildren(Composite parent) {
-				getChildElements().get(0).getChildControls().get(0).dispose();
+			if (child.canRemove() && listElement.getLowerLimit() < length) {
+				showButtons |= SHOW_REMOVE_BUTTON;
 			}
-		};
-		
-		top.fillIntoGrid(parent);
-		
-		
-		
-		//GridUtils.createBar(parent, length + 1);
-		
-			
-		//createButtonBar(parent);
-	}
-
-	@Override
-	public IListLaunchElement getLaunchElement() {
-		return (IListLaunchElement)super.getLaunchElement();
-	}
-
-	@Override
-	public void disposeContent() {
-		super.disposeContent();
-		if (fContent != null) {
-			fContent.dispose();
-			fContent = null;
+			addChild(createListElementContent(child, showButtons));
 		}
+	}
+	
+	@Override
+	public void createImmediateContent(Composite parent) {
+		// TODO Auto-generated method stub
+			
+		Label title = new Label(parent, SWT.NONE);
+		title.setFont(JFaceResources.getFontRegistry().getBold(JFaceResources.DIALOG_FONT));
+		title.setText(getModel().getName());
+	}
+		
+	@Override
+	public void adjustChildren(Composite parent) {
+		getChildElements().get(0).getChildControls().get(0).dispose();
 	}
 
 	protected GridElement createListElementContent(final ILaunchElement element, final int flags) {
+		
+		final StringPresentationModel m = new StringPresentationModel(getLinkLabel(element)) {
+			public void activate() {
+				notifyListeners(IPresentationModel.ACTIVATED, element.getId());
+			};
+		};
+		((CompositePresentationModel)getModel()).add(m);
+		
 		
 		return new GridElement() {
 			@Override
@@ -126,7 +107,7 @@ public abstract class ListUIElement extends AbstractUIElement {
 				link.addSelectionListener(new SelectionAdapter() {
 					@Override
 					public void widgetSelected(SelectionEvent e) {
-						linkActivated(element);
+						m.activate();
 					}
 				});
 			

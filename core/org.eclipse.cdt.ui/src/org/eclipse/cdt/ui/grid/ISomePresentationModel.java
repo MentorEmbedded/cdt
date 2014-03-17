@@ -8,6 +8,9 @@ package org.eclipse.cdt.ui.grid;
  *  
  *  FIXME: document how this thing can be obtained from a model. We possibly
  *  want to have a viewmodel factory passed to GridView.
+ *  
+ *  FIXME: probably don't even need it.
+ *  
  * @since 5.7
  */
 public interface ISomePresentationModel {

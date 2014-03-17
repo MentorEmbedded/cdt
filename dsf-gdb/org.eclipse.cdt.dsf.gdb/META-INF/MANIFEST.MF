@@ -41,4 +41,5 @@ Export-Package: org.eclipse.cdt.dsf.gdb,
  org.eclipse.cdt.dsf.mi.service.command.events,
  org.eclipse.cdt.dsf.mi.service.command.output,
  org.eclipse.cdt.dsf.mi.service.command.output.macos
-Import-Package: com.ibm.icu.text
+Import-Package: com.ibm.icu.text,
+ org.eclipse.cdt.ui.grid

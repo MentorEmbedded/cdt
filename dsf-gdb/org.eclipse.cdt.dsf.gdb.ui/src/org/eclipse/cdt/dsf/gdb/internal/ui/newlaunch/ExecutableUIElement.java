@@ -12,7 +12,6 @@
 package org.eclipse.cdt.dsf.gdb.internal.ui.newlaunch;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import org.eclipse.cdt.core.CCorePlugin;
 import org.eclipse.cdt.core.ICDescriptor;
@@ -21,15 +20,25 @@ import org.eclipse.cdt.core.model.CoreModel;
 import org.eclipse.cdt.core.model.IBinary;
 import org.eclipse.cdt.core.model.ICElement;
 import org.eclipse.cdt.core.model.ICProject;
+import org.eclipse.cdt.debug.core.launch.ILaunchElement;
 import org.eclipse.cdt.debug.internal.ui.CDebugImages;
 import org.eclipse.cdt.debug.ui.dialogs.GridUtils;
-import org.eclipse.cdt.debug.ui.launch.AbstractUIElement;
 import org.eclipse.cdt.dsf.gdb.internal.ui.GdbUIPlugin;
 import org.eclipse.cdt.dsf.gdb.internal.ui.IGdbUIConstants;
 import org.eclipse.cdt.dsf.gdb.launching.LaunchMessages;
+import org.eclipse.cdt.dsf.gdb.newlaunch.ArgumentsElement;
+import org.eclipse.cdt.dsf.gdb.newlaunch.BuildSettingsElement;
+import org.eclipse.cdt.dsf.gdb.newlaunch.EnvironmentElement;
 import org.eclipse.cdt.dsf.gdb.newlaunch.ExecutableElement;
+import org.eclipse.cdt.dsf.gdb.newlaunch.RemoteBinaryElement;
+import org.eclipse.cdt.dsf.gdb.newlaunch.StopOnStartupElement;
+import org.eclipse.cdt.dsf.gdb.newlaunch.WorkingDirectoryElement;
 import org.eclipse.cdt.launch.internal.ui.LaunchUIPlugin;
 import org.eclipse.cdt.ui.CElementLabelProvider;
+import org.eclipse.cdt.ui.grid.CompositePresentationModel;
+import org.eclipse.cdt.ui.grid.GridElement;
+import org.eclipse.cdt.ui.grid.IPresentationModel;
+import org.eclipse.cdt.ui.grid.ViewElement;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.ui.DebugUITools;
@@ -59,27 +68,90 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.dialogs.ElementListSelectionDialog;
 import org.eclipse.ui.dialogs.TwoPaneElementSelector;
 
-public class ExecutableUIElement extends AbstractUIElement {
+public class ExecutableUIElement extends ViewElement {
+
+	private ExecutableElement launchElement;
+	
+	public ExecutableElement getLaunchElement() {
+		return launchElement;
+	}
 
 	// Details view widgets
 	private Composite fDetailsContent;
 	private Text fProgText;
 	private Text fProjText;
 	private Button fSearchButton;
-
-	public ExecutableUIElement(ExecutableElement launchElement, boolean showDetails ) {
-		super(launchElement, showDetails);
+	
+	@Override
+	public CompositePresentationModel getModel()
+	{
+		return (CompositePresentationModel)super.getModel();
 	}
 
+	public ExecutableUIElement(ExecutableElement launchElement, boolean showDetails, UIElementFactory uiElementFactory ) {
+		super(new CompositePresentationModel("Executable"));
+	//	super(launchElement, showDetails);
+		this.launchElement = launchElement;
+		if (showDetails) {
+			addChild(createExecFileGroup());
+			addChild(createProjectGroup());
+			
+			for (ILaunchElement child: launchElement.getChildren()) {
+				if (child instanceof RemoteBinaryElement) {
+					addChild(uiElementFactory.createUIElement2(child, false));
+				}
+			}
+			
+			for (ILaunchElement child: launchElement.getChildren()) {
+				if (child instanceof ArgumentsElement) {
+					addChild(uiElementFactory.createUIElement2(child, false));
+				}
+			}
+			
+			for (ILaunchElement child: launchElement.getChildren()) {
+				if (child instanceof StopOnStartupElement) {
+					addChild(uiElementFactory.createUIElement2(child, false));
+				}
+			}
+			
+			for (ILaunchElement child: launchElement.getChildren()) {
+				if (child instanceof WorkingDirectoryElement) {
+					GridElement uiElement = uiElementFactory.createUIElement2(child, false);
+					addChild(uiElement);
+					IPresentationModel m = ((WorkingDirectoryUIElement)uiElement).getTheModel();
+					getModel().add(m);
+				}
+			}
+			
+			for (ILaunchElement child: launchElement.getChildren()) {
+				if (child instanceof BuildSettingsElement) {
+					addChild(uiElementFactory.createUIElement2(child, false));
+				}
+			}			
+			
+			for (ILaunchElement child: launchElement.getChildren()) {
+				if (child instanceof EnvironmentElement) {
+					addChild(uiElementFactory.createUIElement2(child, false));
+				}
+			}				
+		}
+	}
+	
+	@Override
+	protected void createImmediateContent(Composite parent) {
+		// TODO Auto-generated method stub	
+	}
+
+	/*
 	@Override
 	protected void createChildrenContent(Composite parent) {
 		super.createChildrenContent(parent);
 		if (isRemovable()) {
 			createDeleteButton(parent);
 		}
-	}
+	}*/
 
-	@Override
+	
 	protected void doCreateDetailsContent(Composite parent) {
 		Composite comp = new Composite(parent, SWT.NONE);
 		GridLayout layout = new GridLayout(4, false);
@@ -90,16 +162,21 @@ public class ExecutableUIElement extends AbstractUIElement {
 
 		// Not sure what's going on here. Can't we just iterate over children
 		// putting them into grid?
-		createExecFileGroup(comp);
+		
+		//createExecFileGroup(comp);
+		
+		/*
 		createProjectGroup(comp);
 		createRemoteBinaryGroup(comp);
 		createArgumentsGroup(comp);
 		createStopOnStartupGroup(comp);
 		createCoreFileGroup(comp);
+		*/
 
 		GridUtils.createVerticalSpacer(parent, 1);
 	}
 
+	/*
 	@Override
 	public void disposeContent() {
 		if (fDetailsContent != null) {
@@ -110,8 +187,9 @@ public class ExecutableUIElement extends AbstractUIElement {
 		fProgText = null;
 		fProjText = null;
 		fSearchButton = null;
-	}
+	}*/
 
+	/*
 	@Override
 	protected AbstractUIElement[] getFiteredChildren() {
 		AbstractUIElement[] children = getAllChildren();
@@ -125,87 +203,109 @@ public class ExecutableUIElement extends AbstractUIElement {
 			list.add(child);
 		}
 		return list.toArray(new AbstractUIElement[list.size()]);
+	}*/
+
+	protected GridElement createExecFileGroup() {
+		
+		return new GridElement() {
+			@Override
+			protected void createImmediateContent(final Composite parent) {
+				Label progLabel = new Label(parent, SWT.NONE);
+				progLabel.setText("Binary"); //$NON-NLS-1$
+				progLabel.setFont(JFaceResources.getFontRegistry().getBold(JFaceResources.DIALOG_FONT));
+				
+				new Label(parent, SWT.NONE);
+
+				fProgText = new Text(parent, SWT.SINGLE | SWT.BORDER);
+				fProgText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+				fProgText.addModifyListener(new ModifyListener() {
+		            @Override
+					public void modifyText(ModifyEvent evt) {
+		            	getExecutableElement().setProgramName(fProgText.getText().trim());
+					}
+				});
+				fProgText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 2, 1));
+
+				Composite buttonBar = new Composite(parent, SWT.NONE);
+				GridLayout layout = new GridLayout(3, false);
+				layout.marginHeight = layout.marginWidth = 0;
+				buttonBar.setLayout(layout);
+				buttonBar.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+
+				Button browseButton = new Button(buttonBar, SWT.PUSH);
+				browseButton.setImage(GdbUIPlugin.getImage(IGdbUIConstants.IMG_OBJ_BROWSE));
+				browseButton.setToolTipText(LaunchMessages.getString("Launch.common.Browse_2")); //$NON-NLS-1$
+				browseButton.addSelectionListener(new SelectionAdapter() {
+					@Override
+					public void widgetSelected(SelectionEvent evt) {
+						fProgText.setText(handleBrowseButtonSelected(
+							parent.getShell(), 
+							LaunchMessages.getString("CMaintab.Application_Selection"))); //$NON-NLS-1$
+					}
+				});
+				
+				fSearchButton = new Button(buttonBar, SWT.PUSH);
+				fSearchButton.setImage(GdbUIPlugin.getImage(IGdbUIConstants.IMG_OBJ_SEARCH_PROJECT));
+				fSearchButton.setToolTipText(LaunchMessages.getString("CMainTab.Search...")); //$NON-NLS-1$
+				fSearchButton.addSelectionListener(new SelectionAdapter() {
+					@Override
+					public void widgetSelected(SelectionEvent evt) {
+						handleSearchButtonSelected(parent.getShell());
+					}
+				});
+				
+				Button varButton = new Button(buttonBar, SWT.PUSH);
+				varButton.setImage(GdbUIPlugin.getImage(IGdbUIConstants.IMG_OBJ_PATH_VARIABLES));
+				varButton.setToolTipText(LaunchMessages.getString("CMainTab.Variables")); //$NON-NLS-1$
+				varButton.addSelectionListener(new SelectionAdapter() {
+					@Override
+					public void widgetSelected(SelectionEvent e) {
+						handleVariablesButtonSelected(parent.getShell(), fProgText);
+					}
+				});				
+			}
+		};
+		
 	}
 
-	protected void createExecFileGroup(final Composite parent) {
-		Label progLabel = new Label(parent, SWT.NONE);
-		progLabel.setText(LaunchMessages.getString("CMainTab.C/C++_Application")); //$NON-NLS-1$
-		progLabel.setFont(JFaceResources.getFontRegistry().getBold(JFaceResources.DIALOG_FONT));
-		GridUtils.fillIntoGrid(progLabel, parent);
-
-		fProgText = new Text(parent, SWT.SINGLE | SWT.BORDER);
-		fProgText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-		fProgText.addModifyListener(new ModifyListener() {
-            @Override
-			public void modifyText(ModifyEvent evt) {
-            	getExecutableElement().setProgramName(fProgText.getText().trim());
-			}
-		});
-
-		Composite buttonBar = new Composite(parent, SWT.NONE);
-		GridLayout layout = new GridLayout(3, false);
-		layout.marginHeight = layout.marginWidth = 0;
-		buttonBar.setLayout(layout);
-		buttonBar.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 3, 1));
-
-		Button browseButton = new Button(buttonBar, SWT.PUSH);
-		browseButton.setImage(GdbUIPlugin.getImage(IGdbUIConstants.IMG_OBJ_BROWSE));
-		browseButton.setToolTipText(LaunchMessages.getString("Launch.common.Browse_2")); //$NON-NLS-1$
-		browseButton.addSelectionListener(new SelectionAdapter() {
+	protected GridElement createProjectGroup() {
+		return new GridElement() {
 			@Override
-			public void widgetSelected(SelectionEvent evt) {
-				fProgText.setText(handleBrowseButtonSelected(
-					parent.getShell(), 
-					LaunchMessages.getString("CMaintab.Application_Selection"))); //$NON-NLS-1$
+			protected void createImmediateContent(final Composite parent) {
+				
+				// TODO Auto-generated method stub
+				Label projLabel = new Label(parent, SWT.NONE);
+				projLabel.setText(LaunchMessages.getString("CMainTab.&ProjectColon")); //$NON-NLS-1$
+				projLabel.setFont(JFaceResources.getFontRegistry().getBold(JFaceResources.DIALOG_FONT));
+				
+				new Label(parent, SWT.NONE);
+
+				fProjText = new Text(parent, SWT.SINGLE | SWT.BORDER);
+				fProjText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+				fProjText.addModifyListener(new ModifyListener() {
+					@Override
+					public void modifyText(ModifyEvent evt) {
+						getExecutableElement().setProjectName(fProjText.getText().trim());
+					}
+				});
+				fProjText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 2, 1));
+				
+
+				Button browseButton = new Button(parent, SWT.PUSH);
+				browseButton.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1));
+				browseButton.setImage(GdbUIPlugin.getImage(IGdbUIConstants.IMG_OBJ_BROWSE));
+				browseButton.setToolTipText(LaunchMessages.getString("Launch.common.Browse_2")); //$NON-NLS-1$
+				browseButton.addSelectionListener(new SelectionAdapter() {
+					@Override
+					public void widgetSelected(SelectionEvent evt) {
+						handleProjectButtonSelected(parent.getShell());
+					}
+				});
+				
 			}
-		});
+		};
 		
-		fSearchButton = new Button(buttonBar, SWT.PUSH);
-		fSearchButton.setImage(GdbUIPlugin.getImage(IGdbUIConstants.IMG_OBJ_SEARCH_PROJECT));
-		fSearchButton.setToolTipText(LaunchMessages.getString("CMainTab.Search...")); //$NON-NLS-1$
-		fSearchButton.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent evt) {
-				handleSearchButtonSelected(parent.getShell());
-			}
-		});
 		
-		Button varButton = new Button(buttonBar, SWT.PUSH);
-		varButton.setImage(GdbUIPlugin.getImage(IGdbUIConstants.IMG_OBJ_PATH_VARIABLES));
-		varButton.setToolTipText(LaunchMessages.getString("CMainTab.Variables")); //$NON-NLS-1$
-		varButton.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				handleVariablesButtonSelected(parent.getShell(), fProgText);
-			}
-		});
-	}
-
-	protected void createProjectGroup(final Composite parent) {
-		Label projLabel = new Label(parent, SWT.NONE);
-		projLabel.setText(LaunchMessages.getString("CMainTab.&ProjectColon")); //$NON-NLS-1$
-		projLabel.setFont(JFaceResources.getFontRegistry().getBold(JFaceResources.DIALOG_FONT));
-		GridUtils.fillIntoGrid(projLabel, parent);
-
-		fProjText = new Text(parent, SWT.SINGLE | SWT.BORDER);
-		fProjText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-		fProjText.addModifyListener(new ModifyListener() {
-			@Override
-			public void modifyText(ModifyEvent evt) {
-				getExecutableElement().setProjectName(fProjText.getText().trim());
-			}
-		});
-
-		Button browseButton = new Button(parent, SWT.PUSH);
-		browseButton.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 3, 1));
-		browseButton.setImage(GdbUIPlugin.getImage(IGdbUIConstants.IMG_OBJ_BROWSE));
-		browseButton.setToolTipText(LaunchMessages.getString("Launch.common.Browse_2")); //$NON-NLS-1$
-		browseButton.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent evt) {
-				handleProjectButtonSelected(parent.getShell());
-			}
-		});
 	}
 
 	protected String handleBrowseButtonSelected(Shell shell, String title) {
@@ -410,15 +510,6 @@ public class ExecutableUIElement extends AbstractUIElement {
 	protected String getPlatformFilter() {
 		return ((ExecutableElement)getLaunchElement()).getPlatformFilter();
 	}
-
-	@Override
-	protected void initializeDetailsContent() {
-		fProgText.setText(getExecutableElement().getProgramName());
-		String projName = getExecutableElement().getProjectName();
-		if (projName != null) {
-			fProjText.setText(projName);
-		}
-	}
 	
 	private ExecutableElement getExecutableElement() {
 		return (ExecutableElement)getLaunchElement();
@@ -447,6 +538,7 @@ public class ExecutableUIElement extends AbstractUIElement {
 		getLaunchElement().getParent().removeChild(getLaunchElement());
 	}
 	
+	/*
 	protected void createArgumentsGroup(Composite parent) {
 		ArgumentsUIElement element = findChild(ArgumentsUIElement.class);
 		if (element != null) {
@@ -473,5 +565,5 @@ public class ExecutableUIElement extends AbstractUIElement {
 		if (element != null) {
 			element.createContent(parent);
 		}
-	}
+	}*/
 }

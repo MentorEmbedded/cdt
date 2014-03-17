@@ -11,58 +11,22 @@
 
 package org.eclipse.cdt.dsf.gdb.internal.ui.newlaunch;
 
-import org.eclipse.cdt.debug.ui.dialogs.GridUtils;
-import org.eclipse.cdt.debug.ui.launch.AbstractUIElement;
 import org.eclipse.cdt.dsf.gdb.newlaunch.RemoteBinaryElement;
-import org.eclipse.jface.resource.JFaceResources;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Text;
+import org.eclipse.cdt.ui.grid.StringPresentationModel;
+import org.eclipse.cdt.ui.grid.StringViewElement;
 
-public class RemoteBinaryUIElement extends AbstractUIElement {
+public class RemoteBinaryUIElement extends StringViewElement {
 
-	private Text fRemotePath;
-
-	public RemoteBinaryUIElement(RemoteBinaryElement launchElement, boolean showDetails) {
-		super(launchElement, true);
-	}
-
-	@Override
-	public RemoteBinaryElement getLaunchElement() {
-		return (RemoteBinaryElement)super.getLaunchElement();
-	}
-
-	@Override
-	public void disposeContent() {
-		super.disposeContent();
-	}
-
-	@Override
-	protected void doCreateDetailsContent(Composite parent) {
-		Label label = new Label(parent, SWT.NONE);
-		label.setText("Binary on target: ");
-		label.setFont(JFaceResources.getFontRegistry().getBold(JFaceResources.DIALOG_FONT));
-		GridUtils.fillIntoGrid(label, parent);
-		
-		fRemotePath = new Text(parent, SWT.BORDER | SWT.SINGLE);
-		fRemotePath.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
-		fRemotePath.addModifyListener(new ModifyListener() {
-			
+	public RemoteBinaryUIElement(final RemoteBinaryElement launchElement, boolean showDetails) {
+		super(new StringPresentationModel("Binary on target:") {
 			@Override
-			public void modifyText(ModifyEvent e) {
-				getLaunchElement().setRemotePath(fRemotePath.getText().trim());
+			protected void doSetValue(String value) {
+				launchElement.setRemotePath(value);
+			}
+			@Override
+			protected String doGetValue() {
+				return launchElement.getRemotePath();
 			}
 		});
-	}
-
-	@Override
-	protected void initializeDetailsContent() {
-		if (fRemotePath != null) {
-			fRemotePath.setText(getLaunchElement().getRemotePath());
-		}
 	}
 }

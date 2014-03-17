@@ -81,8 +81,8 @@ public class LaunchModel {
 	public boolean isNonStop() {
 		boolean defNonStop = Platform.getPreferencesService().getBoolean(
 				GdbPlugin.PLUGIN_ID, IGdbDebugPreferenceConstants.PREF_DEFAULT_NON_STOP, false, null);
-		StopModeElement stopMode = fRootElement.findChild(StopModeElement.class);
-		return (stopMode != null && stopMode.isEnabled()) ? stopMode.isNonStop() : defNonStop;
+		DebuggerSettingsElement debuggerSettings = fRootElement.findChild(DebuggerSettingsElement.class);
+		return (debuggerSettings != null && debuggerSettings.isEnabled()) ? debuggerSettings.isNonStop() : defNonStop;
 	}
 
 	public boolean isPostMortemTracing() {

@@ -58,7 +58,6 @@ public class OverviewElement extends AbstractLaunchElement {
 			new DebuggerElement(this),
 			new ExecutablesListElement(this),
 			new CoreExecutableElement(this),
-			new EnvironmentElement(this),
 		});
 	}
 

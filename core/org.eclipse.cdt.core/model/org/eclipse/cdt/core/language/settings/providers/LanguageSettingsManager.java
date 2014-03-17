@@ -60,7 +60,11 @@ public class LanguageSettingsManager {
 	 * @since 5.5
 	 */
 	public static List<ICLanguageSettingEntry> getSettingEntriesByKind(ICConfigurationDescription cfgDescription, IResource rc, String languageId, int kind) {
-		return LanguageSettingsProvidersSerializer.getSettingEntriesByKind(cfgDescription, rc, languageId, kind);
+		List<ICLanguageSettingEntry> x = LanguageSettingsProvidersSerializer.getSettingEntriesByKind(cfgDescription, rc, languageId, kind);
+		for (ICLanguageSettingEntry e: x) {
+			System.out.println("getSettingsEntriesByKind " + e.getValue());
+		}
+		return x;
 	}
 
 	/**

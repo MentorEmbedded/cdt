@@ -16,8 +16,11 @@ import java.util.Map;
 import org.eclipse.cdt.debug.core.launch.AbstractLaunchElement;
 import org.eclipse.cdt.debug.core.launch.ILaunchElement;
 import org.eclipse.cdt.dsf.gdb.IGDBLaunchConfigurationConstants;
+import org.eclipse.cdt.dsf.gdb.IGdbDebugPreferenceConstants;
+import org.eclipse.cdt.dsf.gdb.internal.GdbPlugin;
 import org.eclipse.cdt.dsf.gdb.newlaunch.OverviewElement.SessionTypeChangeEvent;
 import org.eclipse.cdt.dsf.gdb.service.SessionType;
+import org.eclipse.core.runtime.Platform;
 
 /**
  * @since 4.3
@@ -31,13 +34,13 @@ public class DebuggerSettingsElement extends AbstractLaunchElement {
 	}
 
 	final private static String ELEMENT_ID = ".advancedSettings"; //$NON-NLS-1$
+	final private static String ATTR_NON_STOP = ".nonStop"; //$NON-NLS-1$
 	final private static String ATTR_REVERSE = ".reverse"; //$NON-NLS-1$
-	final private static String ATTR_UPDATE_THREADLIST_ON_SUSPEND = ".updateThreadListOnSuspend"; //$NON-NLS-1$
 	final private static String ATTR_DEBUG_ON_FORK = ".debugOnFork"; //$NON-NLS-1$
 	final private static String ATTR_TRACEPOINT_MODE = ".tracepointMode"; //$NON-NLS-1$
 
+	private boolean fNonStop = isNonStopDefault();
 	private boolean fReverse = getDefaultReverseValue();
-	private boolean fUpdateThreads = getDefaultUpdateValue();
 	private boolean fDebugOnFork = getDefaultDebugOnForkValue();
 	private TracepointMode fTracepointMode = getDefaultTracepointMode();
 
@@ -53,35 +56,41 @@ public class DebuggerSettingsElement extends AbstractLaunchElement {
 
 	@Override
 	protected void doInitializeFrom(Map<String, Object> attributes) {
+		fNonStop = getAttribute(attributes, getId() + ATTR_NON_STOP, fNonStop);
 		fReverse = getAttribute(attributes, getId() + ATTR_REVERSE, getDefaultReverseValue());
-		fUpdateThreads = getAttribute(attributes, getId() + ATTR_UPDATE_THREADLIST_ON_SUSPEND, getDefaultUpdateValue());
 		fDebugOnFork = getAttribute(attributes, getId() + ATTR_DEBUG_ON_FORK, getDefaultDebugOnForkValue());
 		fTracepointMode = TracepointMode.values()[getAttribute(attributes, getId() + ATTR_TRACEPOINT_MODE, getDefaultTracepointMode().ordinal())];
 	}
 
 	@Override
 	protected void doPerformApply(Map<String, Object> attributes) {
+		attributes.put(getId() + ATTR_NON_STOP, fNonStop);		
 		attributes.put(getId() + ATTR_REVERSE, fReverse);
-		attributes.put(getId() + ATTR_UPDATE_THREADLIST_ON_SUSPEND, fUpdateThreads);
 		attributes.put(getId() + ATTR_DEBUG_ON_FORK, fDebugOnFork);
 		attributes.put(getId() + ATTR_TRACEPOINT_MODE, fTracepointMode.ordinal());
 	}
 
 	@Override
 	protected void doSetDefaults(Map<String, Object> attributes) {
+		fNonStop = isNonStopDefault();
 		fReverse = getDefaultReverseValue();
-		fUpdateThreads = getDefaultUpdateValue();
 		fDebugOnFork = getDefaultDebugOnForkValue();
 		fTracepointMode = getDefaultTracepointMode();
+		attributes.put(getId() + ATTR_NON_STOP, fNonStop);
 		attributes.put(getId() + ATTR_REVERSE, fReverse);
-		attributes.put(getId() + ATTR_UPDATE_THREADLIST_ON_SUSPEND, fUpdateThreads);
 		attributes.put(getId() + ATTR_DEBUG_ON_FORK, fDebugOnFork);
 		attributes.put(getId() + ATTR_TRACEPOINT_MODE, fTracepointMode.ordinal());
+		
 	}
 
 	@Override
 	protected boolean isContentValid() {
 		return true;
+	}
+	
+	public static boolean isNonStopDefault() {
+		return Platform.getPreferencesService().getBoolean(
+			GdbPlugin.PLUGIN_ID, IGdbDebugPreferenceConstants.PREF_DEFAULT_NON_STOP, false, null);
 	}
 	
 	public static boolean getDefaultReverseValue() {
@@ -107,6 +116,20 @@ public class DebuggerSettingsElement extends AbstractLaunchElement {
 		}
 		return TracepointMode.AUTOMATIC;
 	}
+	
+	
+	// FIXME: non-stop is not sensible for core sessions. Restore this check:
+	// setEnabled(!SessionType.CORE.equals(event.getNewType()));
+	public boolean isNonStop() {
+		return fNonStop;
+	}
+
+	public void setNonStop(boolean nonStop) {
+		if (fNonStop == nonStop)
+			return;
+		fNonStop = nonStop;
+		elementChanged(CHANGE_DETAIL_STATE);
+	}	
 
 	public boolean isReverseEnabled() {
 		return fReverse;
@@ -117,18 +140,6 @@ public class DebuggerSettingsElement extends AbstractLaunchElement {
 			return;
 		}
 		fReverse = reverse;
-		elementChanged(CHANGE_DETAIL_STATE);
-	}
-
-	public boolean updateThreadListOnSuspend() {
-		return fUpdateThreads;
-	}
-
-	public void setUpdateThreadListOnSuspend(boolean update) {
-		if (update == fUpdateThreads) {
-			return;
-		}
-		fUpdateThreads = update;
 		elementChanged(CHANGE_DETAIL_STATE);
 	}
 
@@ -167,4 +178,5 @@ public class DebuggerSettingsElement extends AbstractLaunchElement {
 	private void handleSessionTypeChange(SessionTypeChangeEvent event) {
 		 setEnabled(!SessionType.CORE.equals(event.getNewType()));
 	}
+
 }

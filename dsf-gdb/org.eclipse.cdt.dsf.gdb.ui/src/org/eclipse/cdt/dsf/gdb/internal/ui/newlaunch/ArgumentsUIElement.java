@@ -11,60 +11,26 @@
 
 package org.eclipse.cdt.dsf.gdb.internal.ui.newlaunch;
 
-import org.eclipse.cdt.debug.ui.dialogs.GridUtils;
-import org.eclipse.cdt.debug.ui.launch.AbstractUIElement;
 import org.eclipse.cdt.dsf.gdb.newlaunch.ArgumentsElement;
-import org.eclipse.jface.resource.JFaceResources;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Label;
+import org.eclipse.cdt.ui.grid.StringPresentationModel;
+import org.eclipse.cdt.ui.grid.StringViewElement;
 import org.eclipse.swt.widgets.Text;
 
-public class ArgumentsUIElement extends AbstractUIElement {
+public class ArgumentsUIElement extends StringViewElement {
 
 	private Text fArgsText;
 
-	public ArgumentsUIElement(ArgumentsElement launchElement, boolean showDetails) {
-		// always in "show details" mode
-		super(launchElement, true);
-	}
-
-	@Override
-	public ArgumentsElement getLaunchElement() {
-		return (ArgumentsElement)super.getLaunchElement();
-	}
-
-	@Override
-	public void disposeContent() {
-		super.disposeContent();
-		fArgsText = null;
-	}
-
-	@Override
-	protected void doCreateDetailsContent(Composite parent) {
-		Label label = new Label(parent, SWT.NONE);
-		label.setFont(JFaceResources.getFontRegistry().getBold(JFaceResources.DIALOG_FONT));
-		GridUtils.fillIntoGrid(label, parent);
-		label.setText("Arguments: ");
-		
-		fArgsText = new Text(parent, SWT.BORDER | SWT.SINGLE);
-		fArgsText.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
-		fArgsText.addModifyListener(new ModifyListener() {
+	public ArgumentsUIElement(final ArgumentsElement launchElement, boolean showDetails) {
+		super(new StringPresentationModel("Arguments: ") {
+			@Override
+			protected void doSetValue(String value) {
+				launchElement.setArguments(value);
+			}
 			
 			@Override
-			public void modifyText(ModifyEvent e) {
-				getLaunchElement().setArguments(fArgsText.getText().trim());
+			protected String doGetValue() {
+				return launchElement.getArguments();
 			}
 		});
-	}
-
-	@Override
-	protected void initializeDetailsContent() {
-		if (fArgsText != null) {
-			fArgsText.setText(getLaunchElement().getArguments());
-		}
 	}
 }

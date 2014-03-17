@@ -13,11 +13,15 @@ package org.eclipse.cdt.dsf.gdb.internal.ui.newlaunch;
 
 import java.io.File;
 
-import org.eclipse.cdt.debug.ui.launch.AbstractUIElement;
 import org.eclipse.cdt.dsf.gdb.internal.ui.GdbUIPlugin;
 import org.eclipse.cdt.dsf.gdb.internal.ui.IGdbUIConstants;
 import org.eclipse.cdt.dsf.gdb.internal.ui.launching.LaunchUIMessages;
 import org.eclipse.cdt.dsf.gdb.newlaunch.WorkingDirectoryElement;
+import org.eclipse.cdt.ui.grid.GridElement;
+import org.eclipse.cdt.ui.grid.IPresentationModel;
+import org.eclipse.cdt.ui.grid.IStringPresentationModel;
+import org.eclipse.cdt.ui.grid.LinkViewElement;
+import org.eclipse.cdt.ui.grid.StringPresentationModel;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
@@ -40,10 +44,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.dialogs.ContainerSelectionDialog;
 
-public class WorkingDirectoryUIElement extends AbstractUIElement {
-
-	// Summary widgets
-	private Label fSummaryLabel;
+public class WorkingDirectoryUIElement extends GridElement {
 
 	// Detail widgets
 	private Text fPathText;
@@ -52,24 +53,52 @@ public class WorkingDirectoryUIElement extends AbstractUIElement {
 	private Button fVariablesButton;
 	private Button fUseDefaultButton;
 
-	@Override
-	public void disposeContent() {
-		super.disposeContent();
-		fPathText = null;
-		fWorkspaceButton = null;
-		fBrowseButton = null;
-		fVariablesButton = null;
-		fUseDefaultButton = null;
+	private WorkingDirectoryElement launchElement;
+	public WorkingDirectoryElement getLaunchElement() {
+		return launchElement;
 	}
 
-	@Override
-	protected int doCreateSummaryContent(Composite parent) {
-		fSummaryLabel = new Label(parent, SWT.NONE);
-		return 1;
+	private boolean showDetails;
+	
+	public WorkingDirectoryUIElement(final WorkingDirectoryElement launchElement, boolean showDetails) {
+		this.launchElement = launchElement;
+		this.showDetails = showDetails;
+		
+		if (!showDetails) {
+			theModel = new StringPresentationModel(launchElement.getName()) {
+				@Override
+				protected String doGetValue() {
+					String text = getLaunchElement().getPath();
+					if (getLaunchElement().useDefault()) {
+						text += " (default)";
+					}		
+					return text;
+				}
+				
+				@Override
+				public void activate() {
+					notifyListeners(IPresentationModel.ACTIVATED, launchElement.getId());
+				}
+			};
+		}		
 	}
-
+	
+	private IStringPresentationModel theModel;
+	public IPresentationModel getTheModel()
+	{
+		return theModel;
+	}
+	
 	@Override
-	protected void doCreateDetailsContent(final Composite parent) {
+	protected void createImmediateContent(Composite parent) {
+		if (showDetails) {
+			createDetailContent(parent);
+		} else {
+			LinkViewElement.createImmediateContent(parent, theModel);
+		}
+	}
+	
+	protected void createDetailContent(final Composite parent) {
 		Composite comp = new Composite(parent, SWT.NONE);
 		GridLayout layout = new GridLayout(4, false);
 		layout.marginHeight = 0;
@@ -84,6 +113,7 @@ public class WorkingDirectoryUIElement extends AbstractUIElement {
 		
 		fPathText = new Text(comp, SWT.BORDER | SWT.SINGLE);
 		fPathText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+		fPathText.setText(getLaunchElement().getPath());
 		fPathText.addModifyListener(new ModifyListener() {			
 			@Override
 			public void modifyText(ModifyEvent e) {
@@ -124,41 +154,13 @@ public class WorkingDirectoryUIElement extends AbstractUIElement {
 		fUseDefaultButton = new Button(comp, SWT.CHECK);
 		fUseDefaultButton.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 4, 1));
 		fUseDefaultButton.setText(LaunchUIMessages.getString("WorkingDirectoryBlock.Use_default")); //$NON-NLS-1$
+		fUseDefaultButton.setSelection(getLaunchElement().useDefault());
 		fUseDefaultButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				useDefaultButtonChecked();
 			}
 		});
-	}
-
-	@Override
-	protected void initializeSummaryContent() {
-		String text = getLaunchElement().getPath();
-		if (getLaunchElement().useDefault()) {
-			text += " (default)";
-		}
-		fSummaryLabel.setText(text);
-	}
-
-	@Override
-	protected void initializeDetailsContent() {
-		if (fPathText != null) {
-			fPathText.setText(getLaunchElement().getPath());
-		}
-		if (fUseDefaultButton != null) {
-			fUseDefaultButton.setSelection(getLaunchElement().useDefault());
-		}
-		updateEnablement();
-	}
-
-	public WorkingDirectoryUIElement(WorkingDirectoryElement launchElement, boolean showDetails) {
-		super(launchElement, showDetails);
-	}
-
-	@Override
-	public WorkingDirectoryElement getLaunchElement() {
-		return (WorkingDirectoryElement)super.getLaunchElement();
 	}
 	
 	private void workspaceButtonPressed(Shell shell) {

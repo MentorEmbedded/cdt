@@ -11,17 +11,30 @@
 
 package org.eclipse.cdt.dsf.gdb.internal.ui.newlaunch;
 
-import org.eclipse.cdt.debug.ui.launch.AbstractUIElement;
 import org.eclipse.cdt.dsf.gdb.newlaunch.EnvironmentElement;
+import org.eclipse.cdt.ui.grid.GridElement;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Label;
 
-public class EnvironmentUIElement extends AbstractUIElement {
+public class EnvironmentUIElement extends GridElement {
+
+	private EnvironmentElement launchElement;
+	private boolean showDetails;
 
 	public EnvironmentUIElement(EnvironmentElement launchElement, boolean showDetails) {
-		super(launchElement, showDetails);
+		this.launchElement = launchElement;
+		this.showDetails = showDetails;
 	}
 
 	@Override
-	public EnvironmentElement getLaunchElement() {
-		return (EnvironmentElement)super.getLaunchElement();
+	protected void createImmediateContent(Composite parent) {
+		Label l = new Label(parent, SWT.NONE);
+		l.setText(launchElement.getName());
+		
+		Label padding = new Label(parent, SWT.NONE);
+		padding.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 4, 1));			
 	}
+
 }

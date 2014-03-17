@@ -21,7 +21,11 @@ public class LinkViewElement extends GridElement {
 	}
 
 	@Override
-	public void createImmediateContent(Composite parent) {
+	protected void createImmediateContent(Composite parent) {
+		createImmediateContent(parent, model);
+	}
+	
+	public static void createImmediateContent(Composite parent, final IStringPresentationModel model) {
 		
 		new Label(parent, SWT.NONE);
 		
@@ -51,6 +55,12 @@ public class LinkViewElement extends GridElement {
 		
 		new Label(parent, SWT.NONE);
 	}
+	
+	@Override
+	public Label indent() {
+		// Do nothing at all. Label is already indented.
+		return null;
+	};
 	
 	IStringPresentationModel model;
 }
