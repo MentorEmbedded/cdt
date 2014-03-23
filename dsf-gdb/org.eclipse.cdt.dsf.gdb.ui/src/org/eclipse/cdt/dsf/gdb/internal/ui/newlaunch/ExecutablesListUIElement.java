@@ -75,9 +75,6 @@ public class ExecutablesListUIElement extends ListUIElement {
 		comp.setLayout(layout);
 		comp.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		
-		
-		
-		
 		Button button = createButton(comp, GdbUIPlugin.getImage(IGdbUIConstants.IMG_OBJ_NEW_EXECUTABLE), "Add executable", 1, 1);
 		button.addSelectionListener(new SelectionAdapter() {
 			@Override

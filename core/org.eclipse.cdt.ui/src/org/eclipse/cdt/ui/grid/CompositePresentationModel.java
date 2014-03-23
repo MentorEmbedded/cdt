@@ -1,6 +1,8 @@
 package org.eclipse.cdt.ui.grid;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -8,6 +10,7 @@ import java.util.List;
  */
 public class CompositePresentationModel extends PresentationModel implements ICompositePresentationModel {
 	
+	private Object casls;
 	public CompositePresentationModel()
 	{
 		super("");
@@ -16,6 +19,16 @@ public class CompositePresentationModel extends PresentationModel implements ICo
 	public CompositePresentationModel(String name)
 	{
 		super(name);
+	}
+	
+	public void setClasses(String[] classes)
+	{
+		this.classes = Arrays.asList(classes);
+	}
+	
+	@Override
+	public List<String> getClasses() {
+		return classes;
 	}
 	
 	public void add(IPresentationModel child)
@@ -49,5 +62,6 @@ public class CompositePresentationModel extends PresentationModel implements ICo
 	
 	public String name;
 	public List<IPresentationModel> children = new ArrayList<IPresentationModel>();
-
+	
+	public List<String> classes = Collections.emptyList();
 }

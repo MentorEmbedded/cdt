@@ -23,8 +23,11 @@ import org.eclipse.cdt.debug.ui.dialogs.GridUtils;
 import org.eclipse.cdt.ui.grid.GridElement;
 import org.eclipse.cdt.ui.grid.IPresentationModel;
 import org.eclipse.cdt.ui.grid.ViewElement;
+import org.eclipse.cdt.ui.grid.ViewElementFactory;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -77,8 +80,18 @@ abstract public class RootUIElement implements ILinkListener, IChangeListener {
 
 	private boolean fInitializing = false;
 
+	private ILaunchElement fCurrentLaunchELement;
+
+	private ViewElementFactory viewElementFactory;
+
 	public RootUIElement() {
 		super();
+		viewElementFactory = createViewElementFactory();
+	}
+	
+	protected ViewElementFactory createViewElementFactory()
+	{
+		return new ViewElementFactory();
 	}
 
 	public void dispose() {
@@ -112,7 +125,20 @@ abstract public class RootUIElement implements ILinkListener, IChangeListener {
 		
 		fContent = new Composite(base, SWT.NONE);
 		fContent.setLayout(new GridLayout(5, false));
-		fContent.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		fContent.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));	
+		
+		fContent.addKeyListener(new KeyListener() {
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if (e.keyCode == SWT.F5)
+					if (fCurrentLaunchELement != null)
+						activateElement(fCurrentLaunchELement);
+			}
+			
+			@Override
+			public void keyReleased(KeyEvent e) {
+			}
+		});
 	}
 
 	public void initializeFrom(Map<String, Object> attributes) throws CoreException {
@@ -173,40 +199,69 @@ abstract public class RootUIElement implements ILinkListener, IChangeListener {
 		
 		doActivateElement(element);
 	}
+	
+	protected void activate(IPresentationModel model)
+	{
+		if (fCurrentGridElement != null) {
+			fCurrentGridElement.dispose();
+		}
+
+		disposeContent();
+		
+		fBreadcrumbs.setCurrent(model, model.getName());
+		GridElement gridElement = viewElementFactory.createViewElement(model);
+		fCurrentGridElement = gridElement;
+		gridElement.fillIntoGrid(getControl());
+		getControl().layout();
+		
+		
+		connectModel(model);
+	}
 
 	private void doActivateElement(ILaunchElement element) {
+		fCurrentLaunchELement = element;
 		if (element != null) {
-			fBreadcrumbs.setCurrent(element.getId(), element.getName());
-
+//			fBreadcrumbs.setCurrent(element.getId(), element.getName());
+			
 			IUIElementFactory factory = getUIElementFactory();
-			GridElement gridElement = factory.createUIElement2(element, true);
-			// FIXME: revive;
-			fCurrentGridElement = gridElement;
-			gridElement.fillIntoGrid(getControl());
-
-			if (gridElement instanceof ViewElement)
-			{
-				IPresentationModel model = ((ViewElement)gridElement).getModel();
-
-				model.addAndCallListener(new IPresentationModel.Listener() {
-
-					@Override
-					public void changed(int what, Object object) {
-						if (what == IPresentationModel.ACTIVATED) {
-							if (object instanceof String)
-								linkActivated(object);
-							else if (object instanceof ILaunchElement) {
-								linkActivated(((ILaunchElement)object).getId());
-							}
-						}
-					}
-				});					
-			}				
+			IPresentationModel model = factory.createPresentationModel(element);
+				
+			if (model != null) {
+				activate(model);
+			} else {
+				fBreadcrumbs.setCurrent(element.getId(), element.getName());
+				GridElement gridElement = factory.createUIElement2(element, true);
+				
+				fCurrentGridElement = gridElement;
+				gridElement.fillIntoGrid(getControl());
+				if (gridElement instanceof ViewElement) {
+					model = ((ViewElement)gridElement).getModel();
+					connectModel(model);
+				}
+			}
 		}
 		else {
 			fBreadcrumbs.setCurrent(null, ""); //$NON-NLS-1$
 		}
 		getControl().layout();
+	}
+
+	private void connectModel(IPresentationModel model) {
+		model.addAndCallListener(new IPresentationModel.Listener() {
+
+			@Override
+			public void changed(int what, Object object) {
+				if (what == IPresentationModel.ACTIVATED) {
+					if (object instanceof IPresentationModel) {
+						activate((IPresentationModel)object);
+					} else if (object instanceof String) {
+						linkActivated(object);
+					} else if (object instanceof ILaunchElement) {
+						linkActivated(((ILaunchElement)object).getId());
+					}
+				}
+			}
+		});
 	}
 
 	protected String getCurrentElementId() {
@@ -242,6 +297,8 @@ abstract public class RootUIElement implements ILinkListener, IChangeListener {
 			if (element != null) {
 				activateElement(element);
 			}
+		} else if (obj instanceof IPresentationModel) {
+			activate((IPresentationModel)obj);
 		}
 	}
 	

@@ -19,6 +19,9 @@ import org.eclipse.cdt.dsf.gdb.internal.ui.launching.ICDTLaunchHelpContextIds;
 import org.eclipse.cdt.dsf.gdb.internal.ui.launching.LaunchImages;
 import org.eclipse.cdt.dsf.gdb.launching.LaunchMessages;
 import org.eclipse.cdt.dsf.gdb.newlaunch.OverviewElement;
+import org.eclipse.cdt.ui.grid.GridElement;
+import org.eclipse.cdt.ui.grid.IPresentationModel;
+import org.eclipse.cdt.ui.grid.ViewElementFactory;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.ILaunchConfiguration;
@@ -38,6 +41,21 @@ public class NewLaunchTab extends CLaunchConfigurationTab {
 		@Override
 		protected IUIElementFactory createUIElementFactory(Map<String, Object> attributes) {
 			return new UIElementFactory();
+		}
+		
+		@Override
+		protected ViewElementFactory createViewElementFactory() {
+			// FIXME: make NewNewExecutableDialog use this.
+			return new ViewElementFactory() {
+				@Override
+				public GridElement createViewElement(IPresentationModel model) {
+					if (model instanceof BinaryPresentationModel)
+						return new BinaryViewElement((BinaryPresentationModel) model);
+					else if (model instanceof ProjectPresentationModel)
+						return new ProjectViewElement((ProjectPresentationModel)model);
+					return super.createViewElement(model);
+				}
+			};
 		}
 
 		@Override

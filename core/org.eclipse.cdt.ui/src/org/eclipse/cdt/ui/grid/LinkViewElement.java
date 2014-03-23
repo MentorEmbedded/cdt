@@ -14,8 +14,8 @@ import org.eclipse.cdt.ui.CDTUITools;
  *  @since 5.7
  */
 public class LinkViewElement extends GridElement {
-	
-	public LinkViewElement(IStringPresentationModel model)
+
+	public LinkViewElement(IStaticStringPresentationModel model)
 	{
 		this.model = model;
 	}
@@ -25,9 +25,41 @@ public class LinkViewElement extends GridElement {
 		createImmediateContent(parent, model);
 	}
 	
-	public static void createImmediateContent(Composite parent, final IStringPresentationModel model) {
+	public static void createImmediateContent(Composite parent, final IStaticStringPresentationModel model) {
 		
 		new Label(parent, SWT.NONE);
+		
+		new Label(parent, SWT.NONE);
+				
+		final Link link = new Link(parent, SWT.NONE);
+		CDTUITools.getGridLayoutData(link).horizontalSpan = 2;
+		CDTUITools.grabAllWidth(link);
+		
+		model.addAndCallListener(new IPresentationModel.Listener() {
+			
+			@Override
+			public void changed(int what, Object object) {
+				// Handling of the link click might have disposed
+				// us.
+				if (!link.isDisposed())
+					link.setText("<a>" + model.getString() + "</a>");				
+			}
+		});
+		
+		link.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				model.activate();
+			}
+		});
+		
+		new Label(parent, SWT.NONE);
+	}
+	
+	public static void createImmediateContentWithName(Composite parent, final IStringPresentationModel model) {
+		
+		Label l = new Label(parent, SWT.NONE);
+		l.setText(model.getName());
 		
 		new Label(parent, SWT.NONE);
 				
@@ -54,7 +86,7 @@ public class LinkViewElement extends GridElement {
 		});
 		
 		new Label(parent, SWT.NONE);
-	}
+	}	
 	
 	@Override
 	public Label indent() {
@@ -62,5 +94,5 @@ public class LinkViewElement extends GridElement {
 		return null;
 	};
 	
-	IStringPresentationModel model;
+	IStaticStringPresentationModel model;
 }

@@ -35,6 +35,7 @@ import org.eclipse.cdt.dsf.gdb.newlaunch.StopOnStartupElement;
 import org.eclipse.cdt.dsf.gdb.newlaunch.WorkingDirectoryElement;
 import org.eclipse.cdt.launch.internal.ui.LaunchUIPlugin;
 import org.eclipse.cdt.ui.CElementLabelProvider;
+import org.eclipse.cdt.ui.grid.BasicGroupGridElement;
 import org.eclipse.cdt.ui.grid.CompositePresentationModel;
 import org.eclipse.cdt.ui.grid.GridElement;
 import org.eclipse.cdt.ui.grid.IPresentationModel;
@@ -45,7 +46,6 @@ import org.eclipse.debug.ui.DebugUITools;
 import org.eclipse.debug.ui.IDebugUIConstants;
 import org.eclipse.debug.ui.StringVariableSelectionDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
@@ -88,25 +88,57 @@ public class ExecutableUIElement extends ViewElement {
 		return (CompositePresentationModel)super.getModel();
 	}
 
-	public ExecutableUIElement(ExecutableElement launchElement, boolean showDetails, UIElementFactory uiElementFactory ) {
+	public ExecutableUIElement(final ExecutableElement launchElement, boolean showDetails, final UIElementFactory uiElementFactory ) {
 		super(new CompositePresentationModel("Executable"));
 	//	super(launchElement, showDetails);
 		this.launchElement = launchElement;
 		if (showDetails) {
-			addChild(createExecFileGroup());
-			addChild(createProjectGroup());
 			
-			for (ILaunchElement child: launchElement.getChildren()) {
-				if (child instanceof RemoteBinaryElement) {
-					addChild(uiElementFactory.createUIElement2(child, false));
+			BasicGroupGridElement exeGroup = new BasicGroupGridElement("Executable") {
+				{
+					addChild(createExecFileGroup());
+					addChild(createProjectGroup());
+					for (ILaunchElement child: launchElement.getChildren()) {
+						if (child instanceof RemoteBinaryElement) {
+							addChild(uiElementFactory.createUIElement2(child, false));
+						}
+					}
+					
+					for (ILaunchElement child: launchElement.getChildren()) {
+						if (child instanceof BuildSettingsElement) {
+							addChild(uiElementFactory.createUIElement2(child, false));
+						}
+					}						
 				}
-			}
+			};
+			addChild(exeGroup);
 			
-			for (ILaunchElement child: launchElement.getChildren()) {
-				if (child instanceof ArgumentsElement) {
-					addChild(uiElementFactory.createUIElement2(child, false));
+			BasicGroupGridElement runtimeGroup = new BasicGroupGridElement("Runtime") {
+				{
+					for (ILaunchElement child: launchElement.getChildren()) {
+						if (child instanceof ArgumentsElement) {
+							addChild(uiElementFactory.createUIElement2(child, false));
+						}
+					}
+					
+					for (ILaunchElement child: launchElement.getChildren()) {
+						if (child instanceof WorkingDirectoryElement) {
+							GridElement uiElement = uiElementFactory.createUIElement2(child, false);
+							addChild(uiElement);
+							IPresentationModel m = ((WorkingDirectoryUIElement)uiElement).getTheModel();
+							getModel().add(m);
+						}
+					}
+					
+					for (ILaunchElement child: launchElement.getChildren()) {
+						if (child instanceof EnvironmentElement) {
+							addChild(uiElementFactory.createUIElement2(child, false));
+						}
+					}					
 				}
-			}
+			};
+			addChild(runtimeGroup);
+			
 			
 			for (ILaunchElement child: launchElement.getChildren()) {
 				if (child instanceof StopOnStartupElement) {
@@ -114,26 +146,11 @@ public class ExecutableUIElement extends ViewElement {
 				}
 			}
 			
-			for (ILaunchElement child: launchElement.getChildren()) {
-				if (child instanceof WorkingDirectoryElement) {
-					GridElement uiElement = uiElementFactory.createUIElement2(child, false);
-					addChild(uiElement);
-					IPresentationModel m = ((WorkingDirectoryUIElement)uiElement).getTheModel();
-					getModel().add(m);
-				}
-			}
+
 			
-			for (ILaunchElement child: launchElement.getChildren()) {
-				if (child instanceof BuildSettingsElement) {
-					addChild(uiElementFactory.createUIElement2(child, false));
-				}
-			}			
+		
 			
-			for (ILaunchElement child: launchElement.getChildren()) {
-				if (child instanceof EnvironmentElement) {
-					addChild(uiElementFactory.createUIElement2(child, false));
-				}
-			}				
+							
 		}
 	}
 	
@@ -212,7 +229,6 @@ public class ExecutableUIElement extends ViewElement {
 			protected void createImmediateContent(final Composite parent) {
 				Label progLabel = new Label(parent, SWT.NONE);
 				progLabel.setText("Binary"); //$NON-NLS-1$
-				progLabel.setFont(JFaceResources.getFontRegistry().getBold(JFaceResources.DIALOG_FONT));
 				
 				new Label(parent, SWT.NONE);
 
@@ -276,7 +292,6 @@ public class ExecutableUIElement extends ViewElement {
 				// TODO Auto-generated method stub
 				Label projLabel = new Label(parent, SWT.NONE);
 				projLabel.setText(LaunchMessages.getString("CMainTab.&ProjectColon")); //$NON-NLS-1$
-				projLabel.setFont(JFaceResources.getFontRegistry().getBold(JFaceResources.DIALOG_FONT));
 				
 				new Label(parent, SWT.NONE);
 

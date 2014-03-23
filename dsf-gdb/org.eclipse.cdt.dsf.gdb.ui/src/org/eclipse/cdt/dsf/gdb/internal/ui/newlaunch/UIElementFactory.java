@@ -41,6 +41,7 @@ import org.eclipse.cdt.ui.grid.IPresentationModel;
 import org.eclipse.cdt.ui.grid.LabeledCompositePresentationModel;
 import org.eclipse.cdt.ui.grid.PathViewElement;
 import org.eclipse.cdt.ui.grid.SelectionPresentationModel;
+import org.eclipse.cdt.ui.grid.StaticStringPresentationModel;
 import org.eclipse.cdt.ui.grid.StringReflectionPresentationModel;
 
 /* VP: maybe we should use IAdaptable instead? */
@@ -81,9 +82,6 @@ public class UIElementFactory implements IUIElementFactory {
 		if (element instanceof ExecutablesListElement) {
 			return new ExecutablesListUIElement((ExecutablesListElement)element);
 		}
-		if (element instanceof DebuggerElement) {
-			return new DebuggerUIElement((DebuggerElement)element, this, showDetails);
-		}
 		return null;
 	}
 
@@ -94,6 +92,7 @@ public class UIElementFactory implements IUIElementFactory {
 			DebuggerElement launchElement = (DebuggerElement) element;
 			
 			CompositePresentationModel result = new CompositePresentationModel("Debugger");
+			result.setClasses(new String[]{"top"});
 			
 			CompositePresentationModel paths = new CompositePresentationModel("Paths");
 			result.add(paths);
@@ -157,9 +156,10 @@ public class UIElementFactory implements IUIElementFactory {
 		} 
 		else if (element instanceof ConnectionElement) {
 			
-			CompositePresentationModel result = new CompositePresentationModel("Connection");
-			
 			final ConnectionElement launchElement = (ConnectionElement) element;
+			
+			CompositePresentationModel result = new CompositePresentationModel("Connection");
+			result.setVisible(launchElement.isEnabled());
 			
 			TCPConnectionElement tcpElement = launchElement.findChild(TCPConnectionElement.class);
 			final TcpConnectionPresentationModel tcpModel = new TcpConnectionPresentationModel(tcpElement);
@@ -194,7 +194,7 @@ public class UIElementFactory implements IUIElementFactory {
 					if ((what & IPresentationModel.VALUE_CHANGED) != 0) {
 						boolean tcp = type.getValue().equals("TCP");
 						tcpModel.setVisible(tcp);
-						serialModel.setVisible(!tcp);	
+						serialModel.setVisible(!tcp);
 					}
 				}			
 			});
@@ -202,6 +202,63 @@ public class UIElementFactory implements IUIElementFactory {
 			result.add(type);
 			result.add(tcpModel);
 			result.add(serialModel);
+			
+			return result;
+		}
+		else if (element instanceof ExecutableElement) {
+			
+			ExecutableElement executableElement = (ExecutableElement)element;
+			
+			CompositePresentationModel result = new CompositePresentationModel("Executable");
+			result.setClasses(new String[]{"top"});
+			
+			CompositePresentationModel executable = new CompositePresentationModel("Executable");
+			result.add(executable);
+			
+			BinaryPresentationModel binaryModel = new BinaryPresentationModel("Binary", element, "getProgramName", "setProgramName");
+			ProjectPresentationModel projectModel = new ProjectPresentationModel("Project", element, "getProjectName", "setProjectName");
+			binaryModel.setProjectModel(projectModel);
+			
+			executable.add(binaryModel);
+			executable.add(projectModel);
+			
+			RemoteBinaryElement remote = element.findChild(RemoteBinaryElement.class);
+			
+			executable.add(new StringReflectionPresentationModel("On Target", remote, "getRemotePath", "setRemotePath"));
+			
+			BuildSettingsElement buildElement = element.findChild(BuildSettingsElement.class);
+			
+			final CompositePresentationModel buildSettings = new CompositePresentationModel("Build settings");
+			
+			BuildConfigurationModel configModel = new BuildConfigurationModel("Configuration", buildElement);
+			
+			buildSettings.add(configModel);
+			
+			executable.add(new StaticStringPresentationModel() {
+
+				@Override
+				public String getString() {
+					// FIXME: make this string really correspond to reality.
+					return "Automatically build on launch";
+				}
+				
+				@Override
+				public void activate() {
+					notifyListeners(IPresentationModel.ACTIVATED, buildSettings);
+				}
+			});
+			
+			CompositePresentationModel runtime = new CompositePresentationModel("Runtime"); //$NON-NLS-1$
+			
+			ArgumentsElement arguments = element.findChild(ArgumentsElement.class);
+			
+			runtime.add(new StringReflectionPresentationModel("Arguments", arguments, "getArguments", "setArguments"));
+			
+			//WorkingDirectoryElement wd = element.findChild(WorkingDirectoryElement.class);
+			
+			//runtime.add
+			
+			result.add(runtime);
 			
 			return result;
 		}

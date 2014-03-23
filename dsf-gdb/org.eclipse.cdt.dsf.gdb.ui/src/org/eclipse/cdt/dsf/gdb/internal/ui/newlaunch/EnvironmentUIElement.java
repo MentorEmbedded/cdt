@@ -17,6 +17,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Link;
 
 public class EnvironmentUIElement extends GridElement {
 
@@ -33,8 +34,14 @@ public class EnvironmentUIElement extends GridElement {
 		Label l = new Label(parent, SWT.NONE);
 		l.setText(launchElement.getName());
 		
-		Label padding = new Label(parent, SWT.NONE);
-		padding.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 4, 1));			
+		new Label(parent, SWT.NONE);
+		
+		Link link = new Link(parent, SWT.NONE);
+		link.setText("<a>Not set</a>");
+		
+		link.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 2, 1));
+		
+		new Label(parent, SWT.NONE);			
 	}
 
 }

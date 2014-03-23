@@ -9,4 +9,6 @@ public interface ICompositePresentationModel extends IPresentationModel {
 	
 	public List<IPresentationModel> getChildren(); 
 
+	public List<String> getClasses();
+	
 }

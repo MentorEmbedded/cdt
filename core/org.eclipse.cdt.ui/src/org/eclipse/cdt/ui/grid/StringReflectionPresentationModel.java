@@ -19,7 +19,7 @@ public class StringReflectionPresentationModel extends StringPresentationModel {
 		
 		try {
 			get = under.getClass().getMethod(getName);
-			set = under.getClass().getMethod(setName, boolean.class);
+			set = under.getClass().getMethod(setName, String.class);
 		} catch (Exception e) {
 			throw new RuntimeException("Could not obtain get/set methodd", e);
 		}

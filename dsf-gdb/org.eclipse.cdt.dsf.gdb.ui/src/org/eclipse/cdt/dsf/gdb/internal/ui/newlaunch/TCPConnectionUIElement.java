@@ -14,12 +14,8 @@ package org.eclipse.cdt.dsf.gdb.internal.ui.newlaunch;
 import org.eclipse.cdt.ui.grid.IStringPresentationModel;
 import org.eclipse.cdt.ui.grid.StringViewElement;
 import org.eclipse.cdt.ui.grid.ViewElement;
-import org.eclipse.swt.widgets.Text;
 
 public class TCPConnectionUIElement extends ViewElement {
-
-	private Text fHostNameText;
-	private Text fPortText;
 	
 	public TCPConnectionUIElement(TcpConnectionPresentationModel model) {
 		super(model);

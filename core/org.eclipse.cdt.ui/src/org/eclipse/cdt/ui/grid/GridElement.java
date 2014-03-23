@@ -54,6 +54,10 @@ public abstract class GridElement {
 		
 		for (final Control c: childControls) {
 			c.addDisposeListener(disposeListener);
+			if (!visible) {
+				c.setVisible(false);
+				CDTUITools.getGridLayoutData(c).exclude = true;
+			}
 		}
 				
 		createChildrenContent(parent);
@@ -93,6 +97,7 @@ public abstract class GridElement {
 	
 	public void setVisible(boolean v)
 	{
+		visible = v;
 		for (Control c: getChildControls()) {
 			c.setVisible(v);
 			CDTUITools.getGridLayoutData(c).exclude = !v;
@@ -100,7 +105,8 @@ public abstract class GridElement {
 		for (GridElement c: childElements) {
 			c.setVisible(v);
 		}
-		this.parent.layout();
+		if (this.parent != null)
+			this.parent.layout();
 	}
 	
 	private int getGridWidth()
@@ -134,10 +140,7 @@ public abstract class GridElement {
 			return null;
 		
 		// If setVisible was previously called on this GridElement, we want
-		// any extra labels we add below to have the same visible.
-		// That way, after a grid element is created and maybe was set
-		// to invisible, higher level UI can just request that it be indented.
-		boolean visible = childControls.get(0).isVisible();
+		// any extra labels we add below to have the same visibility.
 		
 		Label result = null;
 		
@@ -191,6 +194,9 @@ public abstract class GridElement {
 	{
 		assert child != null;
 		childElements.add(child);
+		// FIXME: review visibility hierarchy.
+		if (!visible)
+			child.setVisible(visible);
 	}
 	
 	/** Called by fillIntoGrid and must create controls that
@@ -236,4 +242,5 @@ public abstract class GridElement {
 	// While createImmediateContent is executing, index of the first control
 	// we'd create in our parent. -1 otherwise.
 	private int begin = -1;
+	private boolean visible = true;
 }

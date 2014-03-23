@@ -5,7 +5,12 @@ package org.eclipse.cdt.ui.grid;
  */
 public class ViewElementFactory {
 	
-	public GridElement createViewElement(IPresentationModel model) {
+	public ViewElementFactory()
+	{
+		
+	}
+	
+	public GridElement createViewElement(final IPresentationModel model) {
 		
 		if (model instanceof ISelectionPresentationModel) {
 				return new PillSelectionViewElement((ISelectionPresentationModel) model);
@@ -14,13 +19,15 @@ public class ViewElementFactory {
 				return new PathViewElement((IStringPresentationModel)model);
 			else
 				return new StringViewElement((IStringPresentationModel) model);
+		} else if (model instanceof IStaticStringPresentationModel) {
+			return new LinkViewElement((IStaticStringPresentationModel)model);
 		} else if (model instanceof IBooleanPresentationModel) {
 			return new CheckboxViewElement((IBooleanPresentationModel)model);
 		}	
 		else if (model instanceof ICompositePresentationModel) {
 			
 			ICompositePresentationModel composite = (ICompositePresentationModel) model;
-			if (model.getName() == null || model.getName().isEmpty())
+			if (model.getName() == null || model.getName().isEmpty() || composite.getClasses().indexOf("top") != -1)
 			{
 				// Just group view elements with no changes to presentation.
 				GridElement group = new GridElement() {};
@@ -30,9 +37,16 @@ public class ViewElementFactory {
 			}
 			else
 			{
-				BasicGroupGridElement group = new BasicGroupGridElement(model.getName());
+				final BasicGroupGridElement group = new BasicGroupGridElement(model.getName());
 				for (IPresentationModel m: composite.getChildren())
 					group.addChild(createViewElement(m));
+				model.addAndCallListener(new IPresentationModel.Listener() {
+					@Override
+					public void changed(int what, Object object) {
+						if ((what & IPresentationModel.VISIBILITY_CHANGED) != 0)
+							group.setVisible(model.isVisible());
+					}
+				});
 				return group;				
 			}
 		}
