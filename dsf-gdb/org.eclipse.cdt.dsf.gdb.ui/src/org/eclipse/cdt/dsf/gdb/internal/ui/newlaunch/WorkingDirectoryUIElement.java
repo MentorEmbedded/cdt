@@ -94,7 +94,7 @@ public class WorkingDirectoryUIElement extends GridElement {
 		if (showDetails) {
 			createDetailContent(parent);
 		} else {
-			LinkViewElement.createImmediateContent(parent, theModel);
+			LinkViewElement.createImmediateContentWithName(parent, theModel);
 		}
 	}
 	

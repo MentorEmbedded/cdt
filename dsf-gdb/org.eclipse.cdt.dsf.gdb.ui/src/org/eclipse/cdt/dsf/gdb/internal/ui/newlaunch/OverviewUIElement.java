@@ -28,6 +28,7 @@ import org.eclipse.cdt.ui.grid.IPresentationModel;
 import org.eclipse.cdt.ui.grid.LinkViewElement;
 import org.eclipse.cdt.ui.grid.PillSelectionViewElement;
 import org.eclipse.cdt.ui.grid.SelectionPresentationModel;
+import org.eclipse.cdt.ui.grid.StaticStringPresentationModel;
 import org.eclipse.cdt.ui.grid.StringPresentationModel;
 import org.eclipse.cdt.ui.grid.StringViewElement;
 import org.eclipse.cdt.ui.grid.ViewElement;
@@ -69,7 +70,7 @@ public class OverviewUIElement extends ViewElement {
 		final DebuggerElement debugger = getLaunchElement().findChild(DebuggerElement.class);
 		final DebuggerSettingsElement debuggerSettings = debugger.findChild(DebuggerSettingsElement.class);
 		
-		SelectionPresentationModel types = new SelectionPresentationModel("Debug", Arrays.asList(fgTypes)) {
+		final SelectionPresentationModel types = new SelectionPresentationModel("Debug", Arrays.asList(fgTypes)) {
 			
 			protected String doGetValue() {
 				return fgTypes[getLaunchElement().getSessionType().ordinal()];
@@ -110,6 +111,17 @@ public class OverviewUIElement extends ViewElement {
 		stopModeView.labelInContentArea();
 		
 		final StringPresentationModel connection = new StringPresentationModel("Connection") {
+			{
+				types.addAndCallListener(new IPresentationModel.Listener() {
+					
+					@Override
+					public void changed(int what, Object object) {
+						if ((what & IPresentationModel.VALUE_CHANGED) != 0) {
+							setVisible(types.getValue().equals("Using gdbserver"));
+						}
+					}
+				});
+			}
 			@Override
 			protected String doGetValue() {
 				return "192.168.0.150";
@@ -119,9 +131,9 @@ public class OverviewUIElement extends ViewElement {
 		final StringViewElement connectionView = new StringViewElement(connection);
 		connectionView.indentLabel();
 		
-		StringPresentationModel summaryModel = new StringPresentationModel("") {
+		StaticStringPresentationModel summaryModel = new StaticStringPresentationModel() {
 			@Override
-			protected String doGetValue() {
+			public String getString() {
 				return "Advanced details";
 			}
 			

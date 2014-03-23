@@ -41,7 +41,7 @@ public class DebuggerElement extends AbstractLaunchElement {
 		addChildren(new ILaunchElement[] {
 			new ConnectionElement(this),
 			new DebuggerSettingsElement(this),
-			new SharedLibrariesElement(this)
+			/*new SharedLibrariesElement(this)*/
 		});
 	}
 	

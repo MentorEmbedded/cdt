@@ -35,7 +35,7 @@ import org.eclipse.cdt.ui.grid.CheckboxViewElement;
 import org.eclipse.cdt.ui.grid.CompositePresentationModel;
 import org.eclipse.cdt.ui.grid.IPresentationModel;
 import org.eclipse.cdt.ui.grid.LinkViewElement;
-import org.eclipse.cdt.ui.grid.StringPresentationModel;
+import org.eclipse.cdt.ui.grid.StaticStringPresentationModel;
 import org.eclipse.cdt.ui.grid.ViewElement;
 import org.eclipse.cdt.utils.ui.controls.ControlFactory;
 import org.eclipse.core.runtime.IPath;
@@ -213,7 +213,7 @@ public class SharedLibrariesUIElement extends ViewElement {
 	private SharedLibrariesElement launchElement;
 	private boolean showDetails;
 
-	private StringPresentationModel linkModel;
+	private StaticStringPresentationModel linkModel;
 	
 	private SharedLibrariesElement getLaunchElement()  { return launchElement; }
 	
@@ -282,8 +282,9 @@ public class SharedLibrariesUIElement extends ViewElement {
 		if (showDetails) {
 			addChild(checkbox);
 		} else {
-			linkModel = new StringPresentationModel("") {
-				protected String doGetValue() { return "Shared libraries"; };
+			linkModel = new StaticStringPresentationModel() {
+				@Override
+				public String getString() { return "Shared libraries"; };
 				
 				@Override
 				public void activate() {

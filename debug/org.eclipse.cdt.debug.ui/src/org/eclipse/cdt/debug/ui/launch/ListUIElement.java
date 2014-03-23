@@ -80,7 +80,9 @@ public abstract class ListUIElement extends ViewElement {
 		
 	@Override
 	public void adjustChildren(Composite parent) {
-		getChildElements().get(0).getChildControls().get(0).dispose();
+		
+		if (getChildElements().size() != 0)
+			getChildElements().get(0).getChildControls().get(0).dispose();
 	}
 
 	protected GridElement createListElementContent(final ILaunchElement element, final int flags) {

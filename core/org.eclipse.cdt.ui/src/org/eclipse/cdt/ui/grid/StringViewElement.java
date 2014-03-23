@@ -13,10 +13,16 @@ import org.eclipse.cdt.ui.grid.IPresentationModel.Listener;
 /**
  * @since 5.7
  */
-public class StringViewElement extends GridElement {
+public class StringViewElement extends ViewElement {
 
 	public StringViewElement(IStringPresentationModel model) {
-		this.model = model;
+		super(model);
+	}
+	
+	@Override
+	public IStringPresentationModel getModel()
+	{
+		return (IStringPresentationModel) super.getModel();
 	}
 	
 	public void indentLabel()
@@ -29,14 +35,14 @@ public class StringViewElement extends GridElement {
 		
 		Label l = new Label(parent, SWT.NONE);
 		if (!indentLabel)
-			l.setText(model.getName());
+			l.setText(getModel().getName());
 		
 		new Label(parent, SWT.NONE);
 		
 		if (indentLabel)
 		{
 			Label l2 = new Label(parent, SWT.NONE);
-			l2.setText(model.getName());
+			l2.setText(getModel().getName());
 		}
 		
 		text = new Text(parent, SWT.BORDER);
@@ -47,7 +53,7 @@ public class StringViewElement extends GridElement {
 				if (!blockSignals) { 
 					try {
 						blockSignals = true;
-						model.setValue(text.getText());
+						getModel().setValue(text.getText());
 					} finally {
 						blockSignals = false;
 					}
@@ -70,23 +76,23 @@ public class StringViewElement extends GridElement {
 				if ((what & IPresentationModel.VALUE_CHANGED) != 0) {
 					try {
 						blockSignals = true;
-						text.setText(model.getValue());	
+						text.setText(getModel().getValue());	
 					} finally {
 						blockSignals = false;
 					}
 				}
 				
 				if ((what & IPresentationModel.VISIBILITY_CHANGED) != 0) 
-					setVisible(model.isVisible());
+					setVisible(getModel().isVisible());
 			}
 		};
-		model.addAndCallListener(modelListener);			
+		getModel().addAndCallListener(modelListener);			
 	}
 	
 	
 	@Override
 	public void dispose() {
-		model.removeListener(modelListener);
+		getModel().removeListener(modelListener);
 		super.dispose();
 	}	
 
@@ -94,7 +100,6 @@ public class StringViewElement extends GridElement {
 		new Label(parent, SWT.NONE);
 	}
 	
-	private IStringPresentationModel model;
 	private boolean blockSignals;
 	protected Text text; 
 	protected boolean indentLabel;
