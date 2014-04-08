@@ -39,7 +39,7 @@ import org.eclipse.cdt.ui.grid.CompositePresentationModel;
 import org.eclipse.cdt.ui.grid.GridElement;
 import org.eclipse.cdt.ui.grid.IPresentationModel;
 import org.eclipse.cdt.ui.grid.LabeledCompositePresentationModel;
-import org.eclipse.cdt.ui.grid.PathViewElement;
+import org.eclipse.cdt.ui.grid.PathStringReflectionPresentationModel;
 import org.eclipse.cdt.ui.grid.SelectionPresentationModel;
 import org.eclipse.cdt.ui.grid.StaticStringPresentationModel;
 import org.eclipse.cdt.ui.grid.StringReflectionPresentationModel;
@@ -51,9 +51,6 @@ public class UIElementFactory implements IUIElementFactory {
 	public GridElement createUIElement2(ILaunchElement element, boolean showDetails) {
 		if (element instanceof ExecutableElement) {
 			return new ExecutableUIElement((ExecutableElement)element, showDetails, this);
-		}
-		if (element instanceof ArgumentsElement) {
-			return new ArgumentsUIElement((ArgumentsElement)element, showDetails);
 		}
 		if (element instanceof RemoteBinaryElement) {
 			return new RemoteBinaryUIElement((RemoteBinaryElement)element, showDetails);
@@ -97,14 +94,12 @@ public class UIElementFactory implements IUIElementFactory {
 			CompositePresentationModel paths = new CompositePresentationModel("Paths");
 			result.add(paths);
 			
-			StringReflectionPresentationModel gdbPath = new StringReflectionPresentationModel("GDB", element,
+			StringReflectionPresentationModel gdbPath = new PathStringReflectionPresentationModel("GDB", element,
 						"getGDBPath", "setGDBPath");
-			gdbPath.setSuggestedViewClass(PathViewElement.class);
 			paths.add(gdbPath);
 			
-			StringReflectionPresentationModel scriptPath = new StringReflectionPresentationModel("Script", element, 
+			StringReflectionPresentationModel scriptPath = new PathStringReflectionPresentationModel("Script", element, 
 						"getGDBInitFile", "setGDBInitFile");
-			scriptPath.setSuggestedViewClass(PathViewElement.class);
 			paths.add(scriptPath);
 			
 			for (ILaunchElement child: launchElement.getChildren())
@@ -228,7 +223,11 @@ public class UIElementFactory implements IUIElementFactory {
 			
 			BuildSettingsElement buildElement = element.findChild(BuildSettingsElement.class);
 			
-			final CompositePresentationModel buildSettings = new CompositePresentationModel("Build settings");
+			final CompositePresentationModel buildSettings = new CompositePresentationModel("Build on Launch");
+			buildSettings.setClasses(new String[]{"top"}); //$NON-NLS-1$
+			
+			
+			//BooleanReflectionPresentationModel buildAutomatically = new BooleanReflectionPresentationModel()
 			
 			BuildConfigurationModel configModel = new BuildConfigurationModel("Configuration", buildElement);
 			
@@ -254,7 +253,10 @@ public class UIElementFactory implements IUIElementFactory {
 			
 			runtime.add(new StringReflectionPresentationModel("Arguments", arguments, "getArguments", "setArguments"));
 			
-			//WorkingDirectoryElement wd = element.findChild(WorkingDirectoryElement.class);
+			WorkingDirectoryElement wd = element.findChild(WorkingDirectoryElement.class);
+			
+			runtime.add(new PathStringReflectionPresentationModel("Directory", wd, "getPath", "setPath"));
+			
 			
 			//runtime.add
 			

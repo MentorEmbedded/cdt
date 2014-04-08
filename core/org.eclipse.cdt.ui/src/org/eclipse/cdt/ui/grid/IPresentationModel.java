@@ -44,7 +44,4 @@ public interface IPresentationModel {
 	
 	// FIXME: experimental interface.
 	public abstract void activate();
-	
-	@SuppressWarnings("rawtypes")
-	public abstract Class suggestedViewClass();
 }

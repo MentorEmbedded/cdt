@@ -15,7 +15,6 @@ public class PresentationModel implements IPresentationModel {
 	private String name;
 	private boolean visible = true;
 	private boolean enabled = true;
-	private Class klass = null;
 
 	@Override
 	public String getName()
@@ -86,14 +85,5 @@ public class PresentationModel implements IPresentationModel {
 
 	public PresentationModel(String name) {
 		this.name = name;
-	}
-	
-	@Override
-	public Class suggestedViewClass() {
-		return klass;
-	}
-	
-	public void setSuggestedViewClass(Class klass) {
-		this.klass = klass;
 	}
 }

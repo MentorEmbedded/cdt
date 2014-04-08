@@ -11,14 +11,14 @@ public class ViewElementFactory {
 	}
 	
 	public GridElement createViewElement(final IPresentationModel model) {
-		
+
 		if (model instanceof ISelectionPresentationModel) {
-				return new PillSelectionViewElement((ISelectionPresentationModel) model);
+			return new PillSelectionViewElement((ISelectionPresentationModel) model);
+			// FIXME: extract interface here. Checking for very specific implementation type is wrong.
+		} else if (model instanceof PathStringReflectionPresentationModel) { 
+			return new PathViewElement((PathStringReflectionPresentationModel)model);
 		} else if (model instanceof IStringPresentationModel) {
-			if (model.suggestedViewClass() == PathViewElement.class)
-				return new PathViewElement((IStringPresentationModel)model);
-			else
-				return new StringViewElement((IStringPresentationModel) model);
+			return new StringViewElement((IStringPresentationModel) model);
 		} else if (model instanceof IStaticStringPresentationModel) {
 			return new LinkViewElement((IStaticStringPresentationModel)model);
 		} else if (model instanceof IBooleanPresentationModel) {
