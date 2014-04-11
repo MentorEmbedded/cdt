@@ -67,6 +67,8 @@ public abstract class ListUIElement extends ViewElement {
 			}
 			addChild(createListElementContent(child, showButtons));
 		}
+		
+		addChild(createButtonBar());
 	}
 	
 	@Override
@@ -179,7 +181,7 @@ public abstract class ListUIElement extends ViewElement {
 		return button;
 	}
 
-	abstract protected void createButtonBar(Composite parent);
+	abstract protected GridElement createButtonBar();
 
 	protected void upButtonPressed(ILaunchElement element) {
 		getLaunchElement().moveElementUp(element);

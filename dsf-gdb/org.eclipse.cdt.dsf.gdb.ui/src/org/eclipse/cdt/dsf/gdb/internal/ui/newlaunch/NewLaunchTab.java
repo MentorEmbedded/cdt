@@ -19,7 +19,9 @@ import org.eclipse.cdt.dsf.gdb.internal.ui.launching.ICDTLaunchHelpContextIds;
 import org.eclipse.cdt.dsf.gdb.internal.ui.launching.LaunchImages;
 import org.eclipse.cdt.dsf.gdb.launching.LaunchMessages;
 import org.eclipse.cdt.dsf.gdb.newlaunch.OverviewElement;
+import org.eclipse.cdt.ui.grid.BasicGroupGridElement;
 import org.eclipse.cdt.ui.grid.GridElement;
+import org.eclipse.cdt.ui.grid.ICompositePresentationModel;
 import org.eclipse.cdt.ui.grid.IPresentationModel;
 import org.eclipse.cdt.ui.grid.ViewElementFactory;
 import org.eclipse.core.resources.IProject;
@@ -48,8 +50,32 @@ public class NewLaunchTab extends CLaunchConfigurationTab {
 			// FIXME: make NewNewExecutableDialog use this.
 			return new ViewElementFactory() {
 				@Override
-				public GridElement createViewElement(IPresentationModel model) {
-					if (model instanceof BinaryPresentationModel)
+				public GridElement createViewElement(final IPresentationModel model) {
+					
+					String id = model.getId();
+					if (id.equals("overview") || id.equals("executable")) { //$NON-NLS-1$ //$NON-NLS-2$
+						GridElement group = super.createViewElement(model);
+						group.spacing(12);
+						return group;
+					}
+					
+					if (model.getName().equals("Connection")) { //$NON-NLS-1$
+
+						ICompositePresentationModel composite = (ICompositePresentationModel)model;
+
+						final BasicGroupGridElement group = new BasicGroupGridElement(model.getName());
+						for (IPresentationModel m: composite.getChildren())
+							group.addChild(createViewElement(m));
+						model.addAndCallListener(new IPresentationModel.Listener() {
+							@Override
+							public void changed(int what, Object object) {
+								if ((what & IPresentationModel.VISIBILITY_CHANGED) != 0)
+									group.setVisible(model.isVisible());
+							}
+						});
+						group.dontIndentFirst();
+						return group;
+					} else 	if (model instanceof BinaryPresentationModel)
 						return new BinaryViewElement((BinaryPresentationModel) model);
 					else if (model instanceof ProjectPresentationModel)
 						return new ProjectViewElement((ProjectPresentationModel)model);

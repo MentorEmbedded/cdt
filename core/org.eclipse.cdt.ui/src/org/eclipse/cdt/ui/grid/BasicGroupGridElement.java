@@ -25,13 +25,14 @@ public class BasicGroupGridElement extends GridElement {
 	// Make the first row of the first element indented.
 	// If this is not called, will change the label of
 	// the first row to be 'name'.
-	public void indentFirst()
+	public void dontIndentFirst()
 	{
-		this.indentFirst = true;
+		this.indentFirst = false;
 	}
 	
 	@Override
 	protected void createImmediateContent(Composite parent) {
+		
 	}
 	
 	@Override
@@ -49,9 +50,20 @@ public class BasicGroupGridElement extends GridElement {
 		
 		for (int i = 0; i < getChildElements().size(); ++i) {
 			GridElement child = getChildElements().get(i);
-			Label l = child.indent();
 			if (i == 0)
+			{
+				Label l;
+				if (indentFirst)
+					l = child.indent();
+				else
+					l = (Label) child.getChildControls().get(0);
+				
 				topLabel = l;
+			}
+			else
+			{
+				child.indent();
+			}
 		}
 			
 		
@@ -85,5 +97,5 @@ public class BasicGroupGridElement extends GridElement {
 	
 	private String name;
 
-	private boolean indentFirst = false;
+	private boolean indentFirst = true;
 }

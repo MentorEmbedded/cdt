@@ -43,14 +43,15 @@ import org.eclipse.cdt.ui.grid.PathStringReflectionPresentationModel;
 import org.eclipse.cdt.ui.grid.SelectionPresentationModel;
 import org.eclipse.cdt.ui.grid.StaticStringPresentationModel;
 import org.eclipse.cdt.ui.grid.StringReflectionPresentationModel;
+import org.eclipse.cdt.ui.grid.ViewElementFactory;
 
 /* VP: maybe we should use IAdaptable instead? */
 public class UIElementFactory implements IUIElementFactory {
 	
 	@Override
-	public GridElement createUIElement2(ILaunchElement element, boolean showDetails) {
+	public GridElement createUIElement2(ILaunchElement element, ViewElementFactory viewElementFactory, boolean showDetails) {
 		if (element instanceof ExecutableElement) {
-			return new ExecutableUIElement((ExecutableElement)element, showDetails, this);
+			return new ExecutableUIElement((ExecutableElement)element, viewElementFactory, showDetails, this);
 		}
 		if (element instanceof RemoteBinaryElement) {
 			return new RemoteBinaryUIElement((RemoteBinaryElement)element, showDetails);
@@ -74,7 +75,7 @@ public class UIElementFactory implements IUIElementFactory {
 			return new CoreFileUIElement((CoreFileElement)element, showDetails);
 		}
 		if (element instanceof OverviewElement) {
-			return new OverviewUIElement((OverviewElement)element, this);
+			return new OverviewUIElement((OverviewElement)element, viewElementFactory, this);
 		}
 		if (element instanceof ExecutablesListElement) {
 			return new ExecutablesListUIElement((ExecutablesListElement)element);
@@ -205,6 +206,8 @@ public class UIElementFactory implements IUIElementFactory {
 			ExecutableElement executableElement = (ExecutableElement)element;
 			
 			CompositePresentationModel result = new CompositePresentationModel("Executable");
+			// FIXME: this is more like a CSS class, to be honest, not id.
+			result.setId("executable"); //$NON-NLS-1$
 			result.setClasses(new String[]{"top"});
 			
 			CompositePresentationModel executable = new CompositePresentationModel("Executable");
@@ -218,8 +221,8 @@ public class UIElementFactory implements IUIElementFactory {
 			executable.add(projectModel);
 			
 			RemoteBinaryElement remote = element.findChild(RemoteBinaryElement.class);
-			
-			executable.add(new StringReflectionPresentationModel("On Target", remote, "getRemotePath", "setRemotePath"));
+			if (remote != null)
+				executable.add(new StringReflectionPresentationModel("On Target", remote, "getRemotePath", "setRemotePath"));
 			
 			BuildSettingsElement buildElement = element.findChild(BuildSettingsElement.class);
 			
@@ -250,12 +253,12 @@ public class UIElementFactory implements IUIElementFactory {
 			CompositePresentationModel runtime = new CompositePresentationModel("Runtime"); //$NON-NLS-1$
 			
 			ArgumentsElement arguments = element.findChild(ArgumentsElement.class);
-			
-			runtime.add(new StringReflectionPresentationModel("Arguments", arguments, "getArguments", "setArguments"));
-			
+			if (arguments != null)
+				runtime.add(new StringReflectionPresentationModel("Arguments", arguments, "getArguments", "setArguments"));
+		
 			WorkingDirectoryElement wd = element.findChild(WorkingDirectoryElement.class);
-			
-			runtime.add(new PathStringReflectionPresentationModel("Directory", wd, "getPath", "setPath"));
+			if (wd != null)
+				runtime.add(new PathStringReflectionPresentationModel("Directory", wd, "getPath", "setPath"));
 			
 			
 			//runtime.add

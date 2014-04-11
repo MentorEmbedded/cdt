@@ -8,6 +8,7 @@ import java.util.List;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
+import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
@@ -20,6 +21,7 @@ import org.eclipse.cdt.ui.CDTUITools;
 public abstract class GridElement {
 	
 	static public int DEFAULT_WIDTH = 5;
+	private int spacing;
 	
 	public GridElement()
 	{
@@ -133,6 +135,16 @@ public abstract class GridElement {
 		
 		return result;
 	}
+	
+	// FIXME: this method is suppose to be called before fillIntoGrid,
+	// whereas 'indent' is supposed to be called after. It's not apparent
+	// really which one should be used how. Need to decide to either use
+	// one convention everywhere, or use more clear naming of methods.
+	public GridElement spacing(int spacing)
+	{
+		this.spacing = spacing;
+		return this;
+	}
 
 	private Label indentChildControls() {
 		
@@ -190,7 +202,7 @@ public abstract class GridElement {
 	/** Add a children element that will be filled into
 	 *  grid by a later call to fillIntoGrid.
 	 */
-	protected void addChild(GridElement child)
+	public void addChild(GridElement child)
 	{
 		assert child != null;
 		childElements.add(child);
@@ -212,8 +224,20 @@ public abstract class GridElement {
 	 */
 	protected void createChildrenContent(Composite parent)
 	{
-		for (GridElement c: childElements) {
+		for (int i = 0; i < childElements.size(); ++i)
+		{
+			GridElement c = childElements.get(i);
 			c.fillIntoGrid(parent);
+			
+			if (i != childElements.size() - 1) {
+				if (spacing != 0) {
+					Label spacer = new Label(parent, SWT.NONE);
+					GridData gd = new GridData();
+					gd.horizontalSpan = DEFAULT_WIDTH;
+					gd.heightHint = spacing;
+					spacer.setLayoutData(gd);
+				}
+			}
 		}
 	}
 	

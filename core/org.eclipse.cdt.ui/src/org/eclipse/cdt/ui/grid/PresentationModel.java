@@ -15,11 +15,22 @@ public class PresentationModel implements IPresentationModel {
 	private String name;
 	private boolean visible = true;
 	private boolean enabled = true;
+	private String id = ""; //$NON-NLS-1$
 
 	@Override
 	public String getName()
 	{
 		return name;
+	}
+	
+	public String getId()
+	{
+		return id;
+	}
+	
+	public void setId(String id)
+	{
+		this.id = id;
 	}
 	
 	@Override
@@ -81,6 +92,11 @@ public class PresentationModel implements IPresentationModel {
 	protected void notifyListeners()
 	{
 		notifyListeners(0, this);
+	}
+	
+	@Override
+	public IPresentationModel findChild(String id) {
+		return null;
 	}
 
 	public PresentationModel(String name) {

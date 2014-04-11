@@ -32,6 +32,8 @@ public interface IPresentationModel {
 		public void changed(int what, Object object);
 	}
 	
+	public abstract String getId();
+	
 	public abstract String getName();
 	
 	public abstract boolean isVisible();
@@ -44,4 +46,7 @@ public interface IPresentationModel {
 	
 	// FIXME: experimental interface.
 	public abstract void activate();
+	
+	public IPresentationModel findChild(String id);
+	
 }

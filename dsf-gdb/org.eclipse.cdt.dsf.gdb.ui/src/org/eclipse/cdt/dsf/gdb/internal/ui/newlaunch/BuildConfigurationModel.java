@@ -36,7 +36,7 @@ public class BuildConfigurationModel extends SelectionPresentationModel {
 		
 		String progName = getLaunchElement().getProgramName();
 		String projName = getLaunchElement().getProjectName();
-		if (projName != null && progName != null) {
+		if (projName != null && !projName.isEmpty()) {
 			ICProject project = ExecutableElement.getProject(projName);
 			if (project != null) {
 				ICProjectDescription projDes = CDTPropertyManager.getProjectDescription(project.getProject());
