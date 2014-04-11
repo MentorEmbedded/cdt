@@ -91,6 +91,7 @@ abstract public class RootUIElement implements ILinkListener, IChangeListener {
 	
 	protected ViewElementFactory createViewElementFactory()
 	{
+		// FIXME: this should be really part of debugger-specific code.
 		return new ViewElementFactory();
 	}
 
@@ -230,7 +231,7 @@ abstract public class RootUIElement implements ILinkListener, IChangeListener {
 				activate(model);
 			} else {
 				fBreadcrumbs.setCurrent(element.getId(), element.getName());
-				GridElement gridElement = factory.createUIElement2(element, true);
+				GridElement gridElement = factory.createUIElement2(element, viewElementFactory, true);
 				
 				fCurrentGridElement = gridElement;
 				gridElement.fillIntoGrid(getControl());

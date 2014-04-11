@@ -18,15 +18,13 @@ import org.eclipse.cdt.dsf.gdb.internal.ui.IGdbUIConstants;
 import org.eclipse.cdt.dsf.gdb.newlaunch.AttachToProcessElement;
 import org.eclipse.cdt.dsf.gdb.newlaunch.ExecutableElement;
 import org.eclipse.cdt.dsf.gdb.newlaunch.ExecutablesListElement;
+import org.eclipse.cdt.ui.grid.GridElement;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Layout;
 
 public class ExecutablesListUIElement extends ListUIElement {
 
@@ -58,38 +56,32 @@ public class ExecutablesListUIElement extends ListUIElement {
 	}
 
 	@Override
-	protected void createButtonBar(Composite parent) {
+	protected GridElement createButtonBar() { return new GridElement() { 	
 		
-		new Label(parent, SWT.NONE);
-		new Label(parent, SWT.NONE);
-		
-		int horSpan = 1;
-		Layout parentLayout = parent.getLayout();
-		if (parentLayout instanceof GridLayout) {
-			horSpan = ((GridLayout)parentLayout).numColumns;
-		}
-		Composite comp = new Composite(parent, SWT.NONE);
-		GridLayout layout = new GridLayout(2, false);
-		
-		layout.marginWidth = layout.marginHeight = 0;
-		comp.setLayout(layout);
-		comp.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		
-		Button button = createButton(comp, GdbUIPlugin.getImage(IGdbUIConstants.IMG_OBJ_NEW_EXECUTABLE), "Add executable", 1, 1);
-		button.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				newExecutableButtonPressed();
-			}
-		});
-		
-		button = createButton(comp, GdbUIPlugin.getImage(IGdbUIConstants.IMG_OBJ_NEW_ATTACH), "Attach to process", 1, 1);
-		button.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				attachButtonPressed();
-			}
-		});
+		@Override
+		protected void createImmediateContent(Composite parent) {
+
+			new Label(parent, SWT.NONE);
+			new Label(parent, SWT.NONE);
+
+			Button button = createButton(parent, GdbUIPlugin.getImage(IGdbUIConstants.IMG_OBJ_NEW_EXECUTABLE), "Add executable", 1, 1);
+			button.addSelectionListener(new SelectionAdapter() {
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+					newExecutableButtonPressed();
+				}
+			});
+
+			button = createButton(parent, GdbUIPlugin.getImage(IGdbUIConstants.IMG_OBJ_NEW_ATTACH), "Attach to process", 1, 1);
+			button.addSelectionListener(new SelectionAdapter() {
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+					attachButtonPressed();
+				}
+			});
+			
+			new Label(parent, SWT.NONE);
+		}}; 
 	}
 
 	protected void newExecutableButtonPressed() {

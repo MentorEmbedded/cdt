@@ -60,6 +60,22 @@ public class CompositePresentationModel extends PresentationModel implements ICo
 		return children;
 	}
 	
+	@Override
+	public IPresentationModel findChild(String id) {
+		for (IPresentationModel m: getChildren()) {
+			if (m.getName().equals(id)) 
+				return m;
+		}
+		
+		for (IPresentationModel m: getChildren()) {
+			IPresentationModel r = m.findChild(id);
+			if (r != null)
+				return r;
+		}
+		
+		return null;
+	}
+	
 	public String name;
 	public List<IPresentationModel> children = new ArrayList<IPresentationModel>();
 	

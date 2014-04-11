@@ -1,4 +1,17 @@
 
+
+
+
+# Drill-down
+
+The ILinkPresentationModel (to to be implemented) is a name and a link to another IPresentationModel.
+The standard view shows this model as a link, and switches to the references presentation model
+on click.
+
+
+
+
+
 # Concepts
 ============
 

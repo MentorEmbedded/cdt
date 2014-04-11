@@ -19,23 +19,14 @@ import org.eclipse.cdt.dsf.gdb.newlaunch.DebuggerElement;
 import org.eclipse.cdt.dsf.gdb.newlaunch.DebuggerSettingsElement;
 import org.eclipse.cdt.dsf.gdb.newlaunch.OverviewElement;
 import org.eclipse.cdt.dsf.gdb.service.SessionType;
-import org.eclipse.cdt.ui.grid.BooleanPresentationModel;
-import org.eclipse.cdt.ui.grid.BooleanReflectionPresentationModel;
-import org.eclipse.cdt.ui.grid.CheckboxViewElement;
 import org.eclipse.cdt.ui.grid.CompositePresentationModel;
 import org.eclipse.cdt.ui.grid.GridElement;
 import org.eclipse.cdt.ui.grid.IPresentationModel;
-import org.eclipse.cdt.ui.grid.LinkViewElement;
-import org.eclipse.cdt.ui.grid.PillSelectionViewElement;
 import org.eclipse.cdt.ui.grid.SelectionPresentationModel;
 import org.eclipse.cdt.ui.grid.StaticStringPresentationModel;
-import org.eclipse.cdt.ui.grid.StringPresentationModel;
-import org.eclipse.cdt.ui.grid.StringViewElement;
 import org.eclipse.cdt.ui.grid.ViewElement;
-import org.eclipse.jface.resource.JFaceResources;
+import org.eclipse.cdt.ui.grid.ViewElementFactory;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Label;
 
 public class OverviewUIElement extends ViewElement {
 
@@ -56,19 +47,25 @@ public class OverviewUIElement extends ViewElement {
 	}
 
 	private OverviewElement launchElement;
+	private ViewElementFactory viewElementFactory;
 	
 	@Override
 	public CompositePresentationModel getModel() {
 		return (CompositePresentationModel)super.getModel();
 	}
 		
-	public OverviewUIElement(OverviewElement launchElement, UIElementFactory factory) {
+	public OverviewUIElement(OverviewElement launchElement, ViewElementFactory viewElementFactory, UIElementFactory factory) {
 		super(new CompositePresentationModel("Overview"));
 		this.launchElement = launchElement;
-		
+		this.viewElementFactory = viewElementFactory;
 			
 		final DebuggerElement debugger = getLaunchElement().findChild(DebuggerElement.class);
 		final DebuggerSettingsElement debuggerSettings = debugger.findChild(DebuggerSettingsElement.class);
+		
+		final IPresentationModel debuggerPresentation = factory.createPresentationModel(debugger);
+		
+		final IPresentationModel connection = debuggerPresentation.findChild("Connection");
+		
 		
 		final SelectionPresentationModel types = new SelectionPresentationModel("Debug", Arrays.asList(fgTypes)) {
 			
@@ -88,28 +85,15 @@ public class OverviewUIElement extends ViewElement {
 				}
 			}
 		};
-		final PillSelectionViewElement typeSelector = new PillSelectionViewElement(types);
+		//final PillSelectionViewElement typeSelector = new PillSelectionViewElement(types);
 		
-		BooleanPresentationModel stopModeModel = 
-				new BooleanReflectionPresentationModel("Non Stop", debuggerSettings, "isNonStop", "setNonStop");
+		final IPresentationModel stopModeModel = debuggerPresentation.findChild("Non Stop");
+				
+		//final CheckboxViewElement stopModeView = new CheckboxViewElement(stopModeModel);
+		//stopModeView.labelInContentArea();
+		final GridElement stopModeView = viewElementFactory.createViewElement(stopModeModel);
 		
 		/*
-		BooleanPresentationModel stopModeModel = new BooleanPresentationModel("Non Stop") {
-			
-			@Override
-			protected void doSetValue(boolean value) {
-				stopMode.setNonStop(value);
-			}
-			
-			@Override
-			protected boolean doGetValue() {
-				return stopMode.isNonStop();
-			}
-		};*/
-		
-		final CheckboxViewElement stopModeView = new CheckboxViewElement(stopModeModel);
-		stopModeView.labelInContentArea();
-		
 		final StringPresentationModel connection = new StringPresentationModel("Connection") {
 			{
 				types.addAndCallListener(new IPresentationModel.Listener() {
@@ -129,7 +113,9 @@ public class OverviewUIElement extends ViewElement {
 		};
 		
 		final StringViewElement connectionView = new StringViewElement(connection);
-		connectionView.indentLabel();
+		connectionView.indentLabel();*/
+		
+		final GridElement connectionView = viewElementFactory.createViewElement(connection);
 		
 		StaticStringPresentationModel summaryModel = new StaticStringPresentationModel() {
 			@Override
@@ -139,18 +125,34 @@ public class OverviewUIElement extends ViewElement {
 			
 			@Override
 			public void activate() {
-				notifyListeners(IPresentationModel.ACTIVATED, debugger.getId());
+				notifyListeners(IPresentationModel.ACTIVATED, debuggerPresentation);
 			}
 		};
-		getModel().add(summaryModel);
-		final LinkViewElement summary = new LinkViewElement(summaryModel);
-				
+		//getModel().add(summaryModel);
+		//final LinkViewElement summary = new LinkViewElement(summaryModel);
+		
+		final CompositePresentationModel options = new CompositePresentationModel("Options");
+		options.add(stopModeModel);
+		options.add(summaryModel);
+		
+		getModel().add(options);
+		
+		final GridElement optionsView = viewElementFactory.createViewElement(options);
+		
+		final CompositePresentationModel allOfThis = new CompositePresentationModel();
+		allOfThis.setId("overview"); //$NON-NLS-1$
+		allOfThis.add(types);
+		allOfThis.add(connection);
+		allOfThis.add(options);
+		
+		/*		
 		GridElement boldFirstLabel = new GridElement() {
 			{
 				addChild(typeSelector);
 				addChild(connectionView);
-				addChild(stopModeView);
-				addChild(summary);
+				addChild(optionsView);
+				//addChild(stopModeView);
+				//addChild(summary);
 			}
 			
 			@Override
@@ -170,9 +172,10 @@ public class OverviewUIElement extends ViewElement {
 				assert c instanceof Label;
 				((Label)c).setFont(JFaceResources.getFontRegistry().getBold(JFaceResources.DIALOG_FONT));
 			}
-		};
+		};*/
 		
-		addChild(boldFirstLabel);
+		//addChild(boldFirstLabel);
+		addChild(viewElementFactory.createViewElement(allOfThis));
 		
 		createUIChildren(factory);
 		
@@ -189,7 +192,7 @@ public class OverviewUIElement extends ViewElement {
 		for (ILaunchElement child : getLaunchElement().getChildren()) {
 			if (child == debugger)
 				continue;
-			GridElement uiChild = factory.createUIElement2(child, false);
+			GridElement uiChild = factory.createUIElement2(child, viewElementFactory, false);
 			addChild(uiChild);
 			if (uiChild instanceof ViewElement) {
 				getModel().add(((ViewElement)uiChild).getModel());

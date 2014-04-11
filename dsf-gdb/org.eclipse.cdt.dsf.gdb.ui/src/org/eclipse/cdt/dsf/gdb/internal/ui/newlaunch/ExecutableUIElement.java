@@ -40,6 +40,7 @@ import org.eclipse.cdt.ui.grid.CompositePresentationModel;
 import org.eclipse.cdt.ui.grid.GridElement;
 import org.eclipse.cdt.ui.grid.IPresentationModel;
 import org.eclipse.cdt.ui.grid.ViewElement;
+import org.eclipse.cdt.ui.grid.ViewElementFactory;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.ui.DebugUITools;
@@ -88,7 +89,7 @@ public class ExecutableUIElement extends ViewElement {
 		return (CompositePresentationModel)super.getModel();
 	}
 
-	public ExecutableUIElement(final ExecutableElement launchElement, boolean showDetails, final UIElementFactory uiElementFactory ) {
+	public ExecutableUIElement(final ExecutableElement launchElement, final ViewElementFactory viewElementFactory, boolean showDetails, final UIElementFactory uiElementFactory ) {
 		super(new CompositePresentationModel("Executable"));
 	//	super(launchElement, showDetails);
 		this.launchElement = launchElement;
@@ -100,13 +101,13 @@ public class ExecutableUIElement extends ViewElement {
 					addChild(createProjectGroup());
 					for (ILaunchElement child: launchElement.getChildren()) {
 						if (child instanceof RemoteBinaryElement) {
-							addChild(uiElementFactory.createUIElement2(child, false));
+							addChild(uiElementFactory.createUIElement2(child, viewElementFactory, false));
 						}
 					}
 					
 					for (ILaunchElement child: launchElement.getChildren()) {
 						if (child instanceof BuildSettingsElement) {
-							addChild(uiElementFactory.createUIElement2(child, false));
+							addChild(uiElementFactory.createUIElement2(child, viewElementFactory, false));
 						}
 					}						
 				}
@@ -117,13 +118,13 @@ public class ExecutableUIElement extends ViewElement {
 				{
 					for (ILaunchElement child: launchElement.getChildren()) {
 						if (child instanceof ArgumentsElement) {
-							addChild(uiElementFactory.createUIElement2(child, false));
+							addChild(uiElementFactory.createUIElement2(child, viewElementFactory, false));
 						}
 					}
 					
 					for (ILaunchElement child: launchElement.getChildren()) {
 						if (child instanceof WorkingDirectoryElement) {
-							GridElement uiElement = uiElementFactory.createUIElement2(child, false);
+							GridElement uiElement = uiElementFactory.createUIElement2(child, viewElementFactory, false);
 							addChild(uiElement);
 							IPresentationModel m = ((WorkingDirectoryUIElement)uiElement).getTheModel();
 							getModel().add(m);
@@ -132,7 +133,7 @@ public class ExecutableUIElement extends ViewElement {
 					
 					for (ILaunchElement child: launchElement.getChildren()) {
 						if (child instanceof EnvironmentElement) {
-							addChild(uiElementFactory.createUIElement2(child, false));
+							addChild(uiElementFactory.createUIElement2(child, viewElementFactory, false));
 						}
 					}					
 				}
@@ -142,7 +143,7 @@ public class ExecutableUIElement extends ViewElement {
 			
 			for (ILaunchElement child: launchElement.getChildren()) {
 				if (child instanceof StopOnStartupElement) {
-					addChild(uiElementFactory.createUIElement2(child, false));
+					addChild(uiElementFactory.createUIElement2(child, viewElementFactory, false));
 				}
 			}
 			
