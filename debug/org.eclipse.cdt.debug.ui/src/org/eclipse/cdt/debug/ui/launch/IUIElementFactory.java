@@ -19,10 +19,15 @@ import org.eclipse.cdt.ui.grid.ViewElementFactory;
 /**
  * @since 7.4
  */
-public interface IUIElementFactory {
+public abstract class IUIElementFactory {
 
-	GridElement createUIElement2(ILaunchElement l, ViewElementFactory viewElementFactory, boolean b);
+	public abstract GridElement createUIElement2(ILaunchElement l, ViewElementFactory viewElementFactory, boolean b);
 	
 	// FIXME: temporary hack, remove.
-	IPresentationModel createPresentationModel(ILaunchElement element);
+	public abstract IPresentationModel createPresentationModel(ILaunchElement element, boolean summary);
+	
+	public IPresentationModel createPresentationModel(ILaunchElement element)
+	{
+		return createPresentationModel(element, false);
+	}
 }

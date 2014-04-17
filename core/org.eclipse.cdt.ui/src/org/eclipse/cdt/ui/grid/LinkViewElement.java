@@ -15,6 +15,8 @@ import org.eclipse.cdt.ui.CDTUITools;
  */
 public class LinkViewElement extends GridElement {
 
+	private Label label;
+
 	public LinkViewElement(IStaticStringPresentationModel model)
 	{
 		this.model = model;
@@ -22,12 +24,12 @@ public class LinkViewElement extends GridElement {
 
 	@Override
 	protected void createImmediateContent(Composite parent) {
-		createImmediateContent(parent, model);
+		label = createImmediateContent(parent, model);
 	}
 	
-	public static void createImmediateContent(Composite parent, final IStaticStringPresentationModel model) {
+	public static Label createImmediateContent(Composite parent, final IStaticStringPresentationModel model) {
 		
-		new Label(parent, SWT.NONE);
+		Label label = new Label(parent, SWT.NONE);
 		
 		new Label(parent, SWT.NONE);
 				
@@ -54,9 +56,11 @@ public class LinkViewElement extends GridElement {
 		});
 		
 		new Label(parent, SWT.NONE);
+		
+		return label;
 	}
 	
-	public static void createImmediateContentWithName(Composite parent, final IStringPresentationModel model) {
+	public static Label createImmediateContentWithName(Composite parent, final IStringPresentationModel model) {
 		
 		Label l = new Label(parent, SWT.NONE);
 		l.setText(model.getName());
@@ -86,13 +90,14 @@ public class LinkViewElement extends GridElement {
 		});
 		
 		new Label(parent, SWT.NONE);
+		
+		return l;
 	}	
 	
 	@Override
 	public Label indent() {
-		// Do nothing at all. Label is already indented.
-		return null;
-	};
+		return label;
+	}
 	
 	IStaticStringPresentationModel model;
 }

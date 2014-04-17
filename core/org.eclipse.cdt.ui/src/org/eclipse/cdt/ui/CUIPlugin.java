@@ -596,6 +596,8 @@ public class CUIPlugin extends AbstractUIPlugin {
 				}
 			};
 			PlatformUI.getWorkbench().getThemeManager().addPropertyChangeListener(fThemeListener);
+			
+			FontUtil.loadFontFile(FontAwesome.URL_SPECIFICATION);
 		}
 		CDTContextActivator.getInstance().install();
 

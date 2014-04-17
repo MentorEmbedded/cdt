@@ -23,6 +23,7 @@ import org.eclipse.cdt.ui.grid.BasicGroupGridElement;
 import org.eclipse.cdt.ui.grid.GridElement;
 import org.eclipse.cdt.ui.grid.ICompositePresentationModel;
 import org.eclipse.cdt.ui.grid.IPresentationModel;
+import org.eclipse.cdt.ui.grid.ListPresentationModel;
 import org.eclipse.cdt.ui.grid.ViewElementFactory;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
@@ -52,11 +53,17 @@ public class NewLaunchTab extends CLaunchConfigurationTab {
 				@Override
 				public GridElement createViewElement(final IPresentationModel model) {
 					
+					
 					String id = model.getId();
 					if (id.equals("overview") || id.equals("executable")) { //$NON-NLS-1$ //$NON-NLS-2$
 						GridElement group = super.createViewElement(model);
 						group.spacing(12);
 						return group;
+					}
+					
+					if (id.equals("executables")) {
+						GridElement result = new ExecutableListViewElement((ListPresentationModel)model, this);
+						return result;
 					}
 					
 					if (model.getName().equals("Connection")) { //$NON-NLS-1$

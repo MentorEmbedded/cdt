@@ -17,6 +17,7 @@ import org.eclipse.cdt.debug.core.launch.ILaunchElement;
 import org.eclipse.cdt.debug.ui.launch.IUIElementFactory;
 import org.eclipse.cdt.dsf.gdb.internal.ui.launching.LaunchUIMessages;
 import org.eclipse.cdt.dsf.gdb.newlaunch.ArgumentsElement;
+import org.eclipse.cdt.dsf.gdb.newlaunch.AttachToProcessElement;
 import org.eclipse.cdt.dsf.gdb.newlaunch.BuildSettingsElement;
 import org.eclipse.cdt.dsf.gdb.newlaunch.ConnectionElement;
 import org.eclipse.cdt.dsf.gdb.newlaunch.ConnectionElement.ConnectionType;
@@ -36,6 +37,7 @@ import org.eclipse.cdt.dsf.gdb.newlaunch.WorkingDirectoryElement;
 import org.eclipse.cdt.ui.grid.BooleanPresentationModel;
 import org.eclipse.cdt.ui.grid.BooleanReflectionPresentationModel;
 import org.eclipse.cdt.ui.grid.CompositePresentationModel;
+import org.eclipse.cdt.ui.grid.DrilldownPresentationModel;
 import org.eclipse.cdt.ui.grid.GridElement;
 import org.eclipse.cdt.ui.grid.IPresentationModel;
 import org.eclipse.cdt.ui.grid.LabeledCompositePresentationModel;
@@ -46,7 +48,7 @@ import org.eclipse.cdt.ui.grid.StringReflectionPresentationModel;
 import org.eclipse.cdt.ui.grid.ViewElementFactory;
 
 /* VP: maybe we should use IAdaptable instead? */
-public class UIElementFactory implements IUIElementFactory {
+public class UIElementFactory extends IUIElementFactory {
 	
 	@Override
 	public GridElement createUIElement2(ILaunchElement element, ViewElementFactory viewElementFactory, boolean showDetails) {
@@ -82,9 +84,9 @@ public class UIElementFactory implements IUIElementFactory {
 		}
 		return null;
 	}
-
+	
 	@Override
-	public IPresentationModel createPresentationModel(ILaunchElement element) {
+	public IPresentationModel createPresentationModel(ILaunchElement element, boolean summary) {
 		if (element instanceof DebuggerElement) {
 			
 			DebuggerElement launchElement = (DebuggerElement) element;
@@ -265,7 +267,23 @@ public class UIElementFactory implements IUIElementFactory {
 			
 			result.add(runtime);
 			
-			return result;
+			
+			if (summary)
+			{
+				String programName = null;
+				if (element instanceof ExecutableElement) {
+					programName = ((ExecutableElement)element).getProgramName();
+					if (programName.isEmpty()) {
+						programName = "Not specified";
+					}
+				}
+				if (element instanceof AttachToProcessElement) {
+					programName += " (attach)";
+				}
+				return new DrilldownPresentationModel(programName, result);
+			} else {
+				return result;
+			}
 		}
 		
 		

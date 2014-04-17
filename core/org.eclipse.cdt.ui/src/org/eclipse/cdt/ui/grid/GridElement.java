@@ -8,7 +8,9 @@ import java.util.List;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
@@ -121,6 +123,8 @@ public abstract class GridElement {
 	// column 0 to column 2 and reducing span of the column
 	// 3.
 	// Repeats same for child elements.
+	// FIXME: this behaviour is rather specific and might
+	// belong to a subclass.
 	public Label indent()
 	{
 		assert !childControls.isEmpty() || !childElements.isEmpty();
@@ -134,6 +138,45 @@ public abstract class GridElement {
 		}
 		
 		return result;
+	}
+	
+	// Add a button to the rightmost column of this element.
+	// The default implementation works only for single-row
+	// elements.
+	public GridElement addButton(Button b)
+	{
+		assert rowCount() == 1;
+		assert getChildElements().isEmpty();
+		
+		Control last = getChildControls().get(getChildControls().size()-1);
+		if (last instanceof Composite) {
+			Composite composite = (Composite)last;
+			b.setParent(composite);
+		} else if (last instanceof Label) {
+			Label label = (Label)last;
+			assert label.getText().isEmpty();
+			Composite composite = new Composite(parent, SWT.NONE);
+			composite.moveAbove(label);
+			FillLayout layout = new FillLayout(SWT.HORIZONTAL);
+			layout.marginHeight = layout.marginWidth = 0;
+			composite.setLayout(layout);
+			b.setParent(composite);
+			label.dispose();
+		}
+		
+		return this;
+	}
+	
+	private int rowCount()
+	{
+		int span = 0;
+		for (Control c: getChildControls()) {
+			span += CDTUITools.getGridLayoutData(c).horizontalSpan;
+		}
+		for (GridElement c: getChildElements()) 
+			span += c.rowCount();
+		
+		return span/DEFAULT_WIDTH;
 	}
 	
 	// FIXME: this method is suppose to be called before fillIntoGrid,
