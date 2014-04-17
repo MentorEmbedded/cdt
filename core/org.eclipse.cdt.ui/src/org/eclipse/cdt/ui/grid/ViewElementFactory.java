@@ -23,7 +23,10 @@ public class ViewElementFactory {
 			return new LinkViewElement((IStaticStringPresentationModel)model);
 		} else if (model instanceof IBooleanPresentationModel) {
 			return new CheckboxViewElement((IBooleanPresentationModel)model);
-		}	
+		}
+		else if (model instanceof ListPresentationModel) {
+			return new ListViewElement((ListPresentationModel)model, this);
+		}
 		else if (model instanceof ICompositePresentationModel) {
 			
 			ICompositePresentationModel composite = (ICompositePresentationModel) model;

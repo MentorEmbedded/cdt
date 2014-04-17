@@ -8,12 +8,24 @@ package org.eclipse.cdt.ui.grid;
  * @since 5.7
  */
 public class DrilldownPresentationModel extends StaticStringPresentationModel {
+	
+	private String label;
+	private IPresentationModel details;
 
-	@Override
-	public String getString() {
-		// TODO Auto-generated method stub
-		return null;
+	public DrilldownPresentationModel(String label, IPresentationModel details)
+	{
+		this.label = label;
+		this.details = details;
 	}
 	
+	@Override
+	public String getString() {
+		return label;
+	}
+
+	@Override
+	public void activate() {
+		notifyListeners(IPresentationModel.ACTIVATED, details);
+	}
 
 }

@@ -21,6 +21,11 @@ public class CompositePresentationModel extends PresentationModel implements ICo
 		super(name);
 	}
 	
+	@Override
+	public String toString() {
+		return getName();
+	}
+	
 	public void setClasses(String[] classes)
 	{
 		this.classes = Arrays.asList(classes);
