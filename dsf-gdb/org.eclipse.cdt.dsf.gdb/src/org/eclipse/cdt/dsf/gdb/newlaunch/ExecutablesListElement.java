@@ -132,16 +132,18 @@ public class ExecutablesListElement extends ListLaunchElement {
 		return list.toArray(new ExecutableElement[list.size()]);
 	}
 
-	public void addExecutable() {
+	public ExecutableElement addExecutable() {
 		ExecutableElement element = ExecutableElement.createNewExecutableElement(this, getUniqueChildId());
 		doInsertChild(getChildren().length, element);
 		elementAdded(element, ADD_DETAIL_ACTIVATE);
+		return element;
 	}
 
-	public void addAttachToProcess() {
+	public AttachToProcessElement addAttachToProcess() {
 		AttachToProcessElement element = AttachToProcessElement.createNewAttachToProcessElement(this, getUniqueChildId());
 		doInsertChild(getChildren().length, element);
 		elementAdded(element, ADD_DETAIL_ACTIVATE);
+		return element;
 	}
 
 	@Override
