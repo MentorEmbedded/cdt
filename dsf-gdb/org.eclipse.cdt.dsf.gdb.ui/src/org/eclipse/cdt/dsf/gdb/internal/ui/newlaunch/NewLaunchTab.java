@@ -23,7 +23,6 @@ import org.eclipse.cdt.ui.grid.BasicGroupGridElement;
 import org.eclipse.cdt.ui.grid.GridElement;
 import org.eclipse.cdt.ui.grid.ICompositePresentationModel;
 import org.eclipse.cdt.ui.grid.IPresentationModel;
-import org.eclipse.cdt.ui.grid.ListPresentationModel;
 import org.eclipse.cdt.ui.grid.ViewElementFactory;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
@@ -62,7 +61,7 @@ public class NewLaunchTab extends CLaunchConfigurationTab {
 					}
 					
 					if (id.equals("executables")) {
-						GridElement result = new ExecutableListViewElement((ListPresentationModel)model, this);
+						GridElement result = new ExecutableListViewElement((ExecutableListPresentationModel)model, this);
 						return result;
 					}
 					
@@ -94,9 +93,9 @@ public class NewLaunchTab extends CLaunchConfigurationTab {
 		@Override
 		public void elementAdded(ILaunchElement element, int details) {
 			super.elementAdded(element, details);
-			if ((details & ILaunchElement.ADD_DETAIL_ACTIVATE) != 0) {
-				activateElement(element);
-			}
+			//if ((details & ILaunchElement.ADD_DETAIL_ACTIVATE) != 0) {
+			//	activateElement(element);
+			//}
 			NewLaunchTab.this.updateLaunchConfigurationDialog();
 		}
 

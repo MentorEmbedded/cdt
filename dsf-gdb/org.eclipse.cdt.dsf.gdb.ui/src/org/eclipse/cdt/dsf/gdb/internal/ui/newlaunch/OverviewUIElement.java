@@ -23,7 +23,6 @@ import org.eclipse.cdt.dsf.gdb.service.SessionType;
 import org.eclipse.cdt.ui.grid.CompositePresentationModel;
 import org.eclipse.cdt.ui.grid.GridElement;
 import org.eclipse.cdt.ui.grid.IPresentationModel;
-import org.eclipse.cdt.ui.grid.ListPresentationModel;
 import org.eclipse.cdt.ui.grid.SelectionPresentationModel;
 import org.eclipse.cdt.ui.grid.StaticStringPresentationModel;
 import org.eclipse.cdt.ui.grid.ViewElement;
@@ -150,9 +149,7 @@ public class OverviewUIElement extends ViewElement {
 		ExecutablesListElement executableListElement = launchElement
 				.findChild(ExecutablesListElement.class);
 
-		final CompositePresentationModel executables = new ListPresentationModel(
-				"Executables");
-		executables.setId("executables");
+		final CompositePresentationModel executables = new ExecutableListPresentationModel(executableListElement, factory);
 
 		for (ILaunchElement e : executableListElement.getChildren()) {
 			executables.add(factory.createPresentationModel(e, true));
