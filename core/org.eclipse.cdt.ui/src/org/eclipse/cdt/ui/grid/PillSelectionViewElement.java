@@ -8,7 +8,6 @@ import org.eclipse.swt.widgets.Label;
 
 import org.eclipse.cdt.ui.CDTUITools;
 import org.eclipse.cdt.ui.dialogs.PillsControl;
-import org.eclipse.cdt.ui.grid.IPresentationModel.Listener;
 
 /**
  * @since 5.7
@@ -30,9 +29,9 @@ public class PillSelectionViewElement extends ViewElement {
 		Label l = new Label(parent, SWT.NONE);
 		l.setText(getModel().getName());
 		
-		Label spacer = new Label(parent, SWT.NONE);
+		new Label(parent, SWT.NONE);
 		
-		final PillsControl pills = new PillsControl(parent, SWT.NONE);
+		pills = new PillsControl(parent, SWT.NONE);
 		pills.setBackground(parent.getDisplay().getSystemColor(SWT.COLOR_WIDGET_BACKGROUND));
 		String[] items = getModel().getPossibleValues().toArray(new String[0]);
 		pills.setItems(items);
@@ -48,25 +47,24 @@ public class PillSelectionViewElement extends ViewElement {
 		CDTUITools.getGridLayoutData(pills).horizontalSpan = 2;
 		CDTUITools.grabAllWidth(pills);
 		
-		Label spacer2 = new Label(parent, SWT.NONE);
-		
-		getModel().addAndCallListener(new Listener() {
-			@Override
-			public void changed(int what, Object object) {
-				if ((what & IPresentationModel.VALUE_CHANGED)!= 0) {
-					try {
-						blockSignals = true;
-						pills.setSelection(getModel().getPossibleValues().indexOf(getModel().getValue()));
-					} finally {
-						blockSignals = false;
-					}
-				}
-				
-				if ((what & IPresentationModel.VISIBILITY_CHANGED) != 0) 
-					setVisible(getModel().isVisible());
-			}
-		});		
+		new Label(parent, SWT.NONE);		
 	}
 	
-	private boolean blockSignals; 
+	@Override
+	protected void modelChanged(int what, Object object) {
+		if ((what & IPresentationModel.VALUE_CHANGED)!= 0) {
+			try {
+				blockSignals = true;
+				pills.setSelection(getModel().getPossibleValues().indexOf(getModel().getValue()));
+			} finally {
+				blockSignals = false;
+			}
+		}
+		
+		if ((what & IPresentationModel.VISIBILITY_CHANGED) != 0) 
+			setVisible(getModel().isVisible());
+	}
+	
+	private boolean blockSignals;
+	private PillsControl pills; 
 }

@@ -66,35 +66,25 @@ public class StringViewElement extends ViewElement {
 		CDTUITools.grabAllWidth(text);
 		
 		createButton(parent);
-					
-		modelListener = new Listener() {
-			@Override
-			public void changed(int what, Object object) {
-				if (blockSignals)
-					return;
-				
-				if ((what & IPresentationModel.VALUE_CHANGED) != 0) {
-					try {
-						blockSignals = true;
-						text.setText(getModel().getValue());	
-					} finally {
-						blockSignals = false;
-					}
-				}
-				
-				if ((what & IPresentationModel.VISIBILITY_CHANGED) != 0) 
-					setVisible(getModel().isVisible());
-			}
-		};
-		getModel().addAndCallListener(modelListener);			
 	}
 	
-	
 	@Override
-	public void dispose() {
-		getModel().removeListener(modelListener);
-		super.dispose();
-	}	
+	protected void modelChanged(int what, Object object) {
+		if (blockSignals)
+			return;
+		
+		if ((what & IPresentationModel.VALUE_CHANGED) != 0) {
+			try {
+				blockSignals = true;
+				text.setText(getModel().getValue());	
+			} finally {
+				blockSignals = false;
+			}
+		}
+		
+		if ((what & IPresentationModel.VISIBILITY_CHANGED) != 0) 
+			setVisible(getModel().isVisible());	
+	}
 
 	protected void createButton(Composite parent) {
 		new Label(parent, SWT.NONE);
@@ -103,5 +93,4 @@ public class StringViewElement extends ViewElement {
 	private boolean blockSignals;
 	protected Text text; 
 	protected boolean indentLabel;
-	private Listener modelListener;
 }

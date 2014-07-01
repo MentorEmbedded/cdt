@@ -151,9 +151,7 @@ public class OverviewUIElement extends ViewElement {
 
 		final CompositePresentationModel executables = new ExecutableListPresentationModel(executableListElement, factory);
 
-		for (ILaunchElement e : executableListElement.getChildren()) {
-			executables.add(factory.createPresentationModel(e, true));
-		}
+		
 
 		getModel().add(types);
 		getModel().add(connection);

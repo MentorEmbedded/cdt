@@ -12,6 +12,35 @@ import java.util.List;
 public class PresentationModel implements IPresentationModel {
 		
 	private List<Listener> listeners = new ArrayList<Listener>();
+	
+	private Listener theListener = new Listener() {
+		
+		@Override
+		public void changed(int what, Object object) {
+			for (Listener l: listeners)
+				l.changed(what, object);
+		}
+		
+		@Override
+		public void childAdded(IPresentationModel parent, IPresentationModel child) {
+			for (Listener l: listeners)
+				l.childAdded(parent, child);
+		}
+		
+		@Override
+		public void childRemoved(IPresentationModel parent, IPresentationModel child) {
+			for (Listener l: listeners)
+				l.childRemoved(parent, child);
+		}
+		
+		@Override
+		public void visibilityChanged(IPresentationModel model, boolean visible) {
+			for (Listener l: listeners)
+				l.visibilityChanged(model, visible);
+		}
+	};
+	
+	
 	private String name;
 	private boolean visible = true;
 	private boolean enabled = true;
@@ -32,6 +61,7 @@ public class PresentationModel implements IPresentationModel {
 	{
 		this.id = id;
 	}
+
 	
 	@Override
 	public boolean isVisible() {
@@ -78,6 +108,11 @@ public class PresentationModel implements IPresentationModel {
 		this.listeners.remove(listener);
 	}
 	
+	protected Listener getListener()
+	{
+		return theListener;
+	}
+	
 	@Override
 	public void activate() {
 		notifyListeners(ACTIVATED, this);
@@ -85,7 +120,10 @@ public class PresentationModel implements IPresentationModel {
 	
 	protected void notifyListeners(int what, Object object)
 	{
-		for (Listener l: listeners)
+		// Make a private copy so that if elements being removed
+		// unregister listeners, nothing breaks;
+		// FIXME: review this in more detail.
+		for (Listener l: new ArrayList<Listener>(listeners))
 			l.changed(what, object);
 	}
 	

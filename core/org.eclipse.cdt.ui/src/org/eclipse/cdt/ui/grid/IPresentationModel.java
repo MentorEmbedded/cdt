@@ -18,9 +18,6 @@ public interface IPresentationModel {
 	public static int VALUE_CHANGED = 1;
 	public static int VISIBILITY_CHANGED = 2;
 	public static int ENABLENESS_CHANGED = 4;
-	public static int CHILD_ADDED = 8;
-	public static int CHILD_REMOVED = 16;
-	public static int CHILD_CHANGED = 32;
 	public static int ACTIVATED = 64;
 	
 	public interface Listener {
@@ -30,6 +27,33 @@ public interface IPresentationModel {
 		// changed.
 		// FIXME: Use all-1 value for 'all changed'?
 		public void changed(int what, Object object);
+		
+		public void childAdded(IPresentationModel parent, IPresentationModel child);
+		
+		public void childRemoved(IPresentationModel parent, IPresentationModel child);
+		
+		public void visibilityChanged(IPresentationModel model, boolean visible);
+	}
+	
+	public class DefaultListener implements Listener {
+		@Override
+		public void changed(int what, Object object) {
+			//throw new UnsupportedOperationException();			
+		}
+		
+		@Override
+		public void childAdded(IPresentationModel parent, IPresentationModel child) {
+			//throw new UnsupportedOperationException();	
+		}
+		
+		@Override
+		public void childRemoved(IPresentationModel parent, IPresentationModel child) {
+			//throw new UnsupportedOperationException();
+		}
+		
+		@Override
+		public void visibilityChanged(IPresentationModel model, boolean visible) {	
+		}
 	}
 	
 	public abstract String getId();

@@ -249,7 +249,7 @@ abstract public class RootUIElement implements ILinkListener, IChangeListener {
 
 	private void connectModel(IPresentationModel model) {
 		// FIXME: add code to disconnect this listener.
-		model.addAndCallListener(new IPresentationModel.Listener() {
+		model.addAndCallListener(new IPresentationModel.DefaultListener() {
 
 			@Override
 			public void changed(int what, Object object) {

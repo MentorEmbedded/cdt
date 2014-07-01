@@ -22,6 +22,8 @@ public class FontAwesome {
 
 	/******************************* Icon Unicodes ************************************/
 	public static final String FA_TRASH_O = "\uf014"; //$NON-NLS-1$
+	public static final String FA_ARROW_UP = "\uf176"; //$NON-NLS-1$
+	public static final String FA_ARROW_DOWN = "\uf175"; //$NON-NLS-1$
 
 	/**
 	 * Set the font awesome to the control.

@@ -36,19 +36,28 @@ public class CompositePresentationModel extends PresentationModel implements ICo
 		return classes;
 	}
 	
+	private IPresentationModel.Listener listener = new IPresentationModel.DefaultListener() {
+		
+		@Override
+		public void changed(int what, Object object) {
+			if ((what & IPresentationModel.ACTIVATED) != 0)
+				notifyListeners(what, object);
+						
+			// TODO: maybe, need to do something sensible for other whats				
+		}
+	};
+	
 	public void add(IPresentationModel child)
 	{
 		children.add(child);
-		child.addAndCallListener(new IPresentationModel.Listener() {
-			
-			@Override
-			public void changed(int what, Object object) {
-				if ((what & IPresentationModel.ACTIVATED) != 0)
-					notifyListeners(what, object);
-							
-				// TODO: maybe, need to do something sensible for other whats				
-			}
-		});
+		child.addAndCallListener(listener);
+		getListener().childAdded(this, child);
+	}
+	
+	public void remove(IPresentationModel child) {
+		child.removeListener(listener);
+		children.remove(child);
+		getListener().childRemoved(this, child);
 	}
 	
 	@Override
@@ -61,6 +70,7 @@ public class CompositePresentationModel extends PresentationModel implements ICo
 		super.setVisible(v);
 	}
 
+	@Override
 	public List<IPresentationModel> getChildren() {
 		return children;
 	}

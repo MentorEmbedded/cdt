@@ -7,7 +7,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
 import org.eclipse.cdt.ui.CDTUITools;
-import org.eclipse.cdt.ui.grid.IPresentationModel.Listener;
 
 /**
  * @since 5.7
@@ -55,25 +54,24 @@ public class CheckboxViewElement extends ViewElement {
 				}
 			}
 		});
-		
-		getModel().addAndCallListener(new Listener() {
-			@Override
-			public void changed(int what, Object object) {
-				if (!blockSignals && (what | IPresentationModel.VALUE_CHANGED) != 0) {
-					try {
-						blockSignals = true;
-						checkbox.setSelection(getModel().getValue());	
-					} finally {
-						blockSignals = false;
-					}
-				}
-			}
-		});
-		
+				
 		CDTUITools.getGridLayoutData(checkbox).horizontalSpan = 2;
 		CDTUITools.grabAllWidth(checkbox);
 		
 		createButton(parent);
+	}
+	
+	@Override
+	protected void modelChanged(int what, Object object) {
+
+		if (!blockSignals && (what | IPresentationModel.VALUE_CHANGED) != 0) {
+			try {
+				blockSignals = true;
+				checkbox.setSelection(getModel().getValue());	
+			} finally {
+				blockSignals = false;
+			}
+		}	
 	}
 	
 	@Override

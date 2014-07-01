@@ -195,6 +195,7 @@ public abstract class GridElement {
 			composite.setLayout(layout);
 			b.setParent(composite);
 			label.dispose();
+			addChildControlFromOutside(composite);
 		}
 		
 		return this;
@@ -273,6 +274,8 @@ public abstract class GridElement {
 		for (GridElement c: childElements) {
 			c.dispose();
 		}
+		if (this.parent != null)
+			this.parent.layout();
 	}
 	
 	/** Add a children element that will be filled into

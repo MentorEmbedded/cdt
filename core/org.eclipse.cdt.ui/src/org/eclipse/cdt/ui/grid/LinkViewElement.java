@@ -13,18 +13,25 @@ import org.eclipse.cdt.ui.CDTUITools;
  *  third/fourth columns of the grid layout.
  *  @since 5.7
  */
-public class LinkViewElement extends GridElement {
+public class LinkViewElement extends ViewElement {
 
 	private Label label;
 
 	public LinkViewElement(IStaticStringPresentationModel model)
 	{
-		this.model = model;
+		super(model);
+	}
+	
+	@Override
+	public
+	IStaticStringPresentationModel getModel()
+	{
+		return (IStaticStringPresentationModel)super.getModel();
 	}
 
 	@Override
 	protected void createImmediateContent(Composite parent) {
-		label = createImmediateContent(parent, model);
+		label = createImmediateContent(parent, getModel());
 	}
 	
 	public static Label createImmediateContent(Composite parent, final IStaticStringPresentationModel model) {
@@ -37,7 +44,7 @@ public class LinkViewElement extends GridElement {
 		CDTUITools.getGridLayoutData(link).horizontalSpan = 2;
 		CDTUITools.grabAllWidth(link);
 		
-		model.addAndCallListener(new IPresentationModel.Listener() {
+		model.addAndCallListener(new IPresentationModel.DefaultListener() {
 			
 			@Override
 			public void changed(int what, Object object) {
@@ -71,7 +78,7 @@ public class LinkViewElement extends GridElement {
 		CDTUITools.getGridLayoutData(link).horizontalSpan = 2;
 		CDTUITools.grabAllWidth(link);
 		
-		model.addAndCallListener(new IPresentationModel.Listener() {
+		model.addAndCallListener(new IPresentationModel.DefaultListener() {
 			
 			@Override
 			public void changed(int what, Object object) {
@@ -98,6 +105,4 @@ public class LinkViewElement extends GridElement {
 	public Label indent() {
 		return label;
 	}
-	
-	IStaticStringPresentationModel model;
 }
