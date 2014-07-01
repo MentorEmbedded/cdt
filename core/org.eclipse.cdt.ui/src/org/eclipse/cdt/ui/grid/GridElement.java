@@ -17,7 +17,40 @@ import org.eclipse.swt.widgets.Label;
 
 import org.eclipse.cdt.ui.CDTUITools;
 
-/**
+/** GridElement is a collection of UI controls that are aligned on a master grid of a
+ *  dialog box or other window.
+ *  
+ *  Normally, SWT widgets are combined used Composite class, and layout happens independently
+ *  inside each Composite. As the result, controls that are part of same dialog, but different
+ *  Composite instances, are often not aligned to each other. Various property editors exhibit
+ *  the issue most often.
+ *  
+ *  JFace FieldEditor class attempted to address this problem, but does not implement a lot
+ *  of useful functionality. This class is a new attempt, with support for
+ *  
+ *  - Multi-row elements and general hierarchy of elements
+ *  - Showing and hiding
+ *  - Indentation
+ *  - Spacing between rows
+ *  
+ *  It's useful to compare SWT Composite, HTML and this implementation. All of that have
+ *  rectagular boxes. With SWT Composite, children boxes are always inside parent box, and
+ *  layed out locally. With HTML, children boxes are initially laid out locally, but they
+ *  can be placed outside of parent box, and be layed out from outside. With GridElement,
+ *  only leafs in the hierarchy have boxes, everything else is represented by GridElement.
+ *  Those leaf boxes are put on a single grid. This is not yet as flexible as HTML, but
+ *  it does workaround local layout constraint of Composite to achive global alignment. 
+ *  
+ *  HTML analogy does not stop here - we want GridElement to basically behave like HTML
+ *  div element - in particular, it can be manipulated at all times. Adding or removing
+ *  children, or changing properties, takes effect immediately.
+ *  
+ *  Construction of this is two-step process - first an instance is created, then it's
+ *  added to a grid using fillIntoGrid method. The motivation for that is to only do
+ *  the layout once. New children might adjust column widths, and parent element might
+ *  want to decorate children, so it's more convenient to delay rendering until entire
+ *  tree is ready.
+ *    
  * @since 5.7
  */
 public abstract class GridElement {
