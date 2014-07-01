@@ -72,7 +72,7 @@ public class NewLaunchTab extends CLaunchConfigurationTab {
 						final BasicGroupGridElement group = new BasicGroupGridElement(model.getName());
 						for (IPresentationModel m: composite.getChildren())
 							group.addChild(createViewElement(m));
-						model.addAndCallListener(new IPresentationModel.Listener() {
+						model.addAndCallListener(new IPresentationModel.DefaultListener() {
 							@Override
 							public void changed(int what, Object object) {
 								if ((what & IPresentationModel.VISIBILITY_CHANGED) != 0)

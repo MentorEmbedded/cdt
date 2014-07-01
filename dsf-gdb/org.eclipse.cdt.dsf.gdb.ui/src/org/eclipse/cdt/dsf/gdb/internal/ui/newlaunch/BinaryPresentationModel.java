@@ -16,7 +16,7 @@ import org.eclipse.swt.widgets.Shell;
  */
 public class BinaryPresentationModel extends StringReflectionPresentationModel {
 	
-	IPresentationModel.Listener listener = new IPresentationModel.Listener() {
+	IPresentationModel.Listener listener = new IPresentationModel.DefaultListener() {
 		public void changed(int what, Object object) {
 			if ((what & IPresentationModel.VALUE_CHANGED) != 0) {
 				if (lastSeenProjectName.isEmpty() && !getProjectModel().getValue().isEmpty()) {

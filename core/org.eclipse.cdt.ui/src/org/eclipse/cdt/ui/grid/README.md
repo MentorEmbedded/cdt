@@ -1,4 +1,20 @@
 
+# What this is
+
+Model-view framework to create attractive UI displaying small-size data models.
+Examples include debugger settings or  project settings.
+
+# What this is not
+
+It's not a scalable general purpose model-view framework. Say, Qt's model/view
+framework is something that can display huge tables, fetching them incrementally.
+This one does not try to do so.
+
+
+
+
+
+
 
 
 

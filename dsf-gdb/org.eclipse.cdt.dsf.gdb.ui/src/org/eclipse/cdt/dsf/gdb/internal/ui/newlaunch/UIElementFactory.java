@@ -184,7 +184,7 @@ public class UIElementFactory extends IUIElementFactory {
 				}			
 			};
 			
-			type.addAndCallListener(new IPresentationModel.Listener() {
+			type.addAndCallListener(new IPresentationModel.DefaultListener() {
 				
 				@Override
 				public void changed(int what, Object object) {
