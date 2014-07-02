@@ -80,6 +80,8 @@ public class CheckboxViewElement extends ViewElement {
 		result.moveAbove(label);
 		label.dispose();
 		checkbox.setText(getModel().getName());
+		// FIXME: ugly, ugly.
+		indentationLabel = result;
 		return result;
 	}
 

@@ -26,7 +26,6 @@ import org.eclipse.cdt.dsf.gdb.newlaunch.DebuggerElement;
 import org.eclipse.cdt.dsf.gdb.newlaunch.DebuggerSettingsElement;
 import org.eclipse.cdt.dsf.gdb.newlaunch.EnvironmentElement;
 import org.eclipse.cdt.dsf.gdb.newlaunch.ExecutableElement;
-import org.eclipse.cdt.dsf.gdb.newlaunch.ExecutablesListElement;
 import org.eclipse.cdt.dsf.gdb.newlaunch.OverviewElement;
 import org.eclipse.cdt.dsf.gdb.newlaunch.RemoteBinaryElement;
 import org.eclipse.cdt.dsf.gdb.newlaunch.SerialConnectionElement;
@@ -79,9 +78,7 @@ public class UIElementFactory extends IUIElementFactory {
 		if (element instanceof OverviewElement) {
 			return new OverviewUIElement((OverviewElement)element, viewElementFactory, this);
 		}
-		if (element instanceof ExecutablesListElement) {
-			return new ExecutablesListUIElement((ExecutablesListElement)element);
-		}
+
 		return null;
 	}
 	
