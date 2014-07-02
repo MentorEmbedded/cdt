@@ -21,7 +21,6 @@ import org.eclipse.cdt.dsf.gdb.newlaunch.ExecutablesListElement;
 import org.eclipse.cdt.dsf.gdb.newlaunch.OverviewElement;
 import org.eclipse.cdt.dsf.gdb.service.SessionType;
 import org.eclipse.cdt.ui.grid.CompositePresentationModel;
-import org.eclipse.cdt.ui.grid.GridElement;
 import org.eclipse.cdt.ui.grid.IPresentationModel;
 import org.eclipse.cdt.ui.grid.SelectionPresentationModel;
 import org.eclipse.cdt.ui.grid.StaticStringPresentationModel;
@@ -101,8 +100,8 @@ public class OverviewUIElement extends ViewElement {
 		// final CheckboxViewElement stopModeView = new
 		// CheckboxViewElement(stopModeModel);
 		// stopModeView.labelInContentArea();
-		final GridElement stopModeView = viewElementFactory
-				.createViewElement(stopModeModel);
+		//final GridElement stopModeView = viewElementFactory
+		//		.createViewElement(stopModeModel);
 
 		/*
 		 * final StringPresentationModel connection = new
@@ -119,9 +118,6 @@ public class OverviewUIElement extends ViewElement {
 		 * final StringViewElement connectionView = new
 		 * StringViewElement(connection); connectionView.indentLabel();
 		 */
-
-		final GridElement connectionView = viewElementFactory
-				.createViewElement(connection);
 
 		StaticStringPresentationModel summaryModel = new StaticStringPresentationModel() {
 			@Override
@@ -143,8 +139,6 @@ public class OverviewUIElement extends ViewElement {
 		options.add(stopModeModel);
 		options.add(summaryModel);
 
-		final GridElement optionsView = viewElementFactory
-				.createViewElement(options);
 
 		ExecutablesListElement executableListElement = launchElement
 				.findChild(ExecutablesListElement.class);

@@ -60,6 +60,8 @@ public abstract class GridElement {
 	
 	public GridElement()
 	{
+		// FIXME: This insist that children are not disposed, except via our own
+		// dispose method.
 		disposeListener = new DisposeListener() {
 			@Override
 			public void widgetDisposed(DisposeEvent e) {
@@ -67,6 +69,8 @@ public abstract class GridElement {
 			}
 		};
 	}
+	
+	
 	
 	/* Adds elements of this one into composite.
 	 * 
@@ -99,6 +103,11 @@ public abstract class GridElement {
 				
 		createChildrenContent(parent);
 		adjustChildren(parent);
+		
+		if (indented)
+			indent();
+		
+		controlsCreated = true;
 	}
 	
 	public List<Control> getChildControls()
@@ -146,11 +155,6 @@ public abstract class GridElement {
 			this.parent.layout();
 	}
 	
-	private int getGridWidth()
-	{
-		return DEFAULT_WIDTH;
-	}
-	
 	// Makes the content be indented, by creating empty
 	// label in the column 0, moving previous content of
 	// column 0 to column 2 and reducing span of the column
@@ -158,8 +162,22 @@ public abstract class GridElement {
 	// Repeats same for child elements.
 	// FIXME: this behaviour is rather specific and might
 	// belong to a subclass.
-	public Label indent()
+	public void setIndented(boolean indented)
 	{
+		if (indented != this.indented) {
+			if (controlsCreated) {
+				if (indented) {
+					indent();
+				} else {
+					throw new UnsupportedOperationException();
+				}
+			}
+			this.indented = true;
+		}
+	}
+	
+	protected Label indent()
+	{	
 		assert !childControls.isEmpty() || !childElements.isEmpty();
 		
 		Label result = indentChildControls();
@@ -170,6 +188,7 @@ public abstract class GridElement {
 				result = result2;
 		}
 		
+		indentationLabel = result;
 		return result;
 	}
 	
@@ -195,7 +214,7 @@ public abstract class GridElement {
 			composite.setLayout(layout);
 			b.setParent(composite);
 			label.dispose();
-			addChildControlFromOutside(composite);
+			childControls.add(composite);
 		}
 		
 		return this;
@@ -221,6 +240,11 @@ public abstract class GridElement {
 	{
 		this.spacing = spacing;
 		return this;
+	}
+	
+	public Label getIndentationLabel()
+	{
+		return indentationLabel;
 	}
 
 	private Label indentChildControls() {
@@ -307,6 +331,7 @@ public abstract class GridElement {
 		{
 			GridElement c = childElements.get(i);
 			c.fillIntoGrid(parent);
+			adjustCreatedChild(c, parent);
 			
 			if (i != childElements.size() - 1) {
 				if (spacing != 0) {
@@ -320,6 +345,11 @@ public abstract class GridElement {
 		}
 	}
 	
+	protected void adjustCreatedChild(GridElement element, Composite parent)
+	{
+		
+	}
+	
 	/** Called by fillIntoGrid after both immediate content and
 	 *  children are created, and can adjust the content, for
 	 *  example creating grouping bars or headers, or changing
@@ -329,21 +359,22 @@ public abstract class GridElement {
 	protected void adjustChildren(Composite parent) {
 		
 	}
-	
-	/** Makes 'c' be part of this GridElement. 
-	 * 
-	 * @param c
-	 */
-	public void addChildControlFromOutside(Control c) {
-		childControls.add(c);
-	}
-	
+		
 	private Composite parent;
 	private List<Control> childControls = new ArrayList<Control>();
 	private List<GridElement> childElements = new ArrayList<GridElement>();
+	
+	private boolean visible = true;
+	private boolean indented = false;
+	
+	// Whether we're already linked to control, that is, fillIntoGrid was already
+	// called.
+	private boolean controlsCreated = false;
+	
 	private DisposeListener disposeListener;
 	// While createImmediateContent is executing, index of the first control
 	// we'd create in our parent. -1 otherwise.
 	private int begin = -1;
-	private boolean visible = true;
+	
+	protected Label indentationLabel;
 }

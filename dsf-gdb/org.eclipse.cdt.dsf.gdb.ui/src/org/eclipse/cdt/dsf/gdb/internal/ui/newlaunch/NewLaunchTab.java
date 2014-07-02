@@ -70,6 +70,7 @@ public class NewLaunchTab extends CLaunchConfigurationTab {
 						ICompositePresentationModel composite = (ICompositePresentationModel)model;
 
 						final BasicGroupGridElement group = new BasicGroupGridElement(model.getName());
+						group.setIndentFirst(false);
 						for (IPresentationModel m: composite.getChildren())
 							group.addChild(createViewElement(m));
 						model.addAndCallListener(new IPresentationModel.DefaultListener() {
@@ -79,7 +80,7 @@ public class NewLaunchTab extends CLaunchConfigurationTab {
 									group.setVisible(model.isVisible());
 							}
 						});
-						group.dontIndentFirst();
+
 						return group;
 					} else 	if (model instanceof BinaryPresentationModel)
 						return new BinaryViewElement((BinaryPresentationModel) model);

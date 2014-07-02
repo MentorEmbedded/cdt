@@ -1,14 +1,8 @@
 package org.eclipse.cdt.ui.grid;
 
-import java.util.List;
-
 import org.eclipse.jface.resource.JFaceResources;
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
-
-import org.eclipse.cdt.ui.CDTUITools;
 
 /** GridElement that combines several other GridElements,
  *  by indenting them and putting a bold label on the first
@@ -22,12 +16,26 @@ public class BasicGroupGridElement extends GridElement {
 		this.name = name;
 	}
 	
-	// Make the first row of the first element indented.
-	// If this is not called, will change the label of
-	// the first row to be 'name'.
-	public void dontIndentFirst()
+	// Specify whether first element must be indented (default) or not.
+	// When the first element is not indented, its left-top label is
+	// changed to be equal to the name of this group. This effect
+	// is to be used sparingly.
+	public void setIndentFirst(boolean indentFirst)
 	{
-		this.indentFirst = false;
+		this.indentFirst = indentFirst;
+		// FIXME: this must be able to adjust already created things.
+	}
+	
+	@Override
+	public void addChild(GridElement child) {
+		
+		super.addChild(child);
+		
+		if (getChildElements().size() == 1) {
+			child.setIndented(indentFirst);		
+		}
+		else
+			child.setIndented(true);
 	}
 	
 	@Override
@@ -37,64 +45,23 @@ public class BasicGroupGridElement extends GridElement {
 	
 	@Override
 	protected void adjustChildren(Composite parent) {
-		
-		if (getChildElements().isEmpty())
-			return;
-		
-		// We want to indent all the content, so that first column,
-		// normally taken up by labels, is empty.
-		
-		
-		
-		Label topLabel = null;
-		
-		for (int i = 0; i < getChildElements().size(); ++i) {
-			GridElement child = getChildElements().get(i);
-			if (i == 0)
-			{
-				Label l;
-				if (indentFirst)
-					l = child.indent();
-				else
-					l = (Label) child.getChildControls().get(0);
-				
-				topLabel = l;
-			}
+		if (getChildElements().size() != 0)
+		{
+			// Decorate first child with our own name, in bold.
+			// This means that if the first child is removed, this label will
+			// also be gone. If necessary, derived classes can handle removal
+			// specifically.
+			GridElement child = getChildElements().get(0);
+			Label topLabel;
+			if (indentFirst)
+				topLabel = child.getIndentationLabel();
 			else
-			{
-				child.indent();
-			}
+				topLabel = (Label) child.getChildControls().get(0);
+			topLabel.setText(name);
+			topLabel.setFont(JFaceResources.getFontRegistry().getBold(JFaceResources.DIALOG_FONT));
 		}
-			
-		
-		/*
-		for (int i = (indentFirst ? 0 : 1); i < getChildElements().size(); ++i) {
-			
-			GridElement child = getChildElements().get(i);
-
-			List<Control> firstRow = child.getFirstRow();
-			Control label = firstRow.get(0);
-			Control content = firstRow.get(2);
-			
-			Label newLabel = new Label(parent, SWT.NONE);
-			child.addChildControlFromOutside(newLabel);
-			newLabel.moveAbove(label);
-			
-			label.moveAbove(content);
-			
-			CDTUITools.getGridLayoutData(content).horizontalSpan = 1;
-			
-			if (i == 0)
-				topLabel = newLabel;
-		}*/
-		
-		
-		// FIXME: add the above inside first element? Or self?
-		
-		topLabel.setText(name);
-		topLabel.setFont(JFaceResources.getFontRegistry().getBold(JFaceResources.DIALOG_FONT));
 	}
-	
+		
 	private String name;
 
 	private boolean indentFirst = true;

@@ -30,6 +30,18 @@ public class ListViewElement extends ViewElement {
 		super(model);
 		this.factory = factory;
 		
+	}
+	
+	// FIXME: dup of private field of parent;
+	private Composite parent;
+	
+	@Override
+	public void fillIntoGrid(Composite parent) {
+		
+		this.parent = parent;
+		
+		final ListPresentationModel model = getModel();
+		
 		for (IPresentationModel c: model.getChildren())
 			modelChildAdded(c);
 		
@@ -59,14 +71,69 @@ public class ListViewElement extends ViewElement {
 				new Label(parent, SWT.NONE);
 			}
 		});
+		
+		placeholder.setIndented(true);
+		addLabel(placeholder);
+		
+		setupListener();
 	}
 	
 	@Override
-	protected void modelChildAdded(IPresentationModel child)
+	public void addChild(GridElement child) {
+		child.fillIntoGrid(parent);
+		super.addChild(child);
+	}
+	
+	@Override
+	protected void modelChildAdded(final IPresentationModel child)
 	{
 		GridElement e = factory.createViewElement(child);
 		elementForModel.put(child, e);
 		addChild(e);
+		
+		e.indent();
+		
+		if (elementForModel.size() == 1)
+			addLabel(e);
+		
+		Button button;
+		
+		button = new Button(parent, SWT.NONE);
+		FontAwesome.setFontAwesomeToControl(button);
+		button.setText(FontAwesome.FA_ARROW_UP);
+		e.addButton(button);
+		
+		button.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				getModel().moveUp(child);
+			}
+		});			
+
+		button = new Button(parent, SWT.NONE);
+		FontAwesome.setFontAwesomeToControl(button);
+		button.setText(FontAwesome.FA_ARROW_DOWN);
+		e.addButton(button);
+		
+		button.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				getModel().moveDown(child);
+			}
+		});
+		
+		//Button button = createButton(parent, CDebugImages.get(CDebugImages.IMG_LCL_REMOVE_UIELEMENT), "Delete", 1, 1);
+		button = new Button(parent, SWT.NONE);
+		FontAwesome.setFontAwesomeToControl(button);
+		button.setText(FontAwesome.FA_TRASH_O);
+		e.addButton(button);
+
+		button.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				getModel().remove(child);
+			}
+		});
 	}
 	
 	@Override
@@ -76,8 +143,16 @@ public class ListViewElement extends ViewElement {
 		if (e != null) {
 			e.dispose();
 			elementForModel.remove(child);
-		}
+		}	
 	}
+
+	protected void addLabel(GridElement e)
+	{
+		Label topLabel = e.getIndentationLabel();
+		topLabel.setText(getModel().getName());
+		topLabel.setFont(JFaceResources.getFontRegistry().getBold(JFaceResources.DIALOG_FONT));
+	}	
+
 	
 	@Override
 	public ListPresentationModel getModel() {
@@ -88,9 +163,8 @@ public class ListViewElement extends ViewElement {
 	protected void createImmediateContent(Composite parent) {
 	}
 	
-	@SuppressWarnings("null")
-	@Override
-	protected void adjustChildren(Composite parent) {
+
+	protected void adjustChildrenUNused(Composite parent) {
 		
 		Label topLabel = null;
 		// Cannot be empty since we add a fake element in createImmediateContent.
@@ -110,44 +184,7 @@ public class ListViewElement extends ViewElement {
 			if (model == null)
 				continue;
 			
-			Button button;
-			
-			button = new Button(parent, SWT.NONE);
-			FontAwesome.setFontAwesomeToControl(button);
-			button.setText(FontAwesome.FA_ARROW_UP);
-			child.addButton(button);
-			
-			button.addSelectionListener(new SelectionAdapter() {
-				@Override
-				public void widgetSelected(SelectionEvent e) {
-					getModel().moveUp(model);
-				}
-			});			
 
-			button = new Button(parent, SWT.NONE);
-			FontAwesome.setFontAwesomeToControl(button);
-			button.setText(FontAwesome.FA_ARROW_DOWN);
-			child.addButton(button);
-			
-			button.addSelectionListener(new SelectionAdapter() {
-				@Override
-				public void widgetSelected(SelectionEvent e) {
-					getModel().moveDown(model);
-				}
-			});
-			
-			//Button button = createButton(parent, CDebugImages.get(CDebugImages.IMG_LCL_REMOVE_UIELEMENT), "Delete", 1, 1);
-			button = new Button(parent, SWT.NONE);
-			FontAwesome.setFontAwesomeToControl(button);
-			button.setText(FontAwesome.FA_TRASH_O);
-			child.addButton(button);
-
-			button.addSelectionListener(new SelectionAdapter() {
-				@Override
-				public void widgetSelected(SelectionEvent e) {
-					getModel().remove(model);
-				}
-			});
 		}
 	
 		topLabel.setText(getModel().getName());

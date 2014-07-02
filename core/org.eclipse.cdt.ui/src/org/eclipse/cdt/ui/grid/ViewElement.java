@@ -26,6 +26,10 @@ public abstract class ViewElement extends GridElement {
 		
 		super.fillIntoGrid(parent);
 		
+		setupListener();
+	}
+
+	protected void setupListener() {
 		model.addAndCallListener(listener = new IPresentationModel.Listener() {
 
 			@Override
