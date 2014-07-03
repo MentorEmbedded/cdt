@@ -60,9 +60,6 @@ public class PillSelectionViewElement extends ViewElement {
 				blockSignals = false;
 			}
 		}
-		
-		if ((what & IPresentationModel.VISIBILITY_CHANGED) != 0) 
-			setVisible(getModel().isVisible());
 	}
 	
 	private boolean blockSignals;

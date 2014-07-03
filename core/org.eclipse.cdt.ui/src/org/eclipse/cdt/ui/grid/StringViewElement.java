@@ -8,7 +8,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
 import org.eclipse.cdt.ui.CDTUITools;
-import org.eclipse.cdt.ui.grid.IPresentationModel.Listener;
 
 /**
  * @since 5.7
@@ -25,26 +24,14 @@ public class StringViewElement extends ViewElement {
 		return (IStringPresentationModel) super.getModel();
 	}
 	
-	public void indentLabel()
-	{
-		this.indentLabel = true;
-	}
-
 	@Override
 	public void createImmediateContent(Composite parent) {
 		
 		Label l = new Label(parent, SWT.NONE);
-		if (!indentLabel)
-			l.setText(getModel().getName());
+		l.setText(getModel().getName());
 		
 		new Label(parent, SWT.NONE);
-		
-		if (indentLabel)
-		{
-			Label l2 = new Label(parent, SWT.NONE);
-			l2.setText(getModel().getName());
-		}
-		
+						
 		text = new Text(parent, SWT.BORDER);
 		text.addModifyListener(new ModifyListener() {
 			
@@ -61,8 +48,7 @@ public class StringViewElement extends ViewElement {
 			}
 		});
 		
-		if (!indentLabel)
-			CDTUITools.getGridLayoutData(text).horizontalSpan = 2;
+		CDTUITools.getGridLayoutData(text).horizontalSpan = 2;
 		CDTUITools.grabAllWidth(text);
 		
 		createButton(parent);
@@ -80,10 +66,7 @@ public class StringViewElement extends ViewElement {
 			} finally {
 				blockSignals = false;
 			}
-		}
-		
-		if ((what & IPresentationModel.VISIBILITY_CHANGED) != 0) 
-			setVisible(getModel().isVisible());	
+		}		
 	}
 
 	protected void createButton(Composite parent) {
@@ -91,6 +74,5 @@ public class StringViewElement extends ViewElement {
 	}
 	
 	private boolean blockSignals;
-	protected Text text; 
-	protected boolean indentLabel;
+	protected Text text; 	
 }

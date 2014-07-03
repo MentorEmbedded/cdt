@@ -210,9 +210,8 @@ abstract public class RootUIElement implements ILinkListener, IChangeListener {
 		disposeContent();
 		
 		fBreadcrumbs.setCurrent(model, model.getName());
-		GridElement gridElement = viewElementFactory.createViewElement(model);
+		GridElement gridElement = viewElementFactory.create(model, getControl());
 		fCurrentGridElement = gridElement;
-		gridElement.fillIntoGrid(getControl());
 		getControl().layout();
 		
 		
@@ -231,14 +230,15 @@ abstract public class RootUIElement implements ILinkListener, IChangeListener {
 				activate(model);
 			} else {
 				fBreadcrumbs.setCurrent(element.getId(), element.getName());
-				GridElement gridElement = factory.createUIElement2(element, viewElementFactory, true);
+				GridElement gridElement = factory.createUIElement2(element, viewElementFactory, true, getControl());
 				
 				fCurrentGridElement = gridElement;
-				gridElement.fillIntoGrid(getControl());
+				gridElement.create(getControl());
 				if (gridElement instanceof ViewElement) {
 					model = ((ViewElement)gridElement).getModel();
 					connectModel(model);
 				}
+				getControl().layout();
 			}
 		}
 		else {

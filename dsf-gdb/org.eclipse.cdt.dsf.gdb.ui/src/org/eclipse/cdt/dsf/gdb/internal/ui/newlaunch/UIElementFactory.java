@@ -45,15 +45,13 @@ import org.eclipse.cdt.ui.grid.SelectionPresentationModel;
 import org.eclipse.cdt.ui.grid.StaticStringPresentationModel;
 import org.eclipse.cdt.ui.grid.StringReflectionPresentationModel;
 import org.eclipse.cdt.ui.grid.ViewElementFactory;
+import org.eclipse.swt.widgets.Composite;
 
 /* VP: maybe we should use IAdaptable instead? */
 public class UIElementFactory extends IUIElementFactory {
 	
 	@Override
-	public GridElement createUIElement2(ILaunchElement element, ViewElementFactory viewElementFactory, boolean showDetails) {
-		if (element instanceof ExecutableElement) {
-			return new ExecutableUIElement((ExecutableElement)element, viewElementFactory, showDetails, this);
-		}
+	public GridElement createUIElement2(ILaunchElement element, ViewElementFactory viewElementFactory, boolean showDetails, Composite parent) {
 		if (element instanceof RemoteBinaryElement) {
 			return new RemoteBinaryUIElement((RemoteBinaryElement)element, showDetails);
 		}
@@ -76,7 +74,7 @@ public class UIElementFactory extends IUIElementFactory {
 			return new CoreFileUIElement((CoreFileElement)element, showDetails);
 		}
 		if (element instanceof OverviewElement) {
-			return new OverviewUIElement((OverviewElement)element, viewElementFactory, this);
+			return new OverviewUIElement((OverviewElement)element, viewElementFactory, this, parent);
 		}
 
 		return null;

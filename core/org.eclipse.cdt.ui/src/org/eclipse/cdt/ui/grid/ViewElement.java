@@ -22,9 +22,9 @@ public abstract class ViewElement extends GridElement {
 	}
 	
 	@Override
-	public void fillIntoGrid(Composite parent) {
+	public void create(Composite parent) {
 		
-		super.fillIntoGrid(parent);
+		super.create(parent);
 		
 		setupListener();
 	}
