@@ -15,8 +15,8 @@ package org.eclipse.cdt.ui.grid;
  */
 public interface IPresentationModel {
 	
+	// FIXME: use named methods in Listener for all of these.
 	public static int VALUE_CHANGED = 1;
-	public static int VISIBILITY_CHANGED = 2;
 	public static int ENABLENESS_CHANGED = 4;
 	public static int ACTIVATED = 64;
 	

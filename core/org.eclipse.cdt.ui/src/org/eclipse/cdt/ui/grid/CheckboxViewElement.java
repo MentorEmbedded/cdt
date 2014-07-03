@@ -75,14 +75,11 @@ public class CheckboxViewElement extends ViewElement {
 	}
 	
 	@Override
-	public Label indent() {
+	public void indent() {
 		Label result = new Label(label.getParent(), SWT.NONE);
 		result.moveAbove(label);
 		label.dispose();
 		checkbox.setText(getModel().getName());
-		// FIXME: ugly, ugly.
-		indentationLabel = result;
-		return result;
 	}
 
 	protected void createButton(Composite parent) {

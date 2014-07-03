@@ -102,9 +102,7 @@ public class LinkViewElement extends ViewElement {
 	}	
 	
 	@Override
-	public Label indent() {
-		// FIXME: uh, uh.
-		indentationLabel = label;
-		return label;
+	protected void indentChildControls() {
+		
 	}
 }

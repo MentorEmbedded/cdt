@@ -13,8 +13,6 @@ package org.eclipse.cdt.dsf.gdb.internal.ui.newlaunch;
 
 import java.util.Arrays;
 
-import org.eclipse.cdt.debug.core.launch.ILaunchElement;
-import org.eclipse.cdt.debug.ui.launch.IUIElementFactory;
 import org.eclipse.cdt.dsf.gdb.newlaunch.DebuggerElement;
 import org.eclipse.cdt.dsf.gdb.newlaunch.DebuggerSettingsElement;
 import org.eclipse.cdt.dsf.gdb.newlaunch.ExecutablesListElement;
@@ -53,7 +51,7 @@ public class OverviewUIElement extends ViewElement {
 	}
 
 	public OverviewUIElement(OverviewElement launchElement,
-			ViewElementFactory viewElementFactory, UIElementFactory factory) {
+			ViewElementFactory viewElementFactory, UIElementFactory factory, Composite parent) {
 		super(new CompositePresentationModel("Overview"));
 		getModel().setId("overview"); //$NON-NLS-1$
 		getModel().setClasses(new String[]{"top"});
@@ -131,8 +129,6 @@ public class OverviewUIElement extends ViewElement {
 						debuggerPresentation);
 			}
 		};
-		// getModel().add(summaryModel);
-		// final LinkViewElement summary = new LinkViewElement(summaryModel);
 
 		final CompositePresentationModel options = new CompositePresentationModel(
 				"Options");
@@ -152,52 +148,11 @@ public class OverviewUIElement extends ViewElement {
 		getModel().add(options);
 		getModel().add(executables);
 
-		/*
-		 * GridElement boldFirstLabel = new GridElement() { {
-		 * addChild(typeSelector); addChild(connectionView);
-		 * addChild(optionsView); //addChild(stopModeView); //addChild(summary);
-		 * }
-		 * 
-		 * @Override protected void createChildrenContent(Composite parent) { //
-		 * TODO Auto-generated method stub super.createChildrenContent(parent);
-		 * }
-		 * 
-		 * @Override protected void createImmediateContent(Composite parent) { }
-		 * 
-		 * @Override protected void adjustChildren(Composite parent) { Control c
-		 * = getChildElements().get(0).getChildControls().get(0);
-		 * 
-		 * assert c instanceof Label;
-		 * ((Label)c).setFont(JFaceResources.getFontRegistry
-		 * ().getBold(JFaceResources.DIALOG_FONT)); } };
-		 */
-
-		// addChild(boldFirstLabel);
-		addChild(viewElementFactory.createViewElement(getModel()));
-
-		createUIChildren(factory);
-
+		addChild(viewElementFactory.create(getModel(), parent));
 	}
 
 	public OverviewElement getLaunchElement() {
 		return launchElement;
-	}
-
-	public void createUIChildren(IUIElementFactory factory) {
-
-		DebuggerElement debugger = getLaunchElement().findChild(
-				DebuggerElement.class);
-
-		for (ILaunchElement child : getLaunchElement().getChildren()) {
-			if (child == debugger)
-				continue;
-			//GridElement uiChild = factory.createUIElement2(child,
-			// viewElementFactory, false);
-			//addChild(uiChild);
-			//if (uiChild instanceof ViewElement) {
-			// getModel().add(((ViewElement)uiChild).getModel());
-			//}
-		}
 	}
 
 	@Override

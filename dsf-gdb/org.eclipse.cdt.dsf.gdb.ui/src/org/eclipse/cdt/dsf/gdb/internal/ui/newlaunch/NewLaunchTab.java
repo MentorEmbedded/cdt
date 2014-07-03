@@ -50,12 +50,12 @@ public class NewLaunchTab extends CLaunchConfigurationTab {
 			// FIXME: make NewNewExecutableDialog use this.
 			return new ViewElementFactory() {
 				@Override
-				public GridElement createViewElement(final IPresentationModel model) {
+				protected GridElement createViewElement(final IPresentationModel model, Composite parent) {
 					
 					
 					String id = model.getId();
 					if (id.equals("overview") || id.equals("executable")) { //$NON-NLS-1$ //$NON-NLS-2$
-						GridElement group = super.createViewElement(model);
+						GridElement group = super.createViewElement(model, parent);
 						group.spacing(12);
 						return group;
 					}
@@ -71,13 +71,14 @@ public class NewLaunchTab extends CLaunchConfigurationTab {
 
 						final BasicGroupGridElement group = new BasicGroupGridElement(model.getName());
 						group.setIndentFirst(false);
+						group.create(parent);
 						for (IPresentationModel m: composite.getChildren())
-							group.addChild(createViewElement(m));
+							group.addChild(create(m, parent));
 						model.addAndCallListener(new IPresentationModel.DefaultListener() {
 							@Override
 							public void changed(int what, Object object) {
-								if ((what & IPresentationModel.VISIBILITY_CHANGED) != 0)
-									group.setVisible(model.isVisible());
+								//if ((what & IPresentationModel.VISIBILITY_CHANGED) != 0)
+								//	group.setVisible(model.isVisible());
 							}
 						});
 
@@ -86,7 +87,7 @@ public class NewLaunchTab extends CLaunchConfigurationTab {
 						return new BinaryViewElement((BinaryPresentationModel) model);
 					else if (model instanceof ProjectPresentationModel)
 						return new ProjectViewElement((ProjectPresentationModel)model);
-					return super.createViewElement(model);
+					return super.createViewElement(model, parent);
 				}
 			};
 		}

@@ -72,7 +72,7 @@ public class PresentationModel implements IPresentationModel {
 	{
 		if (v != visible) {
 			visible = v;
-			notifyListeners(VISIBILITY_CHANGED, this);
+			getListener().visibilityChanged(this, v);
 		}
 	}
 	
@@ -96,7 +96,8 @@ public class PresentationModel implements IPresentationModel {
 	{
 		this.listeners.add(listener);
 		// FIXME: just OR every flag.	
-		listener.changed(IPresentationModel.VALUE_CHANGED | IPresentationModel.VISIBILITY_CHANGED, this);
+		listener.changed(IPresentationModel.VALUE_CHANGED, this);
+		listener.visibilityChanged(this, visible);
 	}
 	
 	/* (non-Javadoc)

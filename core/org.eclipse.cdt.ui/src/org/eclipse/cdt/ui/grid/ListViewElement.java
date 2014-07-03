@@ -8,6 +8,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
@@ -31,12 +32,9 @@ public class ListViewElement extends ViewElement {
 		this.factory = factory;
 		
 	}
-	
-	// FIXME: dup of private field of parent;
-	private Composite parent;
-	
+		
 	@Override
-	public void fillIntoGrid(Composite parent) {
+	public void create(Composite parent) {
 		
 		this.parent = parent;
 		
@@ -46,19 +44,25 @@ public class ListViewElement extends ViewElement {
 			modelChildAdded(c);
 		
 		addChild(placeholder = new ViewElement(model) {
-			
-			{
-				setVisible(model.getChildren().size() == 0);
-			}
-			
+					
 			@Override
 			protected void modelChildAdded(IPresentationModel child) {
-				setVisible(false);
+				updateVisibility();
 			}
 			
 			@Override
 			protected void modelChildRemoved(IPresentationModel child) {
-				setVisible(model.getChildren().size() == 0);
+				updateVisibility();
+			}
+			
+			@Override
+			protected void modelVisibilityChanged(boolean visible) {
+				updateVisibility();
+			}
+			
+			private void updateVisibility()
+			{
+				setVisible(model.isVisible() && model.getChildren().size() == 0);
 			}
 						
 			@Override
@@ -72,36 +76,38 @@ public class ListViewElement extends ViewElement {
 			}
 		});
 		
+		placeholder.create(parent);
 		placeholder.setIndented(true);
+		assert placeholder.getTopLeftLabel() != null;
 		addLabel(placeholder);
 		
 		setupListener();
 	}
 	
 	@Override
-	public void addChild(GridElement child) {
-		child.fillIntoGrid(parent);
-		super.addChild(child);
-	}
-	
-	@Override
 	protected void modelChildAdded(final IPresentationModel child)
 	{
-		GridElement e = factory.createViewElement(child);
+		GridElement e = factory.create(child, parent);
 		elementForModel.put(child, e);
 		addChild(e);
 		
-		e.indent();
+		e.setIndented(true);
 		
 		if (elementForModel.size() == 1)
 			addLabel(e);
+
+		// Create composite for control buttons.
+		Composite composite = new Composite(parent, SWT.NONE);
+		FillLayout layout = new FillLayout(SWT.HORIZONTAL);
+		layout.marginHeight = layout.marginWidth = 0;
+		composite.setLayout(layout);
 		
 		Button button;
 		
-		button = new Button(parent, SWT.NONE);
+		button = new Button(composite, SWT.NONE);
 		FontAwesome.setFontAwesomeToControl(button);
 		button.setText(FontAwesome.FA_ARROW_UP);
-		e.addButton(button);
+		
 		
 		button.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -110,10 +116,10 @@ public class ListViewElement extends ViewElement {
 			}
 		});			
 
-		button = new Button(parent, SWT.NONE);
+		button = new Button(composite, SWT.NONE);
 		FontAwesome.setFontAwesomeToControl(button);
 		button.setText(FontAwesome.FA_ARROW_DOWN);
-		e.addButton(button);
+		
 		
 		button.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -123,17 +129,18 @@ public class ListViewElement extends ViewElement {
 		});
 		
 		//Button button = createButton(parent, CDebugImages.get(CDebugImages.IMG_LCL_REMOVE_UIELEMENT), "Delete", 1, 1);
-		button = new Button(parent, SWT.NONE);
+		button = new Button(composite, SWT.NONE);
 		FontAwesome.setFontAwesomeToControl(button);
 		button.setText(FontAwesome.FA_TRASH_O);
-		e.addButton(button);
-
+		
 		button.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				getModel().remove(child);
 			}
 		});
+		
+		e.setButton(composite);
 	}
 	
 	@Override
@@ -148,7 +155,7 @@ public class ListViewElement extends ViewElement {
 
 	protected void addLabel(GridElement e)
 	{
-		Label topLabel = e.getIndentationLabel();
+		Label topLabel = e.getTopLeftLabel();
 		topLabel.setText(getModel().getName());
 		topLabel.setFont(JFaceResources.getFontRegistry().getBold(JFaceResources.DIALOG_FONT));
 	}	
@@ -162,35 +169,7 @@ public class ListViewElement extends ViewElement {
 	@Override
 	protected void createImmediateContent(Composite parent) {
 	}
-	
-
-	protected void adjustChildrenUNused(Composite parent) {
 		
-		Label topLabel = null;
-		// Cannot be empty since we add a fake element in createImmediateContent.
-		assert !getChildElements().isEmpty();
-		for (int i = 0; i < getChildElements().size(); ++i) {
-			GridElement child = getChildElements().get(i);
-			Label l = child.indent();
-			topLabel = (topLabel == null) ? l : topLabel;
-			
-			if (child == placeholder)
-				continue;
-			
-			if (!(child instanceof ViewElement))
-				continue;
-			
-			final IPresentationModel model = ((ViewElement)child).getModel();
-			if (model == null)
-				continue;
-			
-
-		}
-	
-		topLabel.setText(getModel().getName());
-		topLabel.setFont(JFaceResources.getFontRegistry().getBold(JFaceResources.DIALOG_FONT));
-	}		
-	
 	protected Button createButton(Composite parent, Image image, String tooltip, int horSpan, int verSpan) {
 		Button button = new Button(parent, SWT.PUSH);
 		button.setLayoutData(new GridData(SWT.RIGHT, SWT.TOP, false, false, horSpan, verSpan));
