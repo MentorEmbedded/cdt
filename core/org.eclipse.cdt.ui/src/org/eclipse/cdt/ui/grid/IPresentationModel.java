@@ -11,7 +11,7 @@ package org.eclipse.cdt.ui.grid;
  * 
  * This class also provides a name, which happens to be common trait of everything.
  * 
- * @since 5.7
+ * @since 6.0
  */
 public interface IPresentationModel {
 	

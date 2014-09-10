@@ -21,7 +21,7 @@ import org.eclipse.cdt.debug.core.CDebugUtils;
 import org.eclipse.core.runtime.ListenerList;
 
 /**
- * @since 7.4
+ * @since 7.6
  */
 abstract public class AbstractLaunchElement implements ILaunchElement {
 

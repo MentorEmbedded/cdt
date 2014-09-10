@@ -14,7 +14,7 @@ import org.eclipse.cdt.ui.CDTUITools;
  * 
  * WARNING: this element does not support changing the model. It only
  * displays links, leaving it to other code to handle clicks.
- * @since 5.7
+ * @since 6.0
  */
 public class LinksSelectionViewElement extends GridElement {
 

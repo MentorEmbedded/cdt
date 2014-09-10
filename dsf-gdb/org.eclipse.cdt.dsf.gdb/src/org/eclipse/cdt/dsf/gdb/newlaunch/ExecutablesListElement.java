@@ -29,7 +29,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 
 /**
- * @since 4.3
+ * @since 4.6
  */
 public class ExecutablesListElement extends ListLaunchElement {
 

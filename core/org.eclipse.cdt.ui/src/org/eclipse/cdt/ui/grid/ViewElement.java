@@ -11,7 +11,7 @@ import org.eclipse.swt.widgets.Composite;
  *  model, and sync must already work.
  *  FIXME: actually rename fillIntoGrid to 'create' or 'createControls'
  *  
- * @since 5.7
+ * @since 6.0
  */
 public abstract class ViewElement extends GridElement {
 

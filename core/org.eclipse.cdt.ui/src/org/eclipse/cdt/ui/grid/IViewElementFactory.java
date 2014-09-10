@@ -7,7 +7,7 @@ package org.eclipse.cdt.ui.grid;
  * according to specific situation.
  */
 /**
- * @since 5.7
+ * @since 6.0
  */
 public interface IViewElementFactory {
 	

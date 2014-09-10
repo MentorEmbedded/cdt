@@ -2,7 +2,7 @@ package org.eclipse.cdt.ui.grid;
 
 /* String model can be also a composite model. Huh. */
 /**
- * @since 5.7
+ * @since 6.0
  */
 public interface IBooleanPresentationModel extends IPresentationModel {
 	

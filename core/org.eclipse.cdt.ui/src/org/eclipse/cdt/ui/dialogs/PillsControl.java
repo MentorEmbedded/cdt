@@ -49,7 +49,7 @@ import org.eclipse.swt.widgets.Event;
  * Font font = new Font(area.getDisplay(), "Arial", 20, SWT.NORMAL);
  * control.setFont(font);
  * </code>
- * @since 5.7
+ * @since 6.0
  */
 public class PillsControl extends Canvas {
 	/** Default spacing between items */

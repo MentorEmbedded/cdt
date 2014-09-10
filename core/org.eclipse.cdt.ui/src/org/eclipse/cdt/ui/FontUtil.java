@@ -14,7 +14,7 @@ import org.eclipse.ui.PlatformUI;
 
 /**
  * This class handle loading and creating of Font objects.
- * @since 5.7
+ * @since 6.0
  */
 public class FontUtil {
 

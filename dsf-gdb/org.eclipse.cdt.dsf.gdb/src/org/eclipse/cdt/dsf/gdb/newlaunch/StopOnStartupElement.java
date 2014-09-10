@@ -20,7 +20,7 @@ import org.eclipse.cdt.dsf.gdb.newlaunch.OverviewElement.SessionTypeChangeEvent;
 import org.eclipse.cdt.dsf.gdb.service.SessionType;
 
 /**
- * @since 4.3
+ * @since 4.6
  */
 public class StopOnStartupElement extends AbstractLaunchElement {
 	final private static String ELEMENT_ID = ".stopOnStartup"; //$NON-NLS-1$

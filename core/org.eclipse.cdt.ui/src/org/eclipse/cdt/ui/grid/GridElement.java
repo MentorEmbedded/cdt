@@ -70,7 +70,7 @@ import org.eclipse.cdt.ui.CDTUITools;
  *     GridLayout to support explicit row/column specification for children.
  *     
  *    
- * @since 5.7
+ * @since 6.0
  */
 public abstract class GridElement {
 	

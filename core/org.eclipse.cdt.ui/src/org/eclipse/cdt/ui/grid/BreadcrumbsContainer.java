@@ -17,7 +17,7 @@ import org.eclipse.swt.widgets.Link;
 import org.eclipse.cdt.ui.CDTUITools;
 
 /**
- * @since 5.7
+ * @since 6.0
  */
 public class BreadcrumbsContainer extends Composite {
 

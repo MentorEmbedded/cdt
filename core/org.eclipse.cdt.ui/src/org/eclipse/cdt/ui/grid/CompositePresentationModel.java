@@ -6,7 +6,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * @since 5.7
+ * @since 6.0
  */
 public class CompositePresentationModel extends PresentationModel implements ICompositePresentationModel {
 	

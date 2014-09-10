@@ -29,7 +29,7 @@ import org.eclipse.core.runtime.Status;
 /**
  * Helper class to create and access a launch model.
  * 
- * @since 4.3
+ * @since 4.6
  */
 public class LaunchModel {
 

@@ -214,7 +214,7 @@ public final class CDTUITools {
 	}
 	
 	/**
-	 * @since 5.7
+	 * @since 6.0
 	 */
 	public static GridData getGridLayoutData(Control c) 
 	{
@@ -234,7 +234,7 @@ public final class CDTUITools {
 	}
 
 	/**
-	 * @since 5.7
+	 * @since 6.0
 	 */
 	public static void grabAllWidth(Control c)
 	{
@@ -247,7 +247,7 @@ public final class CDTUITools {
 	 * Add a horizontal separator to a grid layout.
 	 * 
 	 * @param c the composite to which the separator is added.
-	 * @since 5.7
+	 * @since 6.0
 	 */
 	public static Label addHorizontalSeparatorToGrid(Composite c) {
 		Label l = new Label(c, SWT.SEPARATOR | SWT.HORIZONTAL);

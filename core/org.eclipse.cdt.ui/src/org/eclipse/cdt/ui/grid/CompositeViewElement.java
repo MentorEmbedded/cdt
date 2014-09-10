@@ -4,7 +4,7 @@ package org.eclipse.cdt.ui.grid;
  *  by first creating view elements for children presentation models,
  *  using a factory, and then combining these 
  * 
- * @since 5.7
+ * @since 6.0
  */
 public class CompositeViewElement extends ViewElement {
 	

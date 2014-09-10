@@ -21,7 +21,7 @@ import org.eclipse.cdt.dsf.gdb.newlaunch.OverviewElement.SessionTypeChangeEvent;
 import org.eclipse.cdt.dsf.gdb.service.SessionType;
 
 /**
- * @since 4.3
+ * @since 4.6
  */
 public class EnvironmentElement extends AbstractLaunchElement {
 

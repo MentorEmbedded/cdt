@@ -29,7 +29,7 @@ import org.eclipse.core.variables.IStringVariableManager;
 import org.eclipse.core.variables.VariablesPlugin;
 
 /**
- * @since 4.3
+ * @since 4.6
  */
 public class WorkingDirectoryElement extends AbstractLaunchElement {
 

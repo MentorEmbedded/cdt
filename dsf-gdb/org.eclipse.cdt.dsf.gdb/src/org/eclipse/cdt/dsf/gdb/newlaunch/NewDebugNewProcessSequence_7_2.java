@@ -36,7 +36,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 
 /**
- * @since 4.3
+ * @since 4.6
  */
 public class NewDebugNewProcessSequence_7_2 extends DebugNewProcessSequence_7_2 {
 

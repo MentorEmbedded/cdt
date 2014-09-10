@@ -4,7 +4,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 
 /** This is prototype of how grid element can be done if we had a custom layout.
- * @since 5.7
+ * @since 6.0
  */
 public abstract class GridElement2 {
 	

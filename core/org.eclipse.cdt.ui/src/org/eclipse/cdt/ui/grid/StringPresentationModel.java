@@ -1,7 +1,7 @@
 package org.eclipse.cdt.ui.grid;
 
 /**
- * @since 5.7
+ * @since 6.0
  */
 public class StringPresentationModel extends PresentationModel implements IStringPresentationModel {
 

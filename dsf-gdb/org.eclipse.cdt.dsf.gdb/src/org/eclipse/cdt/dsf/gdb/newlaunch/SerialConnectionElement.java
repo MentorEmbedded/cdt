@@ -20,7 +20,7 @@ import org.eclipse.cdt.dsf.gdb.newlaunch.ConnectionElement.ConnectionType;
 import org.eclipse.cdt.dsf.gdb.newlaunch.ConnectionElement.ConnectionTypeChangeEvent;
 
 /**
- * @since 4.3
+ * @since 4.6
  */
 public class SerialConnectionElement extends AbstractLaunchElement {
 

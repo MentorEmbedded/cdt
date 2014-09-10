@@ -18,7 +18,7 @@ import org.eclipse.cdt.ui.grid.ViewElementFactory;
 import org.eclipse.swt.widgets.Composite;
 
 /**
- * @since 7.4
+ * @since 7.6
  */
 public abstract class IUIElementFactory {
 

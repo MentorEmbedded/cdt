@@ -26,7 +26,7 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.core.variables.VariablesPlugin;
 
 /**
- * @since 4.3
+ * @since 4.6
  */
 public class CoreFileElement extends AbstractLaunchElement {
 

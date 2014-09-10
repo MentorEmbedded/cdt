@@ -24,7 +24,7 @@ import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 
 
 /**
- * @since 7.4
+ * @since 7.6
  */
 abstract public class LaunchRootUIElement extends RootUIElement {
 

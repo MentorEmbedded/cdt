@@ -39,7 +39,7 @@ import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
 
 /**
- * @since 4.3
+ * @since 4.6
  */
 public class NewLaunchDelegate extends GdbLaunchDelegate {
 

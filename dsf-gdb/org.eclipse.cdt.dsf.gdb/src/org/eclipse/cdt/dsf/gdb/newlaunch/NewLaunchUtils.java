@@ -16,7 +16,7 @@ import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 
 /**
- * @since 4.3
+ * @since 4.6
  */
 public class NewLaunchUtils {
 

@@ -7,7 +7,7 @@ import java.util.List;
 /** Implementation of the IPresentationModel interface. 
  * 
  *  Adds protected methods to invoke listeners.
- * @since 5.7
+ * @since 6.0
  */
 public class PresentationModel implements IPresentationModel {
 		

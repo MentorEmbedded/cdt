@@ -573,7 +573,7 @@ public class FinalLaunchSequence extends ReflectionSequence {
 	}
 
 	/**
-	 * @since 4.3
+	 * @since 4.6
 	 */
 	protected int getPid() {
 		return CDebugUtils.getAttribute(
@@ -583,7 +583,7 @@ public class FinalLaunchSequence extends ReflectionSequence {
 	}
 	
 	/**
-	 * @since 4.3
+	 * @since 4.6
 	 */
 	protected boolean isNoBinarySpecified() {
 		return CDebugUtils.getAttribute(
@@ -593,7 +593,7 @@ public class FinalLaunchSequence extends ReflectionSequence {
 	}
 
 	/**
-	 * @since 4.3
+	 * @since 4.6
 	 */
 	protected ConnectionType getRemoteConnectionType() {
 		boolean isTcpConnection = CDebugUtils.getAttribute(
@@ -604,7 +604,7 @@ public class FinalLaunchSequence extends ReflectionSequence {
 	}
 	
 	/**
-	 * @since 4.3
+	 * @since 4.6
 	 */
 	protected String getTcpHost() {
 		return CDebugUtils.getAttribute(
@@ -614,7 +614,7 @@ public class FinalLaunchSequence extends ReflectionSequence {
 	}
 	
 	/**
-	 * @since 4.3
+	 * @since 4.6
 	 */
 	protected String getTcpPort() {
 		return CDebugUtils.getAttribute(
@@ -624,7 +624,7 @@ public class FinalLaunchSequence extends ReflectionSequence {
 	}
 	
 	/**
-	 * @since 4.3
+	 * @since 4.6
 	 */
 	protected String getSerialDevice() {
 		return CDebugUtils.getAttribute(
@@ -634,7 +634,7 @@ public class FinalLaunchSequence extends ReflectionSequence {
 	}
 	
 	/**
-	 * @since 4.3
+	 * @since 4.6
 	 */
 	protected boolean autoLoadSolibSymbols() {
 		return CDebugUtils.getAttribute(
@@ -644,7 +644,7 @@ public class FinalLaunchSequence extends ReflectionSequence {
 	}
 	
 	/**
-	 * @since 4.3
+	 * @since 4.6
 	 */
 	protected boolean isNonStop() {
 		return CDebugUtils.getAttribute(
@@ -654,7 +654,7 @@ public class FinalLaunchSequence extends ReflectionSequence {
 	}
 	
 	/**
-	 * @since 4.3
+	 * @since 4.6
 	 */
 	protected IStringVariableManager getStringSubstitutor() {
 		String projectName = CDebugUtils.getAttribute(

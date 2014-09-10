@@ -11,7 +11,7 @@ import org.eclipse.cdt.ui.CDTUITools;
 
 /** Displays a StringPresentationModel as a link in the
  *  third/fourth columns of the grid layout.
- *  @since 5.7
+ *  @since 6.0
  */
 public class LinkViewElement extends ViewElement {
 

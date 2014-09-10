@@ -12,7 +12,7 @@
 package org.eclipse.cdt.debug.core.launch;
 
 /**
- * @since 7.4
+ * @since 7.6
  */
 public interface IListLaunchElement extends ILaunchElement {
 

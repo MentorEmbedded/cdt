@@ -10,7 +10,7 @@ import org.eclipse.cdt.ui.CDTUITools;
 import org.eclipse.cdt.ui.dialogs.PillsControl;
 
 /**
- * @since 5.7
+ * @since 6.0
  */
 public class PillSelectionViewElement extends ViewElement {
 

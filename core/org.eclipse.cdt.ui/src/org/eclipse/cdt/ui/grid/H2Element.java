@@ -11,7 +11,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.cdt.ui.CDTUITools;
 
 /**
- * @since 5.7
+ * @since 6.0
  */
 public class H2Element extends GridElement {
 

@@ -24,7 +24,7 @@ import java.util.Map;
  * type. 
  * </p>
  * 
- * @since 7.4
+ * @since 7.6
  */
 public interface ILaunchElement {
 

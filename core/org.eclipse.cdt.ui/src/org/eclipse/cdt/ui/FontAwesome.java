@@ -11,7 +11,7 @@ import org.eclipse.swt.widgets.Control;
  * This class contains FontAwesome related data like its URL specification and the unicodes for various font Awesome
  * icons. The list of the icons and their corresponding unicodes can be seen at
  * http://fortawesome.github.io/Font-Awesome/icons/
- * @since 5.7
+ * @since 6.0
  */
 public class FontAwesome {
 

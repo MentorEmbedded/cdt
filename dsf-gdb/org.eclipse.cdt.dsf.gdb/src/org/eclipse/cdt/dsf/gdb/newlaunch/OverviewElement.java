@@ -19,7 +19,7 @@ import org.eclipse.cdt.dsf.gdb.internal.GdbPlugin;
 import org.eclipse.cdt.dsf.gdb.service.SessionType;
 
 /**
- * @since 4.3
+ * @since 4.6
  */
 public class OverviewElement extends AbstractLaunchElement {
 	

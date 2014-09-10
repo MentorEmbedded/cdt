@@ -21,7 +21,7 @@ import org.eclipse.cdt.dsf.gdb.internal.GdbPlugin;
 import org.eclipse.core.runtime.Platform;
 
 /**
- * @since 4.3
+ * @since 4.6
  */
 public class DebuggerElement extends AbstractLaunchElement {
 

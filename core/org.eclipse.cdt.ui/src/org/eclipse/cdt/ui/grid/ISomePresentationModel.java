@@ -11,7 +11,7 @@ package org.eclipse.cdt.ui.grid;
  *  
  *  FIXME: probably don't even need it.
  *  
- * @since 5.7
+ * @since 6.0
  */
 public interface ISomePresentationModel {
 	

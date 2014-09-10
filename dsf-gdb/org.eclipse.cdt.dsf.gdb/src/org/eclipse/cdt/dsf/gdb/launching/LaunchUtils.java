@@ -301,6 +301,7 @@ public class LaunchUtils {
 	 * only once per session and the resulting version string stored for future uses.
 	 * 
 	 * A timeout is scheduled which will kill the process if it takes too long.
+	 * @since 4.6
 	 */
 	public static String getGDBVersion(String gdbPath, String[] environment) throws CoreException {        
 		String cmd = gdbPath + " --version"; //$NON-NLS-1$ 

@@ -5,7 +5,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 
 /**
- * @since 5.7
+ * @since 6.0
  */
 public class GridView extends Composite {
 	

@@ -11,7 +11,7 @@ import org.eclipse.cdt.ui.CDTUITools;
 import org.eclipse.cdt.ui.grid.IPresentationModel.Listener;
 
 /**
- * @since 5.7
+ * @since 6.0
  */
 public class DropdownSelectionViewElement extends ViewElement {
 

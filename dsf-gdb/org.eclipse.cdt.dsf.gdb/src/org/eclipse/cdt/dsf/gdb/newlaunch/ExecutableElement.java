@@ -31,7 +31,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.variables.VariablesPlugin;
 
 /**
- * @since 4.3
+ * @since 4.6
  */
 public class ExecutableElement extends AbstractLaunchElement {
 

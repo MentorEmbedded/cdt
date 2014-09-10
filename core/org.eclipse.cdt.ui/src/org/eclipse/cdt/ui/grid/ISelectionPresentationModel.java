@@ -4,7 +4,7 @@ import java.util.List;
 
 /** Interface for string values that must be amoung some predetermined
  *  set.
- * @since 5.7
+ * @since 6.0
  */
 public interface ISelectionPresentationModel extends IStringPresentationModel {
 	

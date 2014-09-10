@@ -34,7 +34,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 
 /**
- * @since 7.4
+ * @since 7.6
  */
 abstract public class RootUIElement implements ILinkListener, IChangeListener {
 

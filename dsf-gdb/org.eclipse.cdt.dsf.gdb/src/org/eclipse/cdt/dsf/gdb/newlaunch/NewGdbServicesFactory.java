@@ -28,7 +28,7 @@ import org.eclipse.cdt.dsf.service.DsfSession;
 import org.eclipse.debug.core.ILaunchConfiguration;
 
 /**
- * @since 4.3
+ * @since 4.6
  */
 public class NewGdbServicesFactory extends GdbDebugServicesFactory {
 

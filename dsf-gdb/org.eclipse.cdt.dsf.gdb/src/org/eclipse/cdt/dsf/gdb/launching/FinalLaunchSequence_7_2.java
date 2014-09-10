@@ -92,7 +92,7 @@ public class FinalLaunchSequence_7_2 extends FinalLaunchSequence_7_0 {
 	}
 	
 	/**
-	 * @since 4.3
+	 * @since 4.6
 	 */
 	protected boolean debugOnFork() {
 		return CDebugUtils.getAttribute(getAttributes(), 

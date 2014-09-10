@@ -3,7 +3,7 @@ package org.eclipse.cdt.ui.grid;
 import java.lang.reflect.Method;
 
 /**
- * @since 5.7
+ * @since 6.0
  */
 public class StringReflectionPresentationModel extends StringPresentationModel {
 

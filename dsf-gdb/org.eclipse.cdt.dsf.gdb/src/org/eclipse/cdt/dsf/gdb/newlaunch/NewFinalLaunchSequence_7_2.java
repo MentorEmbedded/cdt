@@ -42,7 +42,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.variables.IStringVariableManager;
 
 /**
- * @since 4.3
+ * @since 4.6
  */
 public class NewFinalLaunchSequence_7_2 extends FinalLaunchSequence_7_2 {
 	

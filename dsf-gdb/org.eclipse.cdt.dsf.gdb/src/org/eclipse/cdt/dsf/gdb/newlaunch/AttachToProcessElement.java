@@ -16,7 +16,7 @@ import java.util.Map;
 import org.eclipse.cdt.debug.core.launch.ILaunchElement;
 
 /**
- * @since 4.3
+ * @since 4.6
  */
 public class AttachToProcessElement extends ExecutableElement {
 

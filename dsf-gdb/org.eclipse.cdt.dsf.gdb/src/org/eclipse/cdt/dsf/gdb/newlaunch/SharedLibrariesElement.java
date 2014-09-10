@@ -23,7 +23,7 @@ import org.eclipse.cdt.debug.core.launch.ILaunchElement;
 import org.eclipse.cdt.dsf.gdb.IGDBLaunchConfigurationConstants;
 
 /**
- * @since 4.3
+ * @since 4.6
  */
 public class SharedLibrariesElement extends AbstractLaunchElement {
 

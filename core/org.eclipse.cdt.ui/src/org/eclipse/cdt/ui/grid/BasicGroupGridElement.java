@@ -7,7 +7,7 @@ import org.eclipse.swt.widgets.Label;
 /** GridElement that combines several other GridElements,
  *  by indenting them and putting a bold label on the first
  *  row.
- *  @since 5.7
+ *  @since 6.0
  */
 public class BasicGroupGridElement extends GridElement {
 	

@@ -13,7 +13,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.cdt.ui.CDTSharedImages;
 
 /**
- * @since 5.7
+ * @since 6.0
  */
 public class PathViewElement extends StringViewElement {
 	

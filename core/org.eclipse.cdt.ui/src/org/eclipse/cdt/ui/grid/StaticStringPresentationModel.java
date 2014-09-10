@@ -1,7 +1,7 @@
 package org.eclipse.cdt.ui.grid;
 
 /**
- * @since 5.7
+ * @since 6.0
  */
 public abstract class StaticStringPresentationModel extends PresentationModel implements IStaticStringPresentationModel {
 

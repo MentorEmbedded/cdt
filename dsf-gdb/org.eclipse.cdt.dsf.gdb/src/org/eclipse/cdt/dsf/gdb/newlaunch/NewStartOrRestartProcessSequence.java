@@ -23,7 +23,7 @@ import org.eclipse.cdt.dsf.gdb.service.StartOrRestartProcessSequence_7_0;
 import org.eclipse.cdt.dsf.service.DsfServicesTracker;
 
 /**
- * @since 4.3
+ * @since 4.6
  */
 public class NewStartOrRestartProcessSequence extends StartOrRestartProcessSequence_7_0 {
 
