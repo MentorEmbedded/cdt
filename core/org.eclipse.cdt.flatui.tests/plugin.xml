@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+
+   <extension
+         point="org.eclipse.ui.commands">
+      <category
+            name="Flat UI"
+            id="org.eclipse.cdt.flatui.tests.commands.category">
+      </category>
+      <command
+            name="FontAwesome demo"
+            categoryId="org.eclipse.cdt.flatui.tests.commands.category"
+            id="org.eclipse.cdt.flatui.tests.commands.fontawesomeCommand">
+      </command>
+   </extension>
+   <extension
+         point="org.eclipse.ui.handlers">
+      <handler
+            commandId="org.eclipse.cdt.flatui.tests.commands.fontawesomeCommand"
+            class="org.eclipse.cdt.flatui.tests.handlers.FontAwesomeDemoHandler">
+      </handler>
+   </extension>
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            locationURI="menu:org.eclipse.ui.main.menu?after=additions">
+         <menu
+               label="Flat UI"
+               mnemonic="M"
+               id="org.eclipse.cdt.flatui.tests.menus.flatiuiMenu">
+            <command
+                  commandId="org.eclipse.cdt.flatui.tests.commands.fontawesomeCommand"
+                  mnemonic="S"
+                  id="org.eclipse.cdt.flatui.tests.menus.fontawesomeCommand">
+            </command>
+         </menu>
+      </menuContribution>
+   </extension>
+
+</plugin>
