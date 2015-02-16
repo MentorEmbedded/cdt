@@ -14,6 +14,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.handlers.HandlerUtil;
+import org.eclipset.cdt.flatui.BoxControl;
 import org.eclipset.cdt.flatui.FA;
 import org.eclipset.cdt.flatui.FlatUI;
 
@@ -51,7 +52,18 @@ public class FontAwesomeDemoHandler extends AbstractHandler {
 				l2.setText("\uf197");
 				l2.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
 				FA.apply(l2);
-
+				
+				Control box0 = new BoxControl(composite, 0);
+				box0.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false));
+								
+				Control box1 = new BoxControl(composite, 1);
+				box1.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false));
+				
+				Control box2 = new BoxControl(composite, 2);
+				box2.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false));
+				
+				Control box3 = new BoxControl(composite, 3);
+				box3.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false));
 
 				return composite;
 			}
